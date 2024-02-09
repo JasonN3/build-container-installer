@@ -19,16 +19,17 @@ jobs:
       packages: write
     
     steps:
+      - name: Install Tools
+        run: |
+          dnf install -y \
+          livecd-tools \
+          pykickstart \
+          git
+
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      - name: Install livecd-tools
-        run: |
-          dnf install -y \
-          livecd-tools \
-          pykickstart
 
       - name: Flatten Kickstart file
         run: |
