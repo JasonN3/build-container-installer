@@ -47,8 +47,8 @@ jobs:
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: installer.iso
-          path: something.iso
+          name: Fedora-LiveCD.iso
+          path: Fedora-LiveCD.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
