@@ -1,4 +1,4 @@
-%include submodules/fedora-kickstarts/fedora-live-base.ks
+%include submodules/fedora-kickstarts/fedora-live-workstation.ks
 
 %packages
 podman
