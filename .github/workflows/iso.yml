@@ -1,0 +1,52 @@
+name: Create and publish an ISO
+
+env:
+  MAJOR_VERION: "f39"
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+
+jobs:
+  build-and-push-iso:
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:${{ env.MAJOR_VERSION }}
+      options: "--device=/dev/loop-control:/dev/loop-control --device=/dev/loop0:/dev/loop0 --cap-add SYS_ADMIN"
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - name: Install livecd-tools
+        run: |
+          dnf install -y \
+          livecd-tools \
+          pykickstart
+
+      - name: Flatten Kickstart file
+        run: |
+          ksflatten \
+          -c kickstart.ks \
+          -o kickstart-flat.ks
+
+      - name: Create ISO
+        run: |
+          livecd-creator --verbose \
+          --config=kickstart-flat.ks \
+          --fslabel=Fedora-LiveCD \
+          --cache =/var/cache/live
+      
+      - name: Upload ISO as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer.iso
+          path: something.iso
+          if-no-files-found: error
+          retention-days: 0
+          compression-level: 0
+          overwrite: true
