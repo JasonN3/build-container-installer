@@ -12,7 +12,7 @@ jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
     container:
-      image: fedora:f39
+      image: fedora:39
       options: "--device=/dev/loop-control:/dev/loop-control --device=/dev/loop0:/dev/loop0 --cap-add SYS_ADMIN"
     permissions:
       contents: read
