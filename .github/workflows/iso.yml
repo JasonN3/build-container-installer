@@ -1,8 +1,5 @@
 name: Create and publish an ISO
 
-env:
-  MAJOR_VERION: "f39"
-
 on:
   push:
     branches:
@@ -15,7 +12,7 @@ jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
     container:
-      image: fedora:${{ env.MAJOR_VERSION }}
+      image: fedora:f39
       options: "--device=/dev/loop-control:/dev/loop-control --device=/dev/loop0:/dev/loop0 --cap-add SYS_ADMIN"
     permissions:
       contents: read
