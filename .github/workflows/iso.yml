@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: fedora:39
-      options: "--device=/dev/loop-control:/dev/loop-control --device=/dev/loop0:/dev/loop0 --cap-add SYS_ADMIN"
+      options: "--device=/dev/loop-control:/dev/loop-control --device=/dev/loop0:/dev/loop0 --privileged"
     permissions:
       contents: read
       packages: write
