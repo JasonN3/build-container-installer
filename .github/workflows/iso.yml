@@ -39,7 +39,9 @@ jobs:
           --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
+          --enablerepo fedora \
           --repo /etc/yum.repos.d/fedora-updates.repo \
+          --enablerepo updates \
           --add-template ${GITHUB_WORKSPACE}/runtime.tmpl \
           ./results/
       
