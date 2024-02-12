@@ -39,6 +39,7 @@ jobs:
           --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
+          --repo /etc/yum.repos.d/fedora-updates.repo \
           ./results/
       
       - name: Upload ISO as Artifact
