@@ -37,7 +37,8 @@ jobs:
         run: |
           lorax -p Fedora -v $version -r $version -t Server \
           --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
-          --macboot --noupgrade -s http://dl.fedoraproject.org/pub/fedora/linux/releases/$version/Everything/${arch}/os/ ./results/
+          --macboot --noupgrade --add-template runtime.tmpl
+          -s http://dl.fedoraproject.org/pub/fedora/linux/releases/$version/Everything/${arch}/os/ ./results/
       
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
