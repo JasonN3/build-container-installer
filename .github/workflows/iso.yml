@@ -22,8 +22,7 @@ jobs:
       - name: Install Tools
         run: |
           dnf install -y \
-          livecd-tools \
-          pykickstart \
+          lorax \
           git
 
       - name: Checkout repository
@@ -31,24 +30,17 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Flatten Kickstart file
+      - name: Create boot.iso
+        env:
+          version: "39"
         run: |
-          ksflatten \
-          -c kickstart.ks \
-          -o kickstart-flat.ks
-
-      - name: Create ISO
-        run: |
-          livecd-creator --verbose \
-          --config=kickstart-flat.ks \
-          --fslabel=Fedora-LiveCD \
-          --cache =/var/cache/live
+          lorax -p Fedora -v $version -r $version -s http://dl.fedoraproject.org/pub/fedora/linux/releases/$version/Everything/x86_64/os/ ./results/
       
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Fedora-LiveCD.iso
-          path: Fedora-LiveCD.iso
+          path: results/boot.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
