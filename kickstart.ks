@@ -1,10 +1,6 @@
-%include submodules/fedora-kickstarts/fedora-live-workstation.ks
+%include submodules/fedora-kickstarts/fedora-disk-server.ks.ks
 
 %packages
 podman
 ostree
-%end
-
-%post
-systemctl set-default anaconda.target
 %end
