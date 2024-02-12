@@ -40,6 +40,7 @@ jobs:
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
+          --add-template ${GITHUB_WORKSPACE}/runtime.tmpl \
           ./results/
       
       - name: Upload ISO as Artifact
