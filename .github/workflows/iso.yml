@@ -33,8 +33,12 @@ jobs:
       - name: Create boot.iso
         env:
           version: "39"
+          arch: "x86_64"
         run: |
-          lorax -p Fedora -v $version -r $version -t Server --isfinal --buildarch=x86_64 --volid='Fedora-S-dvd-x86_64-39' --macboot --noupgrade -s http://dl.fedoraproject.org/pub/fedora/linux/releases/$version/Everything/x86_64/os/ ./results/
+          lorax -p Fedora -v $version -r $version -t Server \
+          --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
+          --macboot --noupgrade -s http://dl.fedoraproject.org/pub/fedora/linux/releases/$version/Everything/${arch}/os/ ./results/
+          find
       
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
