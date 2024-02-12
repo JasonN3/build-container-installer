@@ -1,4 +1,4 @@
-%include submodules/fedora-kickstarts/fedora-disk-server.ks.ks
+%include submodules/fedora-kickstarts/fedora-disk-server.ks
 
 %packages
 podman
