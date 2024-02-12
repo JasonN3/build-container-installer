@@ -38,13 +38,12 @@ jobs:
           lorax -p Fedora -v $version -r $version -t Server \
           --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
           --macboot --noupgrade -s http://dl.fedoraproject.org/pub/fedora/linux/releases/$version/Everything/${arch}/os/ ./results/
-          find
       
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Fedora-LiveCD.iso
-          path: results/boot.iso
+          path: results/images/boot.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
