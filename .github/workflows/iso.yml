@@ -65,7 +65,7 @@ jobs:
         - registry_cache:/registry_cache
     services:
       dockerregistry:
-        image: ghcr.io/jasonn3/container-installer/docker_cache:latest
+        image: ghcr.io/jasonn3/docker_cache:latest
         ports:
           - 5000:5000
         volumes:
