@@ -117,8 +117,11 @@ jobs:
           --enablerepo fedora \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --enablerepo updates \
+          --add-template ${GITHUB_WORKSPACE}/lorax_templates/registry_cache.tmpl \
           -i podman \
           ./results/
+
+      - name: show work 
 
       - name: Generate xorriso input
         run: |
