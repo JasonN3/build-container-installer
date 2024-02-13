@@ -65,7 +65,7 @@ jobs:
         - registry_cache:/registry_cache
     services:
       dockerregistry:
-        image: ${{ steps.registry_case.outputs.lowercase }}/docker_cache:latest
+        image: ${{ env.IMAGE_REGISTRY }}/docker_cache:latest
         ports:
           - 5000:5000
         volumes:
