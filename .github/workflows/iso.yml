@@ -98,7 +98,8 @@ jobs:
 
       - name: Download container to cache
         run: |
-          podman save dockerregistry:5000/ublue-os/base-main:39 > /dev/null
+          podman pull dockerregistry:5000/ublue-os/base-main:39
+          podman rmi dockerregistry:5000/ublue-os/base-main:39
 
       - name: Show downloaded files
         run: |
