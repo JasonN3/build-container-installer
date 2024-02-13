@@ -20,7 +20,7 @@ jobs:
       docker_registry:
         image: docker.io/library/registry:2
         ports:
-          - 8080:5000
+          - 5000:5000
         volumes:
           - registry_cache:/var/lib/registry
     permissions:
@@ -44,13 +44,13 @@ jobs:
         run: |
           cat << EOF >> /etc/containers/registries.conf
           [[registry]]
-          location = "localhost:8080"
+          location = "docker_registry:5000"
           insecure = true
           EOF
 
       - name: Download container to cache
         run: |
-          podman pull localhost:8080/ublue-os/base-main:39
+          podman pull docker_registry:5000/ublue-os/base-main:39
 
       - name: Show downloaded files
         run: |
