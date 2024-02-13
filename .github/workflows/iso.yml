@@ -40,13 +40,16 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Download container to cache
+      - name: Mark local registry as http
         run: |
           cat << EOF >> /etc/containers/registries.conf
           [[registry]]
           location = "localhost:8080"
           insecure = true
           EOF
+
+      - name: Download container to cache
+        run: |
           podman pull http://localhost:8080/ublue-os/base-main:39
 
       - name: Show downloaded files
