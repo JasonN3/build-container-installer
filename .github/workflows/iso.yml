@@ -79,6 +79,7 @@ jobs:
         run: |
           dnf install -y \
           lorax \
+          xorriso \
           podman \
           git
 
@@ -117,12 +118,20 @@ jobs:
           --enablerepo updates \
           -i podman \
           ./results/
+
+      - name: Generate xorriso input
+        run: |
+          bash scripts/gen_xorriso.sh | tee xorriso.txt
+
+      - name: Add additional files to ISO
+        run: |
+          xorriso -dialog on < xorriso.txt
       
       - name: Upload ISO as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Fedora-LiveCD.iso
-          path: results/images/boot.iso
+          name: ISOs
+          path: results/images/*.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
