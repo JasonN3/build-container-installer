@@ -15,8 +15,6 @@ env:
 jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
-    needs:
-      - build-docker_cache-container
     container:
       image: fedora:39
       options: "--privileged"
