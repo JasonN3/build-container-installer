@@ -40,6 +40,7 @@ jobs:
         run: |
           podman pull ghcr.io/ublue-os/base-main:39
           podman save --format oci-archive -o base-main.tar ghcr.io/ublue-os/base-main:39
+          ls -sh base-main.tar
 
       - name: Create boot.iso
         env:
@@ -69,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ISOs
-          path: results/images/*.iso
+          path: results/images/deploy.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
