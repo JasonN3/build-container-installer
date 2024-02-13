@@ -98,7 +98,7 @@ jobs:
 
       - name: Download container to cache
         run: |
-          podman pull dockerregistry:5000/ublue-os/base-main:39
+          podman save dockerregistry:5000/ublue-os/base-main:39 > /dev/null
 
       - name: Show downloaded files
         run: |
@@ -121,6 +121,7 @@ jobs:
 
       - name: Generate xorriso input
         run: |
+          ln -s /registry_cache
           bash scripts/gen_xorriso.sh | tee xorriso.txt
 
       - name: Add additional files to ISO
