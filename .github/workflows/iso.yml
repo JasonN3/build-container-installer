@@ -14,6 +14,15 @@ jobs:
     container:
       image: fedora:39
       options: "--privileged"
+      volumes:
+        - registry_cache:/registry_cache
+    services:
+      docker_registry:
+        image: docker.io/_/registry:2
+        ports:
+          - 5000:5000
+        volumes:
+          - registry_cache:/var/lib/registry
     permissions:
       contents: read
       packages: write
@@ -23,12 +32,21 @@ jobs:
         run: |
           dnf install -y \
           lorax \
+          podman \
           git
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Download container to cache
+        run: |
+          podman pull localhost:5000/ublue-os/base-main:39
+
+      - name: Show downloaded files
+        run: |
+          find /registry_cache
 
       - name: Create boot.iso
         env:
