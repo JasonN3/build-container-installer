@@ -18,7 +18,7 @@ jobs:
         - registry_cache:/registry_cache
     services:
       docker_registry:
-        image: docker.io/_/registry:2
+        image: docker.io/library/registry:2
         ports:
           - 5000:5000
         volumes:
