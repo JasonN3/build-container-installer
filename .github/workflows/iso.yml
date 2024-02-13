@@ -30,6 +30,7 @@ jobs:
         with:
           containerfiles: |
             ./containers/docker_cache/Containerfile
+          context: containers/docker_cache
           image: docker_cache
 
       - name: Lowercase Registry
