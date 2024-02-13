@@ -65,7 +65,7 @@ jobs:
         - registry_cache:/registry_cache
     services:
       dockerregistry:
-        image: ${{ env.IMAGE_REGISTRY }}/docker_cache:latest
+        image: ghcr.io/${{ github.repository_owner }}/docker_cache:latest
         ports:
           - 5000:5000
         volumes:
