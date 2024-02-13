@@ -42,7 +42,7 @@ jobs:
 
       - name: Download container to cache
         run: |
-          podman pull localhost:5000/ublue-os/base-main:39
+          podman pull http://localhost:5000/ublue-os/base-main:39
 
       - name: Show downloaded files
         run: |
