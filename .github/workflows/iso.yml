@@ -8,9 +8,56 @@ on:
       - 'v*'
   pull_request:
 
+env:
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+
 jobs:
+  build-docker_cache-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      # Checkout push-to-registry action GitHub repository
+      - name: Checkout Push to Registry action
+        uses: actions/checkout@v4
+
+       # Build image using Buildah action
+      - name: Build Image
+        id: build_image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: |
+            ./Containerfile
+          image: docker_cache
+
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ env.IMAGE_REGISTRY }}
+
+      - name: Push To GHCR
+        uses: redhat-actions/push-to-registry@v2
+        id: push
+        if: github.event_name != 'pull_request'
+        env:
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_PASSWORD: ${{ github.token }}
+        with:
+          image: ${{ steps.build_image.outputs.image }}
+          tags: latest
+          registry: ${{ steps.registry_case.outputs.lowercase }}
+          username: ${{ env.REGISTRY_USER }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          extra-args: |
+            --disable-content-trust
+
   build-and-push-iso:
     runs-on: ubuntu-latest
+    needs:
+      - build-docker_cache-container
     container:
       image: fedora:39
       options: "--privileged"
@@ -18,7 +65,7 @@ jobs:
         - registry_cache:/registry_cache
     services:
       dockerregistry:
-        image: docker.io/library/registry:2
+        image: ${{ steps.registry_case.outputs.lowercase }}/docker_cache:latest
         ports:
           - 5000:5000
         volumes:
