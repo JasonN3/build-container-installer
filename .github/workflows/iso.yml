@@ -13,47 +13,6 @@ env:
 
 
 jobs:
-  build-docker_cache-container:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      # Checkout push-to-registry action GitHub repository
-      - name: Checkout Push to Registry action
-        uses: actions/checkout@v4
-
-       # Build image using Buildah action
-      - name: Build Image
-        id: build_image
-        uses: redhat-actions/buildah-build@v2
-        with:
-          containerfiles: |
-            ./containers/docker_cache/Containerfile
-          context: containers/docker_cache
-          image: docker_cache
-
-      - name: Lowercase Registry
-        id: registry_case
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{ env.IMAGE_REGISTRY }}
-
-      - name: Push To GHCR
-        uses: redhat-actions/push-to-registry@v2
-        id: push
-        env:
-          REGISTRY_USER: ${{ github.actor }}
-          REGISTRY_PASSWORD: ${{ github.token }}
-        with:
-          image: ${{ steps.build_image.outputs.image }}
-          tags: latest
-          registry: ${{ steps.registry_case.outputs.lowercase }}
-          username: ${{ env.REGISTRY_USER }}
-          password: ${{ env.REGISTRY_PASSWORD }}
-          extra-args: |
-            --disable-content-trust
-
   build-and-push-iso:
     runs-on: ubuntu-latest
     needs:
@@ -61,15 +20,6 @@ jobs:
     container:
       image: fedora:39
       options: "--privileged"
-      volumes:
-        - registry_cache:/registry_cache
-    services:
-      dockerregistry:
-        image: ghcr.io/jasonn3/docker_cache:latest
-        ports:
-          - 5000:5000
-        volumes:
-          - registry_cache:/var/lib/registry
     permissions:
       contents: read
       packages: write
@@ -88,22 +38,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Mark local registry as http
-        run: |
-          cat << EOF >> /etc/containers/registries.conf
-          [[registry]]
-          location = "dockerregistry:5000"
-          insecure = true
-          EOF
-
       - name: Download container to cache
         run: |
-          podman pull dockerregistry:5000/ublue-os/base-main:39
-          podman rmi dockerregistry:5000/ublue-os/base-main:39
-
-      - name: Show downloaded files
-        run: |
-          find /registry_cache
+          podman pull ghcr.io/ublue-os/base-main:39
+          podman save --format oci-archive -o base-main.tar ghcr.io/ublue-os/base-main:39
 
       - name: Create boot.iso
         env:
