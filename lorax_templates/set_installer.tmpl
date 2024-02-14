@@ -1,1 +1,1 @@
-append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --remote='ostree-unverified-image:docker://ghcr.io/ublue-os/base-main:39' --url=/run/install/repo/base-main-39 --transport=oci --no-signature-verification"
+append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --remote='ostree-unverified-image:docker://@IMAGE_REPO@/@IMAGE_NAME@:@VERSION@' --url=/run/install/repo/@IMAGE_NAME@-@VERSION@ --transport=oci --no-signature-verification"

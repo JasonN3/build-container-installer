@@ -9,7 +9,10 @@ on:
   pull_request:
 
 env:
-  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  IMAGE_VERSION: 39
+  IMAGE_ARCH: x86_64
+  IMAGE_NAME: base-main
+  IMAGE_REPO: ghcr.io/ublue-os
 
 
 jobs:
@@ -34,53 +37,46 @@ jobs:
           rm -rf /host/usr/local/.ghcup || true
           df -h /host || true
 
-      - name: Install tools
-        run: |
-          dnf install -y \
-          lorax \
-          xorriso \
-          podman \
-          git \
-          rpm-ostree
+      - name: Install make and git
+        run: dnf install -y make git
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
+      - name: Install dependencies
+        run: make install-deps
+
       - name: Download image
         run: |
-          podman pull ghcr.io/ublue-os/base-main:39
-          podman save --format oci-dir -o base-main-39 ghcr.io/ublue-os/base-main:39
-          podman rmi ghcr.io/ublue-os/base-main:39
+          make ${IMAGE_NAME}-${IMAGE_VERSION} \
+            arch=${IMAGE_ARCH} \
+            version=${IMAGE_VERSION} \
+            image_repo=${IMAGE_REPO} \
+            image_name=${IMAGE_NAME}
 
       - name: Create boot.iso
-        env:
-          version: "39"
-          arch: "x86_64"
         run: |
-          lorax -p Fedora -v $version -r $version -t Server \
-          --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
-          --macboot --noupgrade \
-          --repo /etc/yum.repos.d/fedora.repo \
-          --repo /etc/yum.repos.d/fedora-updates.repo \
-          --add-template ${GITHUB_WORKSPACE}/lorax_templates/set_installer.tmpl \
-          --rootfs-size 2 \
-          ./results/
+          make boot.iso \
+            arch=${IMAGE_ARCH} \
+            version=${IMAGE_VERSION} \
+            image_repo=${IMAGE_REPO} \
+            image_name=${IMAGE_NAME}
 
-      - name: Generate xorriso input
+      - name: Create deploy.iso
         run: |
-          bash xorriso/gen_input.sh | tee xorriso.txt
-
-      - name: Add additional files to ISO
-        run: |
-          xorriso -dialog on < xorriso.txt
+          make deploy.iso \
+            arch=${IMAGE_ARCH} \
+            version=${IMAGE_VERSION} \
+            image_repo=${IMAGE_REPO} \
+            image_name=${IMAGE_NAME}
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ISOs
-          path: results/images/deploy.iso
+          path: deploy.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
