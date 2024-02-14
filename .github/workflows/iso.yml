@@ -19,14 +19,6 @@ on:
        required: true
        type: string
   
-  push:
-    branches:
-      - 'main'
-    tags:
-      - 'v*'
-  
-  pull_request:
-
 env:
   IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
   IMAGE_ARCH: ${{ github.event.inputs.IMAGE_ARCH || 'x86_64' }}
