@@ -28,19 +28,13 @@ jobs:
           dnf install -y \
           lorax \
           xorriso \
-          podman \
-          git
+          git \
+          rpm-ostree
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      - name: Download container to cache
-        run: |
-          podman pull ghcr.io/ublue-os/base-main:39
-          podman save --format oci-archive -o base-main.tar ghcr.io/ublue-os/base-main:39
-          ls -sh base-main.tar
 
       - name: Create boot.iso
         env:
