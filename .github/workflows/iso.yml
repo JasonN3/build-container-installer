@@ -1,14 +1,24 @@
 name: Create and publish an ISO
 
 on:
-  push:
-    branches:
-      - 'main'
-    tags:
-      - 'v*'
-  pull_request:
+  workflow_call:
+    inputs:
+      IMAGE_VERSION:
+        required: true
+        type: string
+      IMAGE_ARCH:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      IMAGE_REPO:
+        required: true
+        type: string
+      VARIANT:
+        required: true
+        type: string
 
-  
 env:
   IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
   IMAGE_ARCH: ${{ github.event.inputs.IMAGE_ARCH || 'x86_64' }}
