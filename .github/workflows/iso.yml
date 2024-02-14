@@ -7,13 +7,31 @@ on:
     tags:
       - 'v*'
   pull_request:
+  
+  workflow_call:
+    inputs:
+      IMAGE_VERSION:
+        required: true
+        type: string
+      IMAGE_ARCH:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      IMAGE_REPO:
+        required: true
+        type: string
+      IMAGE_REPO:
+        required: true
+        type: string
 
 env:
-  IMAGE_VERSION: 39
-  IMAGE_ARCH: x86_64
-  IMAGE_NAME: base-main
-  IMAGE_REPO: ghcr.io/ublue-os
-  VARIANT: Silverblue
+  IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
+  IMAGE_ARCH: ${{ github.event.inputs.IMAGE_ARCH || 'x86_64' }}
+  IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'base-main' }}
+  IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
+  VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
 
 
 jobs:
