@@ -20,7 +20,6 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --add-template $(base_dir)/lorax_templates/set_installer.tmpl \
 		  --add-template $(base_dir)/lorax_templates/configure_upgrades.tmpl \
-          --rootfs-size 2 \
           ./results/
 	mv results/images/boot.iso $(base_dir)/
 

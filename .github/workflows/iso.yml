@@ -22,22 +22,11 @@ jobs:
     container:
       image: fedora:39
       options: "--privileged"
-      volumes:
-        - /:/host
     permissions:
       contents: read
       packages: write
     
     steps:
-      - name: Cleanup host space
-        run: |
-          df -h /host || true
-          rm -rf /host/usr/local/lib/android || true
-          rm -rf /host/usr/share/dotnet || true
-          rm -rf /host/opt/ghc || true
-          rm -rf /host/usr/local/.ghcup || true
-          df -h /host || true
-
       - name: Install make and git
         run: dnf install -y make git
 
