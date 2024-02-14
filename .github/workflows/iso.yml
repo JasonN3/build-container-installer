@@ -8,47 +8,63 @@ on:
       - 'v*'
   pull_request:
 
+env:
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+
 jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
     container:
       image: fedora:39
-      options: "--device=/dev/loop-control:/dev/loop-control --device=/dev/loop0:/dev/loop0 --privileged"
+      options: "--privileged"
+      volumes:
+        - /:/host
     permissions:
       contents: read
       packages: write
     
     steps:
-      - name: Install Tools
+      - name: Cleanup host space
+        run: |
+          df -h /host || true
+          rm -rf /host/usr/local/lib/android || true
+          rm -rf /host/usr/share/dotnet || true
+          rm -rf /host/opt/ghc || true
+          rm -rf /host/usr/local/.ghcup || true
+          df -h /host || true
+
+      - name: Install tools
         run: |
           dnf install -y \
-          livecd-tools \
-          pykickstart \
-          git
+          lorax \
+          xorriso \
+          git \
+          rpm-ostree
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Flatten Kickstart file
+      - name: Create boot.iso
+        env:
+          version: "39"
+          arch: "x86_64"
         run: |
-          ksflatten \
-          -c kickstart.ks \
-          -o kickstart-flat.ks
+          lorax -p Fedora -v $version -r $version -t Server \
+          --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
+          --macboot --noupgrade \
+          --repo /etc/yum.repos.d/fedora.repo \
+          --repo /etc/yum.repos.d/fedora-updates.repo \
+          --rootfs-size 9 \
+          ./results/
 
-      - name: Create ISO
-        run: |
-          livecd-creator --verbose \
-          --config=kickstart-flat.ks \
-          --fslabel=Fedora-LiveCD \
-          --cache =/var/cache/live
-      
-      - name: Upload ISO as Artifact
+      - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Fedora-LiveCD.iso
-          path: Fedora-LiveCD.iso
+          name: ISOs
+          path: results/images/boot.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
