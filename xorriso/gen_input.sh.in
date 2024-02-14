@@ -6,7 +6,6 @@ echo "-boot_image any replay"
 echo "-volid Fedora-S-dvd-x86_64-39"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-cd $1
 for file in $(find @IMAGE_NAME@)
 do
     echo "-map $(pwd)/${file} ${file}"

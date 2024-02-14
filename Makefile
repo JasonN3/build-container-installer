@@ -27,11 +27,26 @@ $(image_name)-$(version):
 install-deps:
 	dnf install -y lorax xorriso podman git rpm-ostree
 
+
+
+lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
+	sed 's/@IMAGE_NAME@/$(image_name)' $*.in > $*
+	sed 's/@IMAGE_REPO@/$(image_repo)' $* > $*
+	sed 's/@VERSION@/$(version)' $* $*
+
+
+
+xorriso/input.txt: xorriso/gen_input.sh
+	bash xorriso/gen_input.sh > input.txt
+
+xorriso/%.sh: xorriso/%.sh.in
+	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' $*.in > $*
+
+
 clean:
 	rm -f boot.iso
 	rm -f deploy.iso
 	rm -Rf $(image_name)-$(version)
-	for dir in $(subdir) ; do \
-    	$(MAKE) -C $$dir clean ; \
-	done
-
+	rm lorax_templates/*.tmpl
+	rm xorriso/input.txt
+	rm xorriso/gen_input.sh
