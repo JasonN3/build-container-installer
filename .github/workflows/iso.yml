@@ -13,7 +13,7 @@ env:
   IMAGE_ARCH: x86_64
   IMAGE_NAME: base-main
   IMAGE_REPO: ghcr.io/ublue-os
-  VARIANT: Server
+  VARIANT: Silverblue
 
 
 jobs:
