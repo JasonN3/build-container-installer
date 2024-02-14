@@ -5,7 +5,8 @@ image_repo = ghcr.io/ublue-os
 image_name = base-main
 variant = Server
 
-image_repo_escaped = $(shell echo $(image_repo) | sed 's/\//\\\//g')
+image_repo_escaped = $(subst /,\/,$(image_repo))
+image_repo_double_escaped = $(subst /,\/,$(image_repo_escaped))
 
 deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
@@ -34,10 +35,10 @@ install-deps:
 
 
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	sed 's/@IMAGE_NAME@/$(image_name)/'                 lorax_templates/$*.tmpl.in > lorax_templates/$*.tmpl
-	sed 's/@IMAGE_REPO@/$(image_repo)/'                 lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
-	sed 's/@VERSION@/$(version)/'                       lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
-	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_escaped)/' lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_NAME@/$(image_name)/'                        lorax_templates/$*.tmpl.in > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_REPO@/$(image_repo_escaped)/'                lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@VERSION@/$(version)/'                              lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_double_escaped)/' lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
 
 
 
