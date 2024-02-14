@@ -8,6 +8,7 @@ deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
 
 boot.iso: lorax_templates/set_installer.tmpl
+	rm -Rf results
 	lorax -p Fedora -v $(version) -r $(version) -t Server \
           --isfinal --buildarch=$(arch) --volid=Fedora-S-dvd-$(arch)-$(version) \
           --macboot --noupgrade \
