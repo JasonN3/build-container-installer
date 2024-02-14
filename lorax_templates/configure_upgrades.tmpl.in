@@ -1,3 +1,3 @@
 append usr/share/anaconda/interactive-defaults.ks "%post --erroronfail"
-append usr/share/anaconda/interactive-defaults.ks "sed -i 's/container-image-reference=.*/container-image-reference=@IMAGE_REPO_ESCAPED@\/@IMAGE_NAME@:@VERSION@/' /ostree/deploy/default/deploy/*.origin" 
+append usr/share/anaconda/interactive-defaults.ks "sed -i 's/container-image-reference=.*/container-image-reference=ostree-image-signed:docker://@IMAGE_REPO_ESCAPED@\/@IMAGE_NAME@:@VERSION@/' /ostree/deploy/default/deploy/*.origin"
 append usr/share/anaconda/interactive-defaults.ks "%end"

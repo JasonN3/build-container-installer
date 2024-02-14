@@ -75,12 +75,14 @@ jobs:
             image_repo=${IMAGE_REPO} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
+          mkdir end_iso
+          mv ${IMAGE_NAME}-${IMAGE_VERSION}.iso end_iso/
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ISOs
-          path: deploy.iso
+          path: end_iso/*.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "-indev $(pwd)/boot.iso"
-echo "-outdev $(pwd)/deploy.iso"
+echo "-outdev $(pwd)/@IMAGE_NAME@-@VERSION@.iso"
 echo "-boot_image any replay"
 echo "-volid Fedora-S-dvd-x86_64-39"
 echo "-joliet on"
