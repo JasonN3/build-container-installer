@@ -18,12 +18,22 @@ jobs:
     container:
       image: fedora:39
       options: "--privileged"
+      volumes: /:/host
     permissions:
       contents: read
       packages: write
     
     steps:
-      - name: Install Tools
+      - name: Cleanup host space
+        run: |
+          df -h /host || true
+          rm -rf /host/usr/local/lib/android || true
+          rm -rf /host/usr/share/dotnet || true
+          rm -rf /host/opt/ghc || true
+          rm -rf /host/usr/local/.ghcup || true
+          df -h /host || true
+
+      - name: Install tools
         run: |
           dnf install -y \
           lorax \
@@ -51,16 +61,7 @@ jobs:
           --add-template ${GITHUB_WORKSPACE}/lorax_templates/embed.tmpl \
           ./results/
 
-      - name: Generate xorriso input
-        run: |
-          ln -s /registry_cache
-          bash scripts/gen_xorriso.sh | tee xorriso.txt
-
-      - name: Add additional files to ISO
-        run: |
-          xorriso -dialog on < xorriso.txt
-      
-      - name: Upload ISO as Artifact
+      - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ISOs
