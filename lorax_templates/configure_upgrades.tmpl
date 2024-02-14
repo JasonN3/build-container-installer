@@ -1,0 +1,3 @@
+append usr/share/anaconda/interactive-defaults.ks "%post --erroronfail"
+append usr/share/anaconda/interactive-defaults.ks "sed -i 's/url=.*/url=ghcr.io\/ublue-os\/base-main:39/' /ostree/repo/config" 
+append usr/share/anaconda/interactive-defaults.ks "%end"
