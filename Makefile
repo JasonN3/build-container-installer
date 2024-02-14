@@ -6,7 +6,7 @@ image_name = base-main
 variant = Server
 
 image_repo_escaped = $(subst /,\/,$(image_repo))
-image_repo_double_escaped = $(subst /,\/,$(image_repo_escaped))
+image_repo_double_escaped = $(subst \,\\,$(image_repo_escaped))
 
 deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
