@@ -51,7 +51,7 @@ jobs:
       - name: Download image
         run: |
           podman pull ghcr.io/ublue-os/base-main:39
-          podman save --format oci -o container ghcr.io/ublue-os/base-main:39
+          podman save --format oci-dir -o container ghcr.io/ublue-os/base-main:39
           podman rmi ghcr.io/ublue-os/base-main:39
 
       - name: Create boot.iso
