@@ -3,6 +3,7 @@ version = "39"
 base_dir = $(shell pwd)
 image_repo = "ghcr.io/ublue-os"
 image_name = "base-main"
+subdir = "lorax_templates xorriso"
 
 deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
@@ -25,3 +26,12 @@ $(image_name)-$(version):
 
 install-deps:
 	dnf install -y lorax xorriso podman git rpm-ostree
+
+clean:
+	rm -f boot.iso
+	rm -f deploy.iso
+	rm -Rf $(image_name)-$(version)
+	for dir in $(subdir) ; do \
+    	$(MAKE) -C $$dir clean ; \
+	done
+

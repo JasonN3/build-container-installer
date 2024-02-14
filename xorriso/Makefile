@@ -1,4 +1,9 @@
-input.txt:
-	sed -i 's/@IMAGE_NAME@/$(image_name)-$(version)/' gen_input.sh
-	cd $(base_dir)
-	bash gen_input.sh > input.txt
+input.txt: gen_input.sh
+	bash gen_input.sh "$(base_dir)" > input.txt
+
+%.sh:
+	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' $*.in > $*
+
+clean:
+  rm input.txt
+  rm gen_input.sh

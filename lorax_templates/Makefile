@@ -1,4 +1,7 @@
 %.tmpl:
-	sed -i 's/@IMAGE_NAME@/$(image_name)' $*
-	sed -i 's/@IMAGE_REPO@/$(image_repo)' $*
-	sed -i 's/@VERSION@/$(version)' $*
+	sed 's/@IMAGE_NAME@/$(image_name)' $*.in > $*
+	sed 's/@IMAGE_REPO@/$(image_repo)' $* > $*
+	sed 's/@VERSION@/$(version)' $* $*
+
+clean:
+	rm *.tmpl
