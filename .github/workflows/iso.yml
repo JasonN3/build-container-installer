@@ -51,7 +51,7 @@ jobs:
       - name: Download image
         run: |
           podman save --format oci-dir -o container ghcr.io/ublue-os/bluefin:latest
-          podman rmi ghcr.io/ublue-os/bluefin
+          podman rmi ghcr.io/ublue-os/bluefin:latest
 
       - name: Create boot.iso
         env:
