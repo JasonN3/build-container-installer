@@ -42,7 +42,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 
 
 xorriso/input.txt: xorriso/gen_input.sh
-	bash xorriso/gen_input.sh > xorriso/input.txt
+	bash xorriso/gen_input.sh | tee xorriso/input.txt
 
 xorriso/%.sh: xorriso/%.sh.in
 	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' xorriso/$*.sh.in > xorriso/$*.sh
