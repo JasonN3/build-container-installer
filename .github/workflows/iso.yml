@@ -54,7 +54,7 @@ jobs:
           --enablerepo fedora \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --enablerepo updates \
-          --add-template ${GITHUB_WORKSPACE}/lorax_templates/registry_cache.tmpl \
+          --add-template ${GITHUB_WORKSPACE}/lorax_templates/embed.tmpl \
           ./results/
 
       - name: Generate xorriso input
