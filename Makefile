@@ -3,7 +3,7 @@ version = 39
 base_dir = $(shell pwd)
 image_repo = ghcr.io/ublue-os
 image_name = base-main
-variant = Server
+variant = Silverblue
 
 image_repo_escaped = $(subst /,\/,$(image_repo))
 image_repo_double_escaped = $(subst \,\\\,$(image_repo_escaped))
