@@ -54,8 +54,16 @@ xorriso/%.sh: xorriso/%.sh.in
 
 
 clean:
-	rm -f $(base_dir)/*.iso || true
 	rm -Rf $(base_dir)/$(image_name)-$(version) || true
-	rm $(base_dir)/lorax_templates/*.tmpl || true
-	rm $(base_dir)/xorriso/input.txt || true
-	rm $(base_dir)/xorriso/*.sh || true
+	rm -Rf $(base_dir)/debugdata || true
+	rm -Rf $(base_dir)/pkglists || true
+	rm -Rf $(base_dir)/results || true
+	rm -f $(base_dir)/lorax_templates/*.tmpl || true
+	rm -f $(base_dir)/xorriso/input.txt || true
+	rm -f $(base_dir)/xorriso/*.sh || true
+	rm -f $(base_dir)/{original,final}-pkgsizes.txt || true
+	rm -f $(base_dir)/lorax.conf || true
+	rm -f $(base_dir)/*.iso || true
+	rm -f $(base_dir)/*.log || true	
+	
+	
