@@ -48,6 +48,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Download image
+        run: |
+          podman pull ghcr.io/ublue-os/base-main:39
+          podman save --format oci-archive -o base-main-39.tar ghcr.io/ublue-os/base-main:39
+          podman rmi ghcr.io/ublue-os/base-main:39
+
       - name: Create boot.iso
         env:
           version: "39"
@@ -58,16 +64,23 @@ jobs:
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
-          --add-template ${GITHUB_WORKSPACE}/lorax_templates/embed_image.tmpl \
           --add-template ${GITHUB_WORKSPACE}/lorax_templates/set_installer.tmpl \
           --rootfs-size 9 \
           ./results/
+
+      - name: Generate xorriso input
+        run: |
+          bash xorriso/gen_input.sh | tee xorriso.txt
+
+      - name: Add additional files to ISO
+        run: |
+          xorriso -dialog on < xorriso.txt
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ISOs
-          path: results/images/boot.iso
+          path: results/images/deploy.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
