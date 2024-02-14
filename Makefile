@@ -8,6 +8,12 @@ variant = Silverblue
 image_repo_escaped = $(subst /,\/,$(image_repo))
 image_repo_double_escaped = $(subst \,\\\,$(image_repo_escaped))
 
+ifeq ($(variant),'Server')
+lorax_args = --macboot --noupgrade
+else
+lorax_args = --nomacboot
+endif
+
 $(image_name)-$(version).iso: boot.iso $(image_name)-$(version) xorriso/input.txt 
 	xorriso -dialog on < $(base_dir)/xorriso/input.txt
 
@@ -15,7 +21,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 	rm -Rf $(base_dir)/results
 	lorax -p $(image_name) -v $(version) -r $(version) -t $(variant) \
           --isfinal --buildarch=$(arch) --volid=$(image_name)-$(arch)-$(version) \
-          --macboot --noupgrade \
+          $(lorax_args) \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --add-template $(base_dir)/lorax_templates/set_installer.tmpl \
