@@ -51,7 +51,7 @@ jobs:
       - name: Download image
         run: |
           podman pull ghcr.io/ublue-os/base-main:39
-          podman save --format oci-archive -o base-main-39.tar ghcr.io/ublue-os/base-main:39
+          podman save --format oci-dir -o base-main-39 ghcr.io/ublue-os/base-main:39
           podman rmi ghcr.io/ublue-os/base-main:39
 
       - name: Create boot.iso
@@ -65,6 +65,7 @@ jobs:
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --add-template ${GITHUB_WORKSPACE}/lorax_templates/set_installer.tmpl \
+          --rootfs-size 9 \
           ./results/
 
       - name: Generate xorriso input

@@ -6,6 +6,9 @@ echo "-boot_image any replay"
 echo "-volid Fedora-S-dvd-x86_64-39"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-echo "-map $(pwd)/base-main-39.tar base-main-39.tar"
-echo "-chmod 0444 base-main-39.tar"
+for file in $(find base-main-39)
+do
+    echo "-map $(pwd)/${file} ${file}"
+    echo "-chmod 0444 ${file}"
+done
 echo "-end"
