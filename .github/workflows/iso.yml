@@ -39,6 +39,7 @@ jobs:
           dnf install -y \
           lorax \
           xorriso \
+          podman \
           git \
           rpm-ostree
 
@@ -57,6 +58,8 @@ jobs:
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
+          --add-template ${GITHUB_WORKSPACE}/lorax_templates/embed_image.tmpl \
+          --add-template ${GITHUB_WORKSPACE}/lorax_templates/set_installer.tmpl \
           --rootfs-size 9 \
           ./results/
 
