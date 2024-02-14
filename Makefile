@@ -21,7 +21,7 @@ boot.iso: lorax_templates/set_installer.tmpl
 $(image_name)-$(version):
 	podman pull $(image_repo)/$(image_name):$(version)
 	podman save --format oci-dir -o $(image_name)-$(version) $(image_repo)/$(image_name):$(version)
-	podman rmi $(image_repo/$(image_name):$(version)
+	podman rmi $(image_repo)/$(image_name):$(version)
 
 install-deps:
 	dnf install -y lorax xorriso podman git rpm-ostree
