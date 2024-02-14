@@ -30,9 +30,9 @@ install-deps:
 
 
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	sed 's/@IMAGE_NAME@/$(image_name)' $*.in > $*
-	sed 's/@IMAGE_REPO@/$(image_repo)' $* > $*
-	sed 's/@VERSION@/$(version)' $* $*
+	sed 's/@IMAGE_NAME@/$(image_name)/' lorax_templates/$*.tmpl.in > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_REPO@/$(image_repo)/' lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@VERSION@/$(version)/'       lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
 
 
 
@@ -40,7 +40,7 @@ xorriso/input.txt: xorriso/gen_input.sh
 	bash xorriso/gen_input.sh > input.txt
 
 xorriso/%.sh: xorriso/%.sh.in
-	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' $*.in > $*
+	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' xorriso/$*.sh.in > xorriso/$*.sh
 
 
 clean:
@@ -49,4 +49,4 @@ clean:
 	rm -Rf $(image_name)-$(version)
 	rm lorax_templates/*.tmpl
 	rm xorriso/input.txt
-	rm xorriso/gen_input.sh
+	rm xorriso/*.sh
