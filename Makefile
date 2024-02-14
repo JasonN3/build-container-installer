@@ -25,7 +25,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 
 $(image_name)-$(version):
 	podman pull $(image_repo)/$(image_name):$(version)
-	podman save --format oci-dir -o $(image_name)-$(version) $(image_repo)/$(image_name):$(version)
+	podman save --format oci-dir --compress -o $(image_name)-$(version) $(image_repo)/$(image_name):$(version)
 	podman rmi $(image_repo)/$(image_name):$(version)
 
 install-deps:
