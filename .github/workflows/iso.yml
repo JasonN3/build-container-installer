@@ -58,8 +58,9 @@ jobs:
         env:
           version: "39"
           arch: "x86_64"
+          variant: "Silverblue"
         run: |
-          lorax -p Fedora -v $version -r $version -t Server \
+          lorax -p Fedora -v $version -r $version --variant Silverblue \
           --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
