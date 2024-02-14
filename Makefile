@@ -1,9 +1,8 @@
-arch = "x86_64"
-version = "39"
+arch = x86_64
+version = 39
 base_dir = $(shell pwd)
-image_repo = "ghcr.io/ublue-os"
-image_name = "base-main"
-subdir = "lorax_templates xorriso"
+image_repo = ghcr.io/ublue-os
+image_name = base-main
 
 deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
