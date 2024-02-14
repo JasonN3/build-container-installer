@@ -2,22 +2,22 @@ name: Create and publish an ISO
 
 on:
   workflow_call:
-   inputs:
-     IMAGE_VERSION:
-       required: true
-       type: string
-     IMAGE_ARCH:
-       required: true
-       type: string
-     IMAGE_NAME:
-       required: true
-       type: string
-     IMAGE_REPO:
-       required: true
-       type: string
-     IMAGE_REPO:
-       required: true
-       type: string
+    inputs:
+      IMAGE_VERSION:
+        required: true
+        type: string
+      IMAGE_ARCH:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      IMAGE_REPO:
+        required: true
+        type: string
+      IMAGE_REPO:
+        required: true
+        type: string
   
 env:
   IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
