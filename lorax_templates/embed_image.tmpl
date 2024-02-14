@@ -1,4 +1,4 @@
 <%page args="root"/>
 runcmd podman pull ghcr.io/ublue-os/base-main:39
-runcmd podman save --format oci-archive -o ${root}/base-main-39.tar ghcr.io/ublue-os/base-main:39
+runcmd podman save --format oci-dir -o ${root}/container ghcr.io/ublue-os/base-main:39
 runcmd podman rmi ghcr.io/ublue-os/base-main:39
