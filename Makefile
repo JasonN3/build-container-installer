@@ -8,7 +8,7 @@ variant = Silverblue
 image_repo_escaped = $(subst /,\/,$(image_repo))
 image_repo_double_escaped = $(subst \,\\\,$(image_repo_escaped))
 
-$(image_name)-$(version).iso: boot.iso xorriso/input.txt $(image_name)-$(version)
+$(image_name)-$(version).iso: boot.iso $(image_name)-$(version) xorriso/input.txt 
 	xorriso -dialog on < $(base_dir)/xorriso/input.txt
 
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
@@ -35,9 +35,12 @@ install-deps:
 
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed 's/@IMAGE_NAME@/$(image_name)/'                        $(base_dir)/lorax_templates/$*.tmpl.in > $(base_dir)/lorax_templates/$*.tmpl
-	sed 's/@IMAGE_REPO@/$(image_repo_escaped)/'                $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl
-	sed 's/@VERSION@/$(version)/'                              $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl
-	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_double_escaped)/' $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl
+	sed 's/@IMAGE_REPO@/$(image_repo_escaped)/'                $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
+	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
+	sed 's/@VERSION@/$(version)/'                              $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
+	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
+	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_double_escaped)/' $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
+	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
 
 
 
@@ -45,8 +48,9 @@ xorriso/input.txt: xorriso/gen_input.sh
 	bash $(base_dir)/xorriso/gen_input.sh | tee $(base_dir)/xorriso/input.txt
 
 xorriso/%.sh: xorriso/%.sh.in
-	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' $(base_dir)/xorriso/$*.sh.in > $(base_dir)/xorriso/$*.sh
-	sed 's/@VERSION@/$(version)/'                  $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh
+	sed 's/@IMAGE_NAME@/$(image_name)/' $(base_dir)/xorriso/$*.sh.in > $(base_dir)/xorriso/$*.sh
+	sed 's/@VERSION@/$(version)/'                  $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh.tmp
+	mv $(base_dir)/xorriso/$*.sh{.tmp,}
 
 
 clean:
