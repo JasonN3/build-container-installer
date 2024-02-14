@@ -50,8 +50,7 @@ xorriso/%.sh: xorriso/%.sh.in
 
 
 clean:
-	rm -f boot.iso || true
-	rm -f deploy.iso || true
+	rm -f *.iso || true
 	rm -Rf $(image_name)-$(version) || true
 	rm lorax_templates/*.tmpl || true
 	rm xorriso/input.txt || true
