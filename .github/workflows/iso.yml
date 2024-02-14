@@ -50,6 +50,7 @@ jobs:
 
       - name: Download image
         run: |
+          podman pull ghcr.io/ublue-os/bluefin:latest
           podman save --format oci-dir -o container ghcr.io/ublue-os/bluefin:latest
           podman rmi ghcr.io/ublue-os/bluefin:latest
 
