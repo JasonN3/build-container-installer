@@ -5,10 +5,12 @@ image_repo = ghcr.io/ublue-os
 image_name = base-main
 variant = Server
 
+image_repo_escaped = $(shell echo $(image_repo) | sed 's/\//\\\//g')
+
 deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
 
-boot.iso: lorax_templates/set_installer.tmpl
+boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
 	rm -Rf results
 	lorax -p $(image_name) -v $(version) -r $(version) -t $(variant) \
           --isfinal --buildarch=$(arch) --volid=$(image_name)-$(arch)-$(version) \
@@ -16,6 +18,7 @@ boot.iso: lorax_templates/set_installer.tmpl
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --add-template $(base_dir)/lorax_templates/set_installer.tmpl \
+		  --add-template $(base_dir)/lorax_templates/configure_upgrades.tmpl \
           --rootfs-size 2 \
           ./results/
 	mv results/images/boot.iso $(base_dir)/
@@ -31,9 +34,10 @@ install-deps:
 
 
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	sed 's/@IMAGE_NAME@/$(image_name)/' lorax_templates/$*.tmpl.in > lorax_templates/$*.tmpl
-	sed 's/@IMAGE_REPO@/$(image_repo)/' lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
-	sed 's/@VERSION@/$(version)/'       lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_NAME@/$(image_name)/'                 lorax_templates/$*.tmpl.in > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_REPO@/$(image_repo)/'                 lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@VERSION@/$(version)/'                       lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
+	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_escaped)/' lorax_templates/$*.tmpl > lorax_templates/$*.tmpl
 
 
 
