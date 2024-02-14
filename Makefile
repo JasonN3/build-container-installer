@@ -47,6 +47,7 @@ xorriso/input.txt: xorriso/gen_input.sh
 
 xorriso/%.sh: xorriso/%.sh.in
 	sed 's/@IMAGE_NAME@/$(image_name)-$(version)/' xorriso/$*.sh.in > xorriso/$*.sh
+	sed 's/@VERSION@/$(version)/'                  xorriso/$*.sh > xorriso/$*.sh
 
 
 clean:
