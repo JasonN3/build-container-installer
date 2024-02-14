@@ -57,6 +57,7 @@ jobs:
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
+          --add-template ${GITHUB_WORKSPACE}/lorax_templates/embed.tmpl \
           --rootfs-size 9 \
           ./results/
 
