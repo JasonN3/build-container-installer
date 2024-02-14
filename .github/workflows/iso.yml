@@ -18,7 +18,8 @@ jobs:
     container:
       image: fedora:39
       options: "--privileged"
-      volumes: /:/host
+      volumes:
+        - /:/host
     permissions:
       contents: read
       packages: write
