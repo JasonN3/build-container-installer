@@ -60,6 +60,7 @@ jobs:
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --enablerepo updates \
           --add-template ${GITHUB_WORKSPACE}/lorax_templates/embed.tmpl \
+          --rootfs-size 9 \
           ./results/
 
       - name: Upload ISO as artifact
