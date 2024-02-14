@@ -55,7 +55,9 @@ xorriso/input.txt: xorriso/gen_input.sh
 
 xorriso/%.sh: xorriso/%.sh.in
 	sed 's/@IMAGE_NAME@/$(image_name)/' $(base_dir)/xorriso/$*.sh.in > $(base_dir)/xorriso/$*.sh
-	sed 's/@VERSION@/$(version)/'                  $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh.tmp
+	sed 's/@VERSION@/$(version)/'       $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh.tmp
+	mv $(base_dir)/xorriso/$*.sh{.tmp,}
+	sed 's/@ARCH@/$(arch)/'             $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh.tmp
 	mv $(base_dir)/xorriso/$*.sh{.tmp,}
 
 
