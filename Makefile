@@ -3,13 +3,14 @@ version = 39
 base_dir = $(shell pwd)
 image_repo = ghcr.io/ublue-os
 image_name = base-main
+variant = Server
 
 deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
 
 boot.iso: lorax_templates/set_installer.tmpl
 	rm -Rf results
-	lorax -p Fedora -v $(version) -r $(version) -t Server \
+	lorax -p Fedora -v $(version) -r $(version) -t $(variant) \
           --isfinal --buildarch=$(arch) --volid=Fedora-S-dvd-$(arch)-$(version) \
           --macboot --noupgrade \
           --repo /etc/yum.repos.d/fedora.repo \
