@@ -1,6 +1,13 @@
 name: Create and publish an ISO
 
 on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+
   workflow_call:
     inputs:
       IMAGE_VERSION:
