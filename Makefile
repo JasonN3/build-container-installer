@@ -8,7 +8,7 @@ variant = Server
 image_repo_escaped = $(subst /,\/,$(image_repo))
 image_repo_double_escaped = $(subst \,\\\,$(image_repo_escaped))
 
-deploy.iso: boot.iso xorriso/input.txt $(image_name)-$(version)
+$(image_name)-$(version).iso: boot.iso xorriso/input.txt $(image_name)-$(version)
 	xorriso -dialog on < xorriso/input.txt
 
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl

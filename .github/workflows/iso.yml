@@ -58,7 +58,7 @@ jobs:
 
       - name: Create deploy.iso
         run: |
-          make deploy.iso \
+          make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
             image_repo=${IMAGE_REPO} \
