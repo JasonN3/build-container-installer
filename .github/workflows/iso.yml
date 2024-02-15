@@ -33,7 +33,6 @@ env:
   IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
   VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
 
-
 jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
@@ -51,6 +50,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          repository: ${{ github.action_repository || github.repository }}
+          ref: ${{ github.action_ref || github.ref }}
           submodules: recursive
 
       - name: Install dependencies
@@ -58,7 +59,7 @@ jobs:
 
       - name: Download image
         run: |
-          make ${IMAGE_NAME}-${IMAGE_VERSION} \
+          make container/${IMAGE_NAME}-${IMAGE_VERSION} \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
             image_repo=${IMAGE_REPO} \
