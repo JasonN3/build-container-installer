@@ -1,0 +1,12 @@
+/debugdata
+/container
+/pkglists
+/results
+/lorax_templates/*.tmpl
+/xorriso/input.txt
+/xorriso/*.sh
+/original-pkgsizes.txt
+/final-pkgsizes.txt
+/lorax.conf
+/*.iso
+/*.log
