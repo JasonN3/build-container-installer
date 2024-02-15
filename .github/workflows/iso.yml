@@ -32,6 +32,8 @@ env:
   IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'base-main' }}
   IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
   VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
+  CURR_REPO: ${{ github.action_repository || github.repository }}
+  CURR_REF: ${{ github.action_ref || github.ref }}
 
 jobs:
   build-and-push-iso:
@@ -50,8 +52,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.action_repository || github.repository }}
-          ref: ${{ github.action_ref || github.ref }}
+          repository: ${{ env.CURR_REPO }}
+          ref: ${{ env.CURR_REF }}
           submodules: recursive
 
       - name: Install dependencies
