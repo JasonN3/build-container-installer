@@ -30,7 +30,7 @@ on:
         type: string
         default: JasonN3/container-installer
       BUILD_REF:
-        required: true
+        required: false
         type: string
         default: main
 
