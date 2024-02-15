@@ -35,13 +35,13 @@ on:
         default: main
 
 env:
-  IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
-  IMAGE_ARCH: ${{ github.event.inputs.IMAGE_ARCH || 'x86_64' }}
-  IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'base-main' }}
-  IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
-  VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
-  CURR_REPO: ${{ github.event.inputs.BUILD_REPO || github.repository }}
-  CURR_REF: ${{ github.event.inputs.BUILD_REF || github.ref }}
+  IMAGE_VERSION: ${{ inputs.IMAGE_VERSION || '39' }}
+  IMAGE_ARCH: ${{ inputs.IMAGE_ARCH || 'x86_64' }}
+  IMAGE_NAME: ${{ inputs.IMAGE_NAME || 'base-main' }}
+  IMAGE_REPO: ${{ inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
+  VARIANT: ${{ inputs.VARIANT || 'Silverblue' }}
+  CURR_REPO: ${{ inputs.BUILD_REPO || github.repository }}
+  CURR_REF: ${{ inputs.BUILD_REF || github.ref }}
 
 jobs:
   build-and-push-iso:
@@ -52,7 +52,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
     steps:
       - name: Install make and git
         run: dnf install -y make git
@@ -67,12 +66,18 @@ jobs:
       - name: Install dependencies
         run: make install-deps
 
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ env.IMAGE_REPO }}
+
       - name: Download image
         run: |
           make container/${IMAGE_NAME}-${IMAGE_VERSION} \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${IMAGE_REPO} \
+            image_repo=${{ steps.registry_case.outputs.lowercase }} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
 
@@ -81,7 +86,7 @@ jobs:
           make boot.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${IMAGE_REPO} \
+            image_repo=${{ steps.registry_case.outputs.lowercase }} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
 
@@ -90,7 +95,7 @@ jobs:
           make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${IMAGE_REPO} \
+            image_repo=${{ steps.registry_case.outputs.lowercase }} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
           mkdir end_iso
@@ -99,7 +104,7 @@ jobs:
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ISOs
+          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}.iso
           path: end_iso/*.iso
           if-no-files-found: error
           retention-days: 0
