@@ -30,7 +30,6 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           $(lorax_args) \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
-		  --repo /etc/yum.repos.d/fedora-rawhide.repo \
           --add-template $(base_dir)/lorax_templates/set_installer.tmpl \
 		  --add-template $(base_dir)/lorax_templates/configure_upgrades.tmpl \
           $(base_dir)/results/
