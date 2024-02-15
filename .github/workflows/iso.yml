@@ -8,9 +8,40 @@ on:
       - 'v*'
   pull_request:
 
-env:
-  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+  workflow_call:
+    inputs:
+      IMAGE_VERSION:
+        required: true
+        type: string
+      IMAGE_ARCH:
+        required: true
+        type: string
+      IMAGE_NAME:
+        required: true
+        type: string
+      IMAGE_REPO:
+        required: true
+        type: string
+      VARIANT:
+        required: true
+        type: string
+      BUILD_REPO:
+        required: false
+        type: string
+        default: JasonN3/container-installer
+      BUILD_REF:
+        required: false
+        type: string
+        default: main
 
+env:
+  IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
+  IMAGE_ARCH: ${{ github.event.inputs.IMAGE_ARCH || 'x86_64' }}
+  IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'base-main' }}
+  IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
+  VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
+  CURR_REPO: ${{ github.event.inputs.BUILD_REPO || github.repository }}
+  CURR_REF: ${{ github.event.inputs.BUILD_REF || github.ref }}
 
 jobs:
   build-and-push-iso:
@@ -18,53 +49,58 @@ jobs:
     container:
       image: fedora:39
       options: "--privileged"
-      volumes:
-        - /:/host
     permissions:
       contents: read
       packages: write
     
     steps:
-      - name: Cleanup host space
-        run: |
-          df -h /host || true
-          rm -rf /host/usr/local/lib/android || true
-          rm -rf /host/usr/share/dotnet || true
-          rm -rf /host/opt/ghc || true
-          rm -rf /host/usr/local/.ghcup || true
-          df -h /host || true
-
-      - name: Install tools
-        run: |
-          dnf install -y \
-          lorax \
-          xorriso \
-          git \
-          rpm-ostree
+      - name: Install make and git
+        run: dnf install -y make git
 
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          repository: ${{ env.CURR_REPO }}
+          ref: ${{ env.CURR_REF }}
           submodules: recursive
 
-      - name: Create boot.iso
-        env:
-          version: "39"
-          arch: "x86_64"
+      - name: Install dependencies
+        run: make install-deps
+
+      - name: Download image
         run: |
-          lorax -p Fedora -v $version -r $version -t Server \
-          --isfinal --buildarch=${arch} --volid=Fedora-S-dvd-${arch}-${version} \
-          --macboot --noupgrade \
-          --repo /etc/yum.repos.d/fedora.repo \
-          --repo /etc/yum.repos.d/fedora-updates.repo \
-          --rootfs-size 9 \
-          ./results/
+          make container/${IMAGE_NAME}-${IMAGE_VERSION} \
+            arch=${IMAGE_ARCH} \
+            version=${IMAGE_VERSION} \
+            image_repo=${IMAGE_REPO} \
+            image_name=${IMAGE_NAME} \
+            variant=${VARIANT}
+
+      - name: Create boot.iso
+        run: |
+          make boot.iso \
+            arch=${IMAGE_ARCH} \
+            version=${IMAGE_VERSION} \
+            image_repo=${IMAGE_REPO} \
+            image_name=${IMAGE_NAME} \
+            variant=${VARIANT}
+
+      - name: Create deploy.iso
+        run: |
+          make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
+            arch=${IMAGE_ARCH} \
+            version=${IMAGE_VERSION} \
+            image_repo=${IMAGE_REPO} \
+            image_name=${IMAGE_NAME} \
+            variant=${VARIANT}
+          mkdir end_iso
+          mv ${IMAGE_NAME}-${IMAGE_VERSION}.iso end_iso/
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ISOs
-          path: results/images/boot.iso
+          path: end_iso/*.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
