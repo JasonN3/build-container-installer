@@ -3,7 +3,9 @@ version = 39
 base_dir = $(shell pwd)
 image_repo = ghcr.io/ublue-os
 image_name = base-main
+image_tag = $(version)
 variant = Silverblue
+web_ui = false
 
 image_repo_escaped = $(subst /,\/,$(image_repo))
 image_repo_double_escaped = $(subst \,\\\,$(image_repo_escaped))
@@ -12,6 +14,10 @@ ifeq ($(variant),'Server')
 lorax_args = --macboot --noupgrade
 else
 lorax_args = --nomacboot
+endif
+
+ifeq ($(web_ui),true)
+lorax_args += -i anaconda-webui
 endif
 
 $(image_name)-$(version).iso: boot.iso container/$(image_name)-$(version) xorriso/input.txt 
@@ -31,9 +37,9 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 
 container/$(image_name)-$(version):
 	mkdir container
-	podman pull $(image_repo)/$(image_name):$(version)
-	podman save --format oci-dir -o $(base_dir)/container/$(image_name)-$(version) $(image_repo)/$(image_name):$(version)
-	podman rmi $(image_repo)/$(image_name):$(version)
+	podman pull $(image_repo)/$(image_name):$(image_tag)
+	podman save --format oci-dir -o $(base_dir)/container/$(image_name)-$(version) $(image_repo)/$(image_name):$(image_tag)
+	podman rmi $(image_repo)/$(image_name):$(image_tag)
 
 install-deps:
 	dnf install -y lorax xorriso podman git rpm-ostree
