@@ -23,7 +23,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           --isfinal --buildarch=$(arch) --volid=$(image_name)-$(arch)-$(version) \
           $(lorax_args) \
 	  --rootfs-size 3 \
-          --repo /etc/yum.repos.d/fedora.repo \
+          --repo /etc/yum.repos.d/fedora-rawhide.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --add-template $(base_dir)/lorax_templates/set_installer.tmpl \
 		  --add-template $(base_dir)/lorax_templates/configure_upgrades.tmpl \

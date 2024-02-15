@@ -37,7 +37,7 @@ on:
 env:
   IMAGE_VERSION: ${{ github.event.inputs.IMAGE_VERSION || '39' }}
   IMAGE_ARCH: ${{ github.event.inputs.IMAGE_ARCH || 'x86_64' }}
-  IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'base-main' }}
+  IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'silverblue-main' }}
   IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
   VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
   CURR_REPO: ${{ github.event.inputs.BUILD_REPO || github.repository }}
@@ -47,7 +47,7 @@ jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
     container:
-      image: fedora:39
+      image: fedora:40
       options: "--privileged"
     permissions:
       contents: read
