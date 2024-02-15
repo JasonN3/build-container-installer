@@ -2,7 +2,7 @@ arch = x86_64
 version = 39
 base_dir = $(shell pwd)
 image_repo = ghcr.io/ublue-os
-image_name = base-main
+image_name = silverblue-main
 variant = Silverblue
 
 image_repo_escaped = $(subst /,\/,$(image_repo))
