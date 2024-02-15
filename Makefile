@@ -50,7 +50,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed 's/@IMAGE_NAME@/$(image_name)/'                        $(base_dir)/lorax_templates/$*.tmpl.in > $(base_dir)/lorax_templates/$*.tmpl
 	sed 's/@IMAGE_REPO@/$(image_repo_escaped)/'                $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
 	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
-	sed 's/@VERSION@/$(version)/'                              $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
+	sed 's/@VERSION@/$(image_tag)/'                            $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
 	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
 	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_double_escaped)/' $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
 	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
