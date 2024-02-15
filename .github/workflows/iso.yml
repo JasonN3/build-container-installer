@@ -77,7 +77,7 @@ jobs:
           make container/${IMAGE_NAME}-${IMAGE_VERSION} \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${steps.registry_case.outputs.lowercase} \
+            image_repo=${{ steps.registry_case.outputs.lowercase }} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
 
@@ -86,7 +86,7 @@ jobs:
           make boot.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${steps.registry_case.outputs.lowercase} \
+            image_repo=${{ steps.registry_case.outputs.lowercase }} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
 
@@ -95,7 +95,7 @@ jobs:
           make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${steps.registry_case.outputs.lowercase} \
+            image_repo=${{ steps.registry_case.outputs.lowercase }} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
           mkdir end_iso
