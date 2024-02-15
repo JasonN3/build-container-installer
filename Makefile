@@ -14,7 +14,7 @@ else
 lorax_args = --nomacboot
 endif
 
-$(image_name)-$(version).iso: boot.iso $(image_name)-$(version) xorriso/input.txt 
+$(image_name)-$(version).iso: boot.iso container/$(image_name)-$(version) xorriso/input.txt 
 	xorriso -dialog on < $(base_dir)/xorriso/input.txt
 
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
@@ -29,9 +29,10 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           $(base_dir)/results/
 	mv $(base_dir)/results/images/boot.iso $(base_dir)/
 
-$(image_name)-$(version):
+container/$(image_name)-$(version):
+	mkdir container
 	podman pull $(image_repo)/$(image_name):$(version)
-	podman save --format oci-dir -o $(base_dir)/$(image_name)-$(version) $(image_repo)/$(image_name):$(version)
+	podman save --format oci-dir -o $(base_dir)/container/$(image_name)-$(version) $(image_repo)/$(image_name):$(version)
 	podman rmi $(image_repo)/$(image_name):$(version)
 
 install-deps:
@@ -62,7 +63,7 @@ xorriso/%.sh: xorriso/%.sh.in
 
 
 clean:
-	rm -Rf $(base_dir)/$(image_name)-$(version) || true
+	rm -Rf $(base_dir)/container || true
 	rm -Rf $(base_dir)/debugdata || true
 	rm -Rf $(base_dir)/pkglists || true
 	rm -Rf $(base_dir)/results || true

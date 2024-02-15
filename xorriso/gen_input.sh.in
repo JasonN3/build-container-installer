@@ -6,6 +6,7 @@ echo "-boot_image any replay"
 echo "-volid @IMAGE_NAME@-@ARCH@-@VERSION@"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
+cd container
 for file in $(find @IMAGE_NAME@-@VERSION@)
 do
     echo "-map $(pwd)/${file} ${file}"
