@@ -66,12 +66,18 @@ jobs:
       - name: Install dependencies
         run: make install-deps
 
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ env.IMAGE_REGISTRY }}
+
       - name: Download image
         run: |
           make container/${IMAGE_NAME}-${IMAGE_VERSION} \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${IMAGE_REPO} \
+            image_repo=${steps.registry_case.outputs.lowercase} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
 
@@ -80,7 +86,7 @@ jobs:
           make boot.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${IMAGE_REPO} \
+            image_repo=${steps.registry_case.outputs.lowercase} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
 
@@ -89,7 +95,7 @@ jobs:
           make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
             arch=${IMAGE_ARCH} \
             version=${IMAGE_VERSION} \
-            image_repo=${IMAGE_REPO} \
+            image_repo=${steps.registry_case.outputs.lowercase} \
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
           mkdir end_iso
