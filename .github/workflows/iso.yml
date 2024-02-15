@@ -70,7 +70,7 @@ jobs:
         id: registry_case
         uses: ASzc/change-string-case-action@v6
         with:
-          string: ${{ inputs.IMAGE_REPO }}
+          string: ${{ env.IMAGE_REPO }}
 
       - name: Download image
         run: |
