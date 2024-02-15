@@ -16,7 +16,7 @@ else
 lorax_args = --nomacboot
 endif
 
-ifeq ($(webui),'true')
+ifeq ($(web_ui),true)
 lorax_args += -i anaconda-webui
 endif
 
