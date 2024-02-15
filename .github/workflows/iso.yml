@@ -40,8 +40,6 @@ env:
   IMAGE_NAME: ${{ github.event.inputs.IMAGE_NAME || 'base-main' }}
   IMAGE_REPO: ${{ github.event.inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
   VARIANT: ${{ github.event.inputs.VARIANT || 'Silverblue' }}
-  CURR_REPO: ${{ github.event.inputs.BUILD_REPO || github.repository }}
-  CURR_REF: ${{ github.event.inputs.BUILD_REF || github.ref }}
 
 jobs:
   build-and-push-iso:
@@ -52,6 +50,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      CURR_REPO: ${{ github.event.inputs.BUILD_REPO || github.repository }}
+      CURR_REF: ${{ github.event.inputs.BUILD_REF || github.ref }}
     
     steps:
       - name: Install make and git
