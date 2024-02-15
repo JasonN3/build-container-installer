@@ -22,10 +22,12 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 	lorax -p $(image_name) -v $(version) -r $(version) -t $(variant) \
           --isfinal --buildarch=$(arch) --volid=$(image_name)-$(arch)-$(version) \
           $(lorax_args) \
+	  --rootfs-size 3 \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
           --add-template $(base_dir)/lorax_templates/set_installer.tmpl \
 		  --add-template $(base_dir)/lorax_templates/configure_upgrades.tmpl \
+	  -i anaconda-webui \
           $(base_dir)/results/
 	mv $(base_dir)/results/images/boot.iso $(base_dir)/
 
