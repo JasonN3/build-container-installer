@@ -104,7 +104,7 @@ jobs:
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ISOs
+          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}.iso
           path: end_iso/*.iso
           if-no-files-found: error
           retention-days: 0
