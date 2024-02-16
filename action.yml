@@ -1,0 +1,112 @@
+name: Generate ISO
+description: Creates an ISO for installing an OSTree container
+
+inputs:
+  ARCH:
+    description: Architecture for image to build
+    required: true
+    default: x86_64
+  IMAGE_NAME:
+    description: Name of the source container image
+    required: true
+    default: base-main
+  IMAGE_REPO:
+    description: Repository containing the source container image
+    required: true
+    default: ghcr.io/ublue-os
+  IMAGE_TAG:
+    description: Tag of the source container image
+    required: true
+    default: ${{ inputs.VERSION }}
+  VARIANT:
+    description: Source container variant
+    required: true
+    default: Kinoite
+  VERSION:
+    description: Fedora version of installer to build
+    required: true
+    default: "39"
+  WEB_UI:
+    description: Enable Anaconda WebUI
+    required: true
+    default: "false"
+  BUILD_REPO:
+    description: Repository with the build tool
+    required: false
+    default: ${{ github.repository }}
+  BUILD_REF:
+    description: Repository ref for the build tool
+    required: false
+    default: ${{ github.ref }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install make and git
+      shell: bash
+      run: dnf install -y make git
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.BUILD_REPO }}
+        ref: ${{ inputs.BUILD_REF }}
+        submodules: recursive
+
+    - name: Install dependencies
+      shell: bash
+      run: make install-deps
+
+    - name: Lowercase Registry
+      id: registry_case
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.IMAGE_REPO }}
+
+    - name: Download image
+      shell: bash
+      run: |
+        make container/${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG }} \
+          ARCH=${{ inputs.ARCH }} \
+          IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
+          IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG }} \
+          VARIANT=${{ inputs.VARIANT }} \
+          VERSION=${{ inputs.VERSION }} \
+          WEB_UI=${{ inputs.WEB_UI }}
+
+    - name: Create boot.iso
+      shell: bash
+      run: |
+        make boot.iso \
+          ARCH=${{ inputs.ARCH }} \
+          IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
+          IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG }} \
+          VARIANT=${{ inputs.VARIANT }} \
+          VERSION=${{ inputs.VERSION }} \
+          WEB_UI=${{ inputs.WEB_UI }}
+
+    - name: Create deploy.iso
+      shell: bash
+      run: |
+        make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
+          ARCH=${{ inputs.ARCH }} \
+          IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
+          IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG }} \
+          VARIANT=${{ inputs.VARIANT }} \
+          VERSION=${{ inputs.VERSION }} \
+          WEB_UI=${{ inputs.WEB_UI }}
+        mkdir end_iso
+        mv output/${IMAGE_NAME}-${IMAGE_TAG}.iso end_iso/
+
+    - name: Upload ISO as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_VERSION }}.iso
+        path: end_iso/*.iso
+        if-no-files-found: error
+        retention-days: 0
+        compression-level: 0
+        overwrite: true

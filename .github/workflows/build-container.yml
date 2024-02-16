@@ -1,5 +1,5 @@
 ---
-name: isogenerator-image
+name: Create Container
 on:
   pull_request:
     branches:
@@ -21,15 +21,9 @@ jobs:
   push-image:
     name: Build and push image
     runs-on: ubuntu-22.04
-
     permissions:
       contents: read
       packages: write
-      id-token: write
-
-    strategy:
-      fail-fast: false
-
     steps:
       # Checkout push-to-registry action GitHub repository
       - name: Checkout Push to Registry action
