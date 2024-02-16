@@ -7,6 +7,7 @@ on:
     tags:
       - 'v*'
   pull_request:
+  workflow_dispatch:
 
   workflow_call:
     inputs:
@@ -99,7 +100,7 @@ jobs:
             image_name=${IMAGE_NAME} \
             variant=${VARIANT}
           mkdir end_iso
-          mv ${IMAGE_NAME}-${IMAGE_VERSION}.iso end_iso/
+          mv output/${IMAGE_NAME}-${IMAGE_VERSION}.iso end_iso/
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
