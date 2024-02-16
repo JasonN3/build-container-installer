@@ -1,11 +1,11 @@
 FROM fedora:latest
 
 ENV ARCH="x86_64"
-ENV VERSION="39"
-ENV IMAGE_REPO="ghcr.io/ublue-os"
 ENV IMAGE_NAME="base-main"
+ENV IMAGE_REPO="ghcr.io/ublue-os"
 ENV IMAGE_TAG="$(version)"
-ENV VARIANT="Silverblue"
+ENV VARIANT="Kinoite"
+ENV VERSION="39"
 ENV WEB_UI="false"
 
 WORKDIR /isogenerator

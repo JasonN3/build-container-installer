@@ -11,10 +11,7 @@ on:
 
   workflow_call:
     inputs:
-      IMAGE_VERSION:
-        required: true
-        type: string
-      IMAGE_ARCH:
+      ARCH:
         required: true
         type: string
       IMAGE_NAME:
@@ -23,90 +20,67 @@ on:
       IMAGE_REPO:
         required: true
         type: string
+      IMAGE_TAG:
+        required: true
+        type: string
       VARIANT:
+        required: true
+        type: string
+      VERSION:
+        required: true
+        type: string
+      WEB_UI:
         required: true
         type: string
       BUILD_REPO:
         required: false
         type: string
-        default: JasonN3/container-installer
+        default: ublue-os/isogenerator
       BUILD_REF:
         required: false
         type: string
         default: main
 
 env:
-  IMAGE_VERSION: ${{ inputs.IMAGE_VERSION || '39' }}
-  IMAGE_ARCH: ${{ inputs.IMAGE_ARCH || 'x86_64' }}
+  ARCH: ${{ inputs.ARCH || 'x86_64' }}
   IMAGE_NAME: ${{ inputs.IMAGE_NAME || 'base-main' }}
   IMAGE_REPO: ${{ inputs.IMAGE_REPO || 'ghcr.io/ublue-os' }}
-  VARIANT: ${{ inputs.VARIANT || 'Silverblue' }}
+  IMAGE_TAG: ${{ inputs.IMAGE_TAG || 'latest' }}
+  VARIANT: ${{ inputs.VARIANT || 'Kinoite' }}
+  VERSION: ${{ inputs.VERSION || '39' }}
+  WEB_UI: ${{ inputs.WEB_UI || 'false' }}
   CURR_REPO: ${{ inputs.BUILD_REPO || github.repository }}
   CURR_REF: ${{ inputs.BUILD_REF || github.ref }}
 
 jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
-    container:
-      image: fedora:39
-      options: "--privileged"
     permissions:
       contents: read
       packages: write
     steps:
-      - name: Install make and git
-        run: dnf install -y make git
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.CURR_REPO }}
-          ref: ${{ env.CURR_REF }}
-          submodules: recursive
-
-      - name: Install dependencies
-        run: make install-deps
-
-      - name: Lowercase Registry
-        id: registry_case
-        uses: ASzc/change-string-case-action@v6
-        with:
-          string: ${{ env.IMAGE_REPO }}
-
-      - name: Download image
+      - name: Build ISO
+        shell: bash
         run: |
-          make container/${IMAGE_NAME}-${IMAGE_VERSION} \
-            arch=${IMAGE_ARCH} \
-            version=${IMAGE_VERSION} \
-            image_repo=${{ steps.registry_case.outputs.lowercase }} \
-            image_name=${IMAGE_NAME} \
-            variant=${VARIANT}
-
-      - name: Create boot.iso
-        run: |
-          make boot.iso \
-            arch=${IMAGE_ARCH} \
-            version=${IMAGE_VERSION} \
-            image_repo=${{ steps.registry_case.outputs.lowercase }} \
-            image_name=${IMAGE_NAME} \
-            variant=${VARIANT}
-
-      - name: Create deploy.iso
-        run: |
-          make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
-            arch=${IMAGE_ARCH} \
-            version=${IMAGE_VERSION} \
-            image_repo=${{ steps.registry_case.outputs.lowercase }} \
-            image_name=${IMAGE_NAME} \
-            variant=${VARIANT}
-          mkdir end_iso
-          mv output/${IMAGE_NAME}-${IMAGE_VERSION}.iso end_iso/
+          set -eo pipefail
+          mkdir -p output
+          docker run \
+                    --rm --privileged \
+                    -v ./output:/isogenerator/output \
+                    -e ARCH="${{ env.ARCH }}" \
+                    -e IMAGE_NAME="${{ env.IMAGE_NAME }}" \
+                    -e IMAGE_REPO="${{ env.IMAGE_REPO }}" \
+                    -e IMAGE_TAG="${{ env.IMAGE_TAG }}" \
+                    -e VARIANT="${{ env.VARIANT }}" \
+                    -e VERSION="${{ env.VERSION }}" \
+                    -e WEB_UI="${{ env.WEB_UI }}" \
+                    ghcr.io/ublue-os/isogenerator:latest
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}.iso
-          path: end_iso/*.iso
+          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}.iso
+          path: output/*.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0

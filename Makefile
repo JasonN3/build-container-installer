@@ -20,7 +20,7 @@ ifeq ($(web_ui),true)
 lorax_args += -i anaconda-webui
 endif
 
-$(image_name)-$(version).iso: boot.iso container/$(image_name)-$(version) xorriso/input.txt 
+$(image_name)-$(version).iso: boot.iso container/$(image_name)-$(image_tag) xorriso/input.txt
 	xorriso -dialog on < $(base_dir)/xorriso/input.txt
 
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
@@ -35,10 +35,10 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           $(base_dir)/results/
 	mv $(base_dir)/results/images/boot.iso $(base_dir)/
 
-container/$(image_name)-$(version):
+container/$(image_name)-$(image_tag):
 	mkdir container
 	podman pull $(image_repo)/$(image_name):$(image_tag)
-	podman save --format oci-dir -o $(base_dir)/container/$(image_name)-$(version) $(image_repo)/$(image_name):$(image_tag)
+	podman save --format oci-dir -o $(base_dir)/container/$(image_name)-$(image_tag) $(image_repo)/$(image_name):$(image_tag)
 	podman rmi $(image_repo)/$(image_name):$(image_tag)
 
 install-deps:
@@ -50,7 +50,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed 's/@IMAGE_NAME@/$(image_name)/'                        $(base_dir)/lorax_templates/$*.tmpl.in > $(base_dir)/lorax_templates/$*.tmpl
 	sed 's/@IMAGE_REPO@/$(image_repo_escaped)/'                $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
 	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
-	sed 's/@VERSION@/$(version)/'                              $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
+	sed 's/@IMAGE_TAG@/$(image_tag)/'                          $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
 	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
 	sed 's/@IMAGE_REPO_ESCAPED@/$(image_repo_double_escaped)/' $(base_dir)/lorax_templates/$*.tmpl > $(base_dir)/lorax_templates/$*.tmpl.tmp
 	mv $(base_dir)/lorax_templates/$*.tmpl{.tmp,}
@@ -61,7 +61,8 @@ xorriso/input.txt: xorriso/gen_input.sh
 	bash $(base_dir)/xorriso/gen_input.sh | tee $(base_dir)/xorriso/input.txt
 
 xorriso/%.sh: xorriso/%.sh.in
-	sed 's/@IMAGE_NAME@/$(image_name)/' $(base_dir)/xorriso/$*.sh.in > $(base_dir)/xorriso/$*.sh
+	sed 's/@IMAGE_NAME@/$(image_name)/' $(base_dir)/xorriso/$*.sh.in > $(base_dir)/xorriso/$*.sh.in2
+	sed 's/@IMAGE_TAG@/$(image_tag)/'   $(base_dir)/xorriso/$*.sh.in2 > $(base_dir)/xorriso/$*.sh
 	sed 's/@VERSION@/$(version)/'       $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh.tmp
 	mv $(base_dir)/xorriso/$*.sh{.tmp,}
 	sed 's/@ARCH@/$(arch)/'             $(base_dir)/xorriso/$*.sh > $(base_dir)/xorriso/$*.sh.tmp
@@ -79,6 +80,6 @@ clean:
 	rm -f $(base_dir)/{original,final}-pkgsizes.txt || true
 	rm -f $(base_dir)/lorax.conf || true
 	rm -f $(base_dir)/*.iso || true
-	rm -f $(base_dir)/*.log || true	
+	rm -f $(base_dir)/*.log || true
 	
 	
