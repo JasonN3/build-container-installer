@@ -22,6 +22,7 @@ on:
 
 jobs:
   build-and-push-iso:
+    name: Build ISO
     runs-on: ubuntu-latest
     container:
       image: fedora:39
@@ -29,6 +30,16 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version: 
+          - 38
+          - 39
+          - 40
+        include:
+          - version: 40
+            web_ui: 'true'
     steps:
       - name: Build ISO
         uses: ./action.yml
@@ -38,7 +49,7 @@ jobs:
           IMAGE_REPO: 'ghcr.io/ublue-os'
           IMAGE_TAG: 'latest'
           VARIANT: 'Kinoite'
-          VERSION: '39'
-          WEB_UI: 'false'
+          VERSION: ${{ matrix.version }}
+          WEB_UI: ${{ matrix.web_ui }}
           ACTION_REPO: ${{ github.repository }}
           ACTION_REF: ${{ github.ref }}
