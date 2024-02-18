@@ -31,7 +31,7 @@ jobs:
       packages: write
     steps:
       - name: Build ISO
-        uses: ublue-os/isogenerator
+        uses: ./action.yml
         with:
           ARCH: 'x86_64'
           IMAGE_NAME: 'base-main'
