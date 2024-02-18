@@ -41,6 +41,9 @@ jobs:
           - version: 40
             web_ui: 'true'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
       - name: Build ISO
         uses: ./action.yml
         with:

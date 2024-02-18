@@ -26,9 +26,6 @@ jobs:
           - version: 39
             support: latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Build image
         uses: JasonN3/build-action@action
         with:
