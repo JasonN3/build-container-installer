@@ -30,6 +30,9 @@ $(IMAGE_NAME)-$(IMAGE_TAG).iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xo
 	mkdir $(_BASE_DIR)/output
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 
+output/$(IMAGE_NAME)-$(IMAGE_TAG).iso: $(IMAGE_NAME)-$(IMAGE_TAG).iso
+	cp $(IMAGE_NAME)-$(IMAGE_TAG).iso output/$(IMAGE_NAME)-$(IMAGE_TAG).iso
+
 # Step 2: Build boot.iso using Lorax
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
 	rm -Rf $(_BASE_DIR)/results

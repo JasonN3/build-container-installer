@@ -14,10 +14,6 @@ inputs:
     description: Repository containing the source container image
     required: true
     default: ghcr.io/ublue-os
-  IMAGE_TAG:
-    description: Tag of the source container image
-    required: true
-    default: ${{ inputs.VERSION }}
   VARIANT:
     description: Source container variant
     required: true
@@ -26,6 +22,9 @@ inputs:
     description: Fedora version of installer to build
     required: true
     default: "39"
+  IMAGE_TAG:
+    description: Tag of the source container image
+    required: false
   WEB_UI:
     description: Enable Anaconda WebUI
     required: true
@@ -66,11 +65,11 @@ runs:
     - name: Download image
       shell: bash
       run: |
-        make container/${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG }} \
+        make container/${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }} \
           ARCH=${{ inputs.ARCH }} \
           IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
           IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
-          IMAGE_TAG=${{ inputs.IMAGE_TAG }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
           VARIANT=${{ inputs.VARIANT }} \
           VERSION=${{ inputs.VERSION }} \
           WEB_UI=${{ inputs.WEB_UI }}
@@ -82,7 +81,7 @@ runs:
           ARCH=${{ inputs.ARCH }} \
           IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
           IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
-          IMAGE_TAG=${{ inputs.IMAGE_TAG }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
           VARIANT=${{ inputs.VARIANT }} \
           VERSION=${{ inputs.VERSION }} \
           WEB_UI=${{ inputs.WEB_UI }}
@@ -90,21 +89,21 @@ runs:
     - name: Create deploy.iso
       shell: bash
       run: |
-        make ${IMAGE_NAME}-${IMAGE_VERSION}.iso \
+        make ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso \
           ARCH=${{ inputs.ARCH }} \
           IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
           IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
-          IMAGE_TAG=${{ inputs.IMAGE_TAG }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
           VARIANT=${{ inputs.VARIANT }} \
           VERSION=${{ inputs.VERSION }} \
           WEB_UI=${{ inputs.WEB_UI }}
         mkdir end_iso
-        mv output/${IMAGE_NAME}-${IMAGE_TAG}.iso end_iso/
+        mv ${{ IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
 
     - name: Upload ISO as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_VERSION }}.iso
+        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso
         path: end_iso/*.iso
         if-no-files-found: error
         retention-days: 0

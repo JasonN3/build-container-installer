@@ -17,5 +17,5 @@ RUN dnf install -y make && make install-deps
 
 VOLUME /isogenerator/output
 
-ENTRYPOINT ["make" ]
+ENTRYPOINT ["make", "output/${IMAGE_NAME}-${IMAGE_TAG}.iso"]
 CMD [ "ARCH=${ARCH}", "VERSION=${VERSION}", "IMAGE_REPO=${IMAGE_REPO}", "IMAGE_NAME=${IMAGE_NAME}", "IMAGE_TAG=${IMAGE_TAG}", "VARIANT=${VARIANT}", "WEB_UI=${WEB_UI}"]
