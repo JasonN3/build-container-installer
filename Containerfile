@@ -1,13 +1,13 @@
-ARG version=39
+ARG VERSION=39
 
-FROM fedora:${version}
+FROM fedora:${VERSION}
 
 ENV ARCH="x86_64"
 ENV IMAGE_NAME="base-main"
 ENV IMAGE_REPO="ghcr.io/ublue-os"
-ENV IMAGE_TAG="${version}"
+ENV IMAGE_TAG="${VERSION}"
 ENV VARIANT="Kinoite"
-ENV VERSION="${version}"
+ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
 
 COPY / /isogenerator

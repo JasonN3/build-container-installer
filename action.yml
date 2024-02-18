@@ -30,12 +30,12 @@ inputs:
     description: Enable Anaconda WebUI
     required: true
     default: "false"
-  BUILD_REPO:
-    description: Repository with the build tool
+  ACTION_REPO:
+    description: Repository with the build action
     required: false
     default: ${{ github.repository }}
-  BUILD_REF:
-    description: Repository ref for the build tool
+  ACTION_REF:
+    description: Repository ref for the build action
     required: false
     default: ${{ github.ref }}
 
@@ -49,8 +49,8 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        repository: ${{ inputs.BUILD_REPO }}
-        ref: ${{ inputs.BUILD_REF }}
+        repository: ${{ inputs.ACTION_REPO }}
+        ref: ${{ inputs.ACTION_REF }}
         submodules: recursive
 
     - name: Install dependencies
