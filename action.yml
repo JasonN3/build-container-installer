@@ -98,7 +98,7 @@ runs:
           VERSION=${{ inputs.VERSION }} \
           WEB_UI=${{ inputs.WEB_UI }}
         mkdir end_iso
-        mv ${{ IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
+        mv ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
 
     - name: Upload ISO as artifact
       uses: actions/upload-artifact@v4
