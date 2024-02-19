@@ -105,7 +105,7 @@ runs:
         mv ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
 
     - name: Upload ISO as artifact
-      if: inputs.PUSH_ISO == "true"
+      if: inputs.PUSH_ISO == 'true'
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso
