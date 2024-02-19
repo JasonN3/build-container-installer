@@ -24,14 +24,25 @@ ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
 endif
 
-# Step 6: Build end ISO file
+# Step 7: Move end ISO to root
 ## Default action
 $(IMAGE_NAME)-$(IMAGE_TAG).iso: output/$(IMAGE_NAME)-$(IMAGE_TAG).iso
 	mv output/$(IMAGE_NAME)-$(IMAGE_TAG).iso $(IMAGE_NAME)-$(IMAGE_TAG).iso
 
+# Step 6: Build end ISO file
 output/$(IMAGE_NAME)-$(IMAGE_TAG).iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/output
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
+
+# Step 1: Generate Lorax Templates
+lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
+	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/'                        $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
+
+	sed 's/@IMAGE_TAG@/$(IMAGE_TAG)/'                          $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
+	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
+	
+	sed 's/@IMAGE_REPO_ESCAPED@/$(_IMAGE_REPO_DOUBLE_ESCAPED)/' $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
+	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
 
 # Step 2: Build boot.iso using Lorax
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
@@ -56,23 +67,6 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 install-deps:
 	dnf install -y lorax xorriso podman git rpm-ostree
 
-
-# Step 1: Generate Lorax Templates
-lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/'                        $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
-
-	sed 's/@IMAGE_TAG@/$(IMAGE_TAG)/'                          $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
-	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
-	
-	sed 's/@IMAGE_REPO_ESCAPED@/$(_IMAGE_REPO_DOUBLE_ESCAPED)/' $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
-	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
-
-
-
-# Step 5: Generate xorriso input
-xorriso/input.txt: xorriso/gen_input.sh
-	bash $(_BASE_DIR)/xorriso/gen_input.sh | tee $(_BASE_DIR)/xorriso/input.txt
-
 # Step 4: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
 	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/' $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh
@@ -82,6 +76,10 @@ xorriso/%.sh: xorriso/%.sh.in
 
 	sed 's/@ARCH@/$(ARCH)/'             $(_BASE_DIR)/xorriso/$*.sh > $(_BASE_DIR)/xorriso/$*.sh.tmp
 	mv $(_BASE_DIR)/xorriso/$*.sh{.tmp,}
+
+# Step 5: Generate xorriso input
+xorriso/input.txt: xorriso/gen_input.sh
+	bash $(_BASE_DIR)/xorriso/gen_input.sh | tee $(_BASE_DIR)/xorriso/input.txt
 
 
 clean:
@@ -97,4 +95,4 @@ clean:
 	rm -f $(_BASE_DIR)/*.iso || true
 	rm -f $(_BASE_DIR)/*.log || true
 	
-	
+.PHONY: clean	
