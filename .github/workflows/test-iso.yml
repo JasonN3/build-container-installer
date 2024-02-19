@@ -1,16 +1,6 @@
 name: Test Generate ISO
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
-    paths-ignore:
-      - 'Containerfile'
-      - '*.md'
-      - 'LICENSE'
-      - 'CODEOWNERS'
   pull_request:
     branches:
       - main
