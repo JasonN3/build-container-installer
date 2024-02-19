@@ -15,7 +15,7 @@ inputs:
     required: true
     default: ghcr.io/ublue-os
   VARIANT:
-    description: Source container variant
+    description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
     required: true
     default: Kinoite
   VERSION:
