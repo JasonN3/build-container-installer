@@ -42,11 +42,12 @@ The following variables can be used to customize the create image.
     Tag of the source container image  
     Default Value: *VERSION*
 - VARIANT  
-    Source container variant  
-    Silverblue
+    Source container variant
+    Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite  
+    Default Value: Silverblue
 - WEB_UI  
     Enable Anaconda WebUI  
-    false
+    Default Value: false
 
 ## VSCode Dev Container
 There is a dev container configuration provided for development. By default it will use the existing container image available at `ghcr.io/ublue-os/isogenerator`, however, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
