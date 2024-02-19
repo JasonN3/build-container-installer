@@ -51,6 +51,7 @@ jobs:
           VERSION: ${{ matrix.version }}
           ACTION_REPO: ${{ github.repository }}
           ACTION_REF: ${{ github.ref }}
+          PUSH_ISO: "false"
 
   check:
     name: Check build successful
