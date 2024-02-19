@@ -36,10 +36,6 @@ jobs:
         version: 
           - 38
           - 39
-          - 40
-        include:
-          - version: 40
-            web_ui: 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,6 +49,5 @@ jobs:
           IMAGE_TAG: 'latest'
           VARIANT: 'Kinoite'
           VERSION: ${{ matrix.version }}
-          WEB_UI: ${{ matrix.web_ui }}
           ACTION_REPO: ${{ github.repository }}
           ACTION_REF: ${{ github.ref }}
