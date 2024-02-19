@@ -37,10 +37,6 @@ inputs:
     description: Repository ref for the build action
     required: false
     default: ${{ github.ref }}
-  PUSH_ISO:
-    description: Push ISO when done building
-    required: false
-    default: "true"
 
 runs:
   using: composite
@@ -105,10 +101,9 @@ runs:
         mv ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
 
     - name: Upload ISO as artifact
-      if: inputs.PUSH_ISO == 'true'
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso
+        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}-${{ inputs.VARIANT }}.iso
         path: end_iso/*.iso
         if-no-files-found: error
         retention-days: 0
