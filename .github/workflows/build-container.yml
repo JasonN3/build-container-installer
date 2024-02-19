@@ -35,3 +35,18 @@ jobs:
           support: ${{ matrix.support }}
           signing_key: ${{ secrets.SIGNING_SECRET }}
         continue-on-error: false
+
+  check:
+    name: Check build successful
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    needs:
+      - push-image
+    steps:
+      - name: Exit on failure for main
+        if: ${{ needs.push-image.result == 'failure' || needs.push-image.result == 'skipped' }}
+        shell: bash
+        run: exit 1
+      - name: Exit
+        shell: bash
+        run: exit 0
