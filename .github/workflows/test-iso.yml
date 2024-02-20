@@ -36,9 +36,8 @@ jobs:
           ARCH: 'x86_64'
           IMAGE_NAME: 'base-main'
           IMAGE_REPO: 'ghcr.io/ublue-os'
-          IMAGE_TAG: 'latest'
           VARIANT: 'Kinoite'
-          VERSION: ${{ matrix.version }}
+          VERSION: 39
           ACTION_REPO: ${{ github.repository }}
           ACTION_REF: ${{ github.ref }}
 
