@@ -8,5 +8,5 @@
 /original-pkgsizes.txt
 /final-pkgsizes.txt
 /lorax.conf
-/*.iso
+/output
 /*.log

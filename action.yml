@@ -1,0 +1,130 @@
+name: Generate ISO
+description: Creates an ISO for installing an OSTree container
+
+inputs:
+  ARCH:
+    description: Architecture for image to build
+    required: true
+    default: x86_64
+  IMAGE_NAME:
+    description: Name of the source container image
+    required: true
+    default: base-main
+  IMAGE_REPO:
+    description: Repository containing the source container image
+    required: true
+    default: ghcr.io/ublue-os
+  VARIANT:
+    description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
+    required: true
+    default: Kinoite
+  VERSION:
+    description: Fedora version of installer to build
+    required: true
+    default: "39"
+  IMAGE_TAG:
+    description: Tag of the source container image
+    required: false
+  WEB_UI:
+    description: Enable Anaconda WebUI
+    required: true
+    default: "false"
+  ACTION_REPO:
+    description: Repository with the build action
+    required: false
+    default: ${{ github.repository }}
+  ACTION_REF:
+    description: Repository ref for the build action
+    required: false
+    default: ${{ github.ref }}
+
+runs:
+  using: composite
+  steps:
+    - name: Cleanup host
+      shell: bash
+      run: |
+        if [[ -d /host ]]
+        then
+          df -h /host
+          # Remove Android Library
+          rm -Rf /host/usr/local/lib/android
+          # Remove .NET runtime
+          rm -Rf /host/usr/share/dotnet
+          # Remove Haskell runtime
+          rm -rf /host/opt/ghc
+          rm -rf /host/usr/local/.ghcup
+          chroot /host docker image prune --all --force
+          df -h /host
+        else
+          echo "Host must be mounted as /host in order to make more space"
+        fi
+        
+    - name: Install make and git
+      shell: bash
+      run: dnf install -y make git
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.ACTION_REPO }}
+        ref: ${{ inputs.ACTION_REF }}
+        submodules: recursive
+
+    - name: Install dependencies
+      shell: bash
+      run: make install-deps
+
+    - name: Lowercase Registry
+      id: registry_case
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.IMAGE_REPO }}
+
+    - name: Download image
+      shell: bash
+      run: |
+        make container/${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }} \
+          ARCH=${{ inputs.ARCH }} \
+          IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
+          IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
+          VARIANT=${{ inputs.VARIANT }} \
+          VERSION=${{ inputs.VERSION }} \
+          WEB_UI=${{ inputs.WEB_UI }}
+
+    - name: Create boot.iso
+      shell: bash
+      run: |
+        make boot.iso \
+          ARCH=${{ inputs.ARCH }} \
+          IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
+          IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
+          VARIANT=${{ inputs.VARIANT }} \
+          VERSION=${{ inputs.VERSION }} \
+          WEB_UI=${{ inputs.WEB_UI }}
+
+    - name: Create deploy.iso
+      shell: bash
+      run: |
+        make ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso \
+          ARCH=${{ inputs.ARCH }} \
+          IMAGE_NAME=${{ inputs.IMAGE_NAME }} \
+          IMAGE_REPO=${{ steps.registry_case.outputs.lowercase }} \
+          IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
+          VARIANT=${{ inputs.VARIANT }} \
+          VERSION=${{ inputs.VERSION }} \
+          WEB_UI=${{ inputs.WEB_UI }}
+        mkdir end_iso
+        mv ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
+
+    - name: Upload ISO as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}-${{ inputs.VARIANT }}.iso
+        path: end_iso/*.iso
+        if-no-files-found: error
+        retention-days: 0
+        compression-level: 0
+        overwrite: true

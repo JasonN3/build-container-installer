@@ -1,0 +1,52 @@
+---
+name: Build Container Image
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  push-image:
+    name: Build and push container image
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version: 
+          - 38
+          - 39
+          - 40
+        include:
+          - version: 39
+            support: latest
+    steps:
+      - name: Build image
+        uses: ublue-os/build-action@1.0.1
+        with:
+          image_name: isogenerator
+          image_variant: main
+          version: ${{ matrix.version }}
+          support: ${{ matrix.support }}
+          signing_key: ${{ secrets.SIGNING_SECRET }}
+        continue-on-error: false
+
+  check:
+    name: Check build successful
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    needs:
+      - push-image
+    steps:
+      - name: Exit on failure for main
+        if: ${{ needs.push-image.result == 'failure' || needs.push-image.result == 'skipped' }}
+        shell: bash
+        run: exit 1
+      - name: Exit
+        shell: bash
+        run: exit 0

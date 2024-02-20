@@ -1,9 +1,9 @@
 #!/bin/bash
 
 echo "-indev $(pwd)/boot.iso"
-echo "-outdev $(pwd)/output/@IMAGE_NAME@-@VERSION@.iso"
+echo "-outdev $(pwd)/output/@IMAGE_NAME@-@IMAGE_TAG@.iso"
 echo "-boot_image any replay"
-echo "-volid @IMAGE_NAME@-@ARCH@-@VERSION@"
+echo "-volid @IMAGE_NAME@-@ARCH@-@IMAGE_TAG@"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
 cd container
