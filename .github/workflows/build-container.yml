@@ -1,5 +1,5 @@
 ---
-name: Build Container
+name: Build Container Image
 on:
   pull_request:
     branches:
