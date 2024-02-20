@@ -27,13 +27,14 @@ jobs:
             support: latest
     steps:
       - name: Build image
-        uses: JasonN3/build-action@action
+        uses: ublue-os/build-action@1.0.1
         with:
           image_name: isogenerator
           image_variant: main
           version: ${{ matrix.version }}
           support: ${{ matrix.support }}
           signing_key: ${{ secrets.SIGNING_SECRET }}
+          target: main
         continue-on-error: false
 
   check:

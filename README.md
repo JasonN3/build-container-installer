@@ -43,7 +43,7 @@ The following variables can be used to customize the create image.
     Default Value: *VERSION*
 - VARIANT  
     Source container variant
-    Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite  
+    Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite  
     Default Value: Silverblue
 - WEB_UI  
     Enable Anaconda WebUI  
