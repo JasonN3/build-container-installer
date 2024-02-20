@@ -1,6 +1,7 @@
 name: Test Generate ISO
 
 on:
+  merge_group:
   pull_request:
     branches:
       - main

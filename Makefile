@@ -5,7 +5,7 @@ VERSION = 39
 IMAGE_REPO = ghcr.io/ublue-os
 IMAGE_NAME = base-main
 IMAGE_TAG = $(version)
-VARIANT = Silverblue
+VARIANT = Kinoite
 WEB_UI = false
 
 # Generated vars
