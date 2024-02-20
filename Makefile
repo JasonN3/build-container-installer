@@ -31,7 +31,7 @@ $(IMAGE_NAME)-$(IMAGE_TAG).iso: output/$(IMAGE_NAME)-$(IMAGE_TAG).iso
 
 # Step 6: Build end ISO file
 output/$(IMAGE_NAME)-$(IMAGE_TAG).iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
-	mkdir $(_BASE_DIR)/output
+	mkdir $(_BASE_DIR)/output || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 
 # Step 1: Generate Lorax Templates
@@ -48,7 +48,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-          --isfinal --buildarch=$(ARCH) --volid=$(IMAGE_NAME)-$(ARCH)-$(VERSION) \
+          --isfinal --buildarch=$(ARCH) --volid=$(IMAGE_NAME)-$(ARCH)-$(IMAGE_TAG) \
           $(_LORAX_ARGS) \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
@@ -59,7 +59,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 
 # Step 3: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
-	mkdir container
+	mkdir container || true
 	podman pull $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 	podman save --format oci-dir -o $(_BASE_DIR)/container/$(IMAGE_NAME)-$(IMAGE_TAG) $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 	podman rmi $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)

@@ -1,7 +1,6 @@
 # UBlueOS ISO Generator
 This action is used to generate the ISO images for UBlueOS.
 
-
 ## Makefile
 A Makefile is provided for ease of use. There are separate targets for each file generated, however `make` can be used to generate the final image and `make clean` can be used to clean up the workspace.
 
@@ -10,17 +9,21 @@ See [Customizing](#customizing) for information about customizing the image that
 ## Container
 A container with the necessary tools already installed is provided at `ghcr.io/ublue-os/isogenerator:latest`
 
-To use the container file, run `docker --privileged --volume .:/isogenerator/output ghcr.io/ublue-os/isogenerator`
+To use the container file, run `docker run --privileged --volume .:/isogenerator/output ghcr.io/ublue-os/isogenerator`.
+
+This will create an ISO with the baked in defaults of the container image.
 
 See [Customizing](#customizing) for information about customizing the image that gets created. The variable can either be defined as environment variables or as command arguments.
 Examples:
-Environment Variable
+
+Creating Bluefin GTS ISO
 ```bash
-docker --privileged --volume .:/isogenerator/output -e VERSION=39 ghcr.io/ublue-os/isogenerator
+docker run --rm --privileged --volume .:/isogenerator/output -e VERSION=38 -e IMAGE_NAME=bluefin -e IMAGE_TAG=gts -e VARIANT=Silverblue ghcr.io/ublue-os/isogenerator:38
 ```
-Command Argument
+
+Creating Bazzite Latest ISO
 ```bash
-docker --privileged --volume .:/isogenerator/output ghcr.io/ublue-os/isogenerator VERSION=39
+docker run --rm --privileged --volume .:/isogenerator/output -e VERSION=39 -e IMAGE_NAME=bazzite -e IMAGE_TAG=latest -e VARIANT=Kinoite ghcr.io/ublue-os/isogenerator:39
 ```
 
 ## Customizing
