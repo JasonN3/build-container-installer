@@ -41,6 +41,25 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Cleanup host
+      shell: bash
+      run: |
+        if [[ -d /host ]]
+        then
+          df -h /host
+          # Remove Android Library
+          rm -Rf /host/usr/local/lib/android
+          # Remove .NET runtime
+          rm -Rf /host/usr/share/dotnet
+          # Remove Haskell runtime
+          rm -rf /host/opt/ghc
+          rm -rf /host/usr/local/.ghcup
+          chroot /host docker image prune --all --force
+          df -h /host
+        else
+          echo "Host must be mounted as /host in order to make more space"
+        fi
+        
     - name: Install make and git
       shell: bash
       run: dnf install -y make git
