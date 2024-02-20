@@ -34,7 +34,6 @@ jobs:
           version: ${{ matrix.version }}
           support: ${{ matrix.support }}
           signing_key: ${{ secrets.SIGNING_SECRET }}
-          target: main
         continue-on-error: false
 
   check:
