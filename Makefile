@@ -13,6 +13,7 @@ WEB_UI = false
 _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
+_VOLID = $(IMAGE_NAME:-%=)-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(VARIANT),'Server')
 _LORAX_ARGS = --macboot --noupgrade
@@ -48,7 +49,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-          --isfinal --buildarch=$(ARCH) --volid=$(IMAGE_NAME)-$(ARCH)-$(IMAGE_TAG) \
+          --isfinal --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
           --repo /etc/yum.repos.d/fedora.repo \
           --repo /etc/yum.repos.d/fedora-updates.repo \
