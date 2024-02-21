@@ -4,7 +4,7 @@ ARCH = x86_64
 VERSION = 39
 IMAGE_REPO = ghcr.io/ublue-os
 IMAGE_NAME = base-main
-IMAGE_TAG = $(version)
+IMAGE_TAG = $(VERSION)
 VARIANT = Kinoite
 WEB_UI = false
 
@@ -13,7 +13,7 @@ WEB_UI = false
 _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
-_VOLID = $(IMAGE_NAME:-%=)-$(ARCH)-$(IMAGE_TAG)
+_VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(VARIANT),'Server')
 _LORAX_ARGS = --macboot --noupgrade
