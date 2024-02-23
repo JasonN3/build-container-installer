@@ -5,10 +5,13 @@ echo "-outdev $(pwd)/output/@IMAGE_NAME@-@IMAGE_TAG@.iso"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
+echo "-map $(pwd)/scripts/ublue-os-akmods-public-key.der ublue-os-akmods-public-key.der"
+echo "-chmod 0444 /ublue-os-akmods-public-key.der"
+echo "-map $(pwd)/scripts/enroll-secureboot-key.sh enroll-secureboot-key.sh"
+echo "-chmod 0777 enroll-secureboot-key.sh"
 cd container
 for file in $(find @IMAGE_NAME@-@IMAGE_TAG@); do
 	echo "-map $(pwd)/${file} ${file}"
 	echo "-chmod 0444 ${file}"
 done
 echo "-end"
-
