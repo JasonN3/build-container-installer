@@ -5,6 +5,12 @@ set -oue pipefail
 readonly SECUREBOOT_KEY="/run/install/repo/ublue-os-akmods-public-key.der"
 readonly ENROLLMENT_PASSWORD="ublue-os"
 
+SYS_ID="$(cat /sys/devices/virtual/dmi/id/product_name)"
+if [[ ":Jupiter:Galileo:" =~ ":$SYS_ID:" ]]; then
+	echo "Steam Deck hardware detected. Skipping key enrollment."
+	exit 0
+fi
+
 if [[ ! -d "/sys/firmware/efi" ]]; then
 	echo "EFI mode not detected. Skipping key enrollment."
 	exit 0

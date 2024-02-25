@@ -25,6 +25,9 @@ inputs:
   IMAGE_TAG:
     description: Tag of the source container image
     required: false
+  EXTRA_BOOT_PARAMS:
+    description: Extra params used by grub to boot the anaconda installer
+    required: false
   WEB_UI:
     description: Enable Anaconda WebUI
     required: true
@@ -104,6 +107,7 @@ runs:
           VARIANT=${{ inputs.VARIANT }} \
           VERSION=${{ inputs.VERSION }} \
           WEB_UI=${{ inputs.WEB_UI }}
+          EXTRA_BOOT_PARAMS=${{ inputs.EXTRA_BOOT_PARAMS }}
 
     - name: Create deploy.iso and generate sha256 checksum
       shell: bash
