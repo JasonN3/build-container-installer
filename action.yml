@@ -106,7 +106,7 @@ runs:
           IMAGE_TAG=${{ inputs.IMAGE_TAG || inputs.VERSION }} \
           VARIANT=${{ inputs.VARIANT }} \
           VERSION=${{ inputs.VERSION }} \
-          WEB_UI=${{ inputs.WEB_UI }}
+          WEB_UI=${{ inputs.WEB_UI }} \
           EXTRA_BOOT_PARAMS=${{ inputs.EXTRA_BOOT_PARAMS }}
 
     - name: Create deploy.iso and generate sha256 checksum
