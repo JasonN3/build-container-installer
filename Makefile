@@ -34,9 +34,9 @@ build/deploy.iso.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/inp
 
 # Step 1: Generate Lorax Templates
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/'                        $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
+	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/'                         $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
 
-	sed 's/@IMAGE_TAG@/$(IMAGE_TAG)/'                          $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
+	sed 's/@IMAGE_TAG@/$(IMAGE_TAG)/'                           $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
 	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
 	
 	sed 's/@IMAGE_REPO_ESCAPED@/$(_IMAGE_REPO_DOUBLE_ESCAPED)/' $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp

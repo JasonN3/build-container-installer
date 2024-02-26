@@ -27,7 +27,7 @@ inputs:
     required: false
   web_ui:
     description: Enable Anaconda WebUI
-    required: true
+    required: false
     default: "false"
 
 runs:
@@ -39,5 +39,5 @@ runs:
     - IMAGE_REPO=${{ inputs.image_repo }}
     - VARIANT=${{ inputs.variant }}
     - VERSION=${{ inputs.version }}
-    - IMAGE_TAG=${{ inputs.image_tag }}
+    - IMAGE_TAG=${{ inputs.image_tag || inputs.version }}
     - WEB_UI=${{ inputs.web_ui }}

@@ -37,7 +37,7 @@ jobs:
         with:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
-          imagE_repo: ${{ env.IMAGE_REPO}}
+          image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
 
