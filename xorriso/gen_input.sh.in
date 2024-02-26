@@ -3,7 +3,6 @@
 echo "-indev $(pwd)/boot.iso"
 echo "-outdev $(pwd)/@IMAGE_NAME@-@VERSION@.iso"
 echo "-boot_image any replay"
-echo "-volid @IMAGE_NAME@-@ARCH@-@VERSION@"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
 cd container
