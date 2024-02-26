@@ -54,7 +54,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
           --isfinal --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
-          $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file);) \
+          $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
           --add-template $(_BASE_DIR)/lorax_templates/set_installer.tmpl \
 		  --add-template $(_BASE_DIR)/lorax_templates/configure_upgrades.tmpl \
           $(_BASE_DIR)/results/
