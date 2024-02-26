@@ -27,7 +27,7 @@ ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
 endif
 
-# Step 6: Move end ISO
+# Step 7: Buid end ISO
 ## Default action
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
@@ -43,12 +43,13 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed 's/@IMAGE_REPO_ESCAPED@/$(_IMAGE_REPO_DOUBLE_ESCAPED)/' $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
 	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
 
+# Step 2: Replace vars in repo files
 %.repo: /etc/yum.repos.d/%.repo
-	cp /etc/yum.repos.d/$*.repo $(_BASE_DIR)/$(basename $*).repo
-	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/$(basename $*).repo
-	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$(basename $*).repo
+	cp /etc/yum.repos.d/$*.repo $(_BASE_DIR)/$*.repo
+	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/$*.repo
+	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$*.repo
 
-# Step 2: Build boot.iso using Lorax
+# Step 3: Build boot.iso using Lorax
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
@@ -60,17 +61,14 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           $(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 
-# Step 3: Download container image
+# Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
 	mkdir container || true
 	podman pull $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 	podman save --format oci-dir -o $(_BASE_DIR)/container/$(IMAGE_NAME)-$(IMAGE_TAG) $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 	podman rmi $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 
-install-deps:
-	dnf install -y lorax xorriso podman
-
-# Step 4: Generate xorriso script
+# Step 5: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
 	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/' $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh
 
@@ -80,7 +78,7 @@ xorriso/%.sh: xorriso/%.sh.in
 	sed 's/@ARCH@/$(ARCH)/'             $(_BASE_DIR)/xorriso/$*.sh > $(_BASE_DIR)/xorriso/$*.sh.tmp
 	mv $(_BASE_DIR)/xorriso/$*.sh{.tmp,}
 
-# Step 5: Generate xorriso input
+# Step 6: Generate xorriso input
 xorriso/input.txt: xorriso/gen_input.sh
 	bash $(_BASE_DIR)/xorriso/gen_input.sh | tee $(_BASE_DIR)/xorriso/input.txt
 
@@ -90,6 +88,7 @@ clean:
 	rm -Rf $(_BASE_DIR)/debugdata || true
 	rm -Rf $(_BASE_DIR)/pkglists || true
 	rm -Rf $(_BASE_DIR)/results || true
+	rm -Rf $(_BASE_DIR)/build || true
 	rm -f $(_BASE_DIR)/lorax_templates/*.tmpl || true
 	rm -f $(_BASE_DIR)/xorriso/input.txt || true
 	rm -f $(_BASE_DIR)/xorriso/*.sh || true
@@ -97,5 +96,8 @@ clean:
 	rm -f $(_BASE_DIR)/lorax.conf || true
 	rm -f $(_BASE_DIR)/*.iso || true
 	rm -f $(_BASE_DIR)/*.log || true
+
+install-deps:
+	dnf install -y lorax xorriso podman
 	
 .PHONY: clean install-deps

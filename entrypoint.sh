@@ -15,4 +15,4 @@ make build/deploy.iso $@
 
 mkdir /github/workspace/build || true
 
-cp /build/*.iso /github/workspace/build
+cp build/*.iso /github/workspace/build
