@@ -33,6 +33,9 @@ inputs:
     description: Version of the action container to run
     required: true
     default: "latest"
+  additional_templates:
+    description: Space delimetered list of additional Lorax templates to include
+    required: false
 
 runs:
   using: composite
@@ -47,4 +50,5 @@ runs:
           VARIANT=${{ inputs.variant }} \
           VERSION=${{ inputs.version }} \
           IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
-          WEB_UI=${{ inputs.web_ui }}
+          WEB_UI=${{ inputs.web_ui }} \
+          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
