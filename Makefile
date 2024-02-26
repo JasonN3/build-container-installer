@@ -56,8 +56,8 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 
 # Step 3: Download container image
-container/$(IMAGE_NAME)-$(IMAGE_TAG):
-	mkdir container || true
+build/container/$(IMAGE_NAME)-$(IMAGE_TAG):
+	mkdir build/container || true
 	podman pull $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 	podman save --format oci-dir -o $(_BASE_DIR)/container/$(IMAGE_NAME)-$(IMAGE_TAG) $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 	podman rmi $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)

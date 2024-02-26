@@ -17,8 +17,48 @@ env:
   VARIANT: 'Server'
 
 jobs:
+  build-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            jasonn3/build-container-installer
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Buildah Build
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: Containerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          registry: ghcr.io/jasonn3
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+
   build-and-push-iso:
     runs-on: ubuntu-latest
+    needs:
+      - build-container
     permissions:
       contents: read
       packages: write

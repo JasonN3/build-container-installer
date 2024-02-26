@@ -31,13 +31,17 @@ inputs:
     default: "false"
 
 runs:
-  using: docker
-  image: 'Dockerfile'
-  args:
-    - ARCH=${{ inputs.arch }}
-    - IMAGE_NAME=${{ inputs.image_name }}
-    - IMAGE_REPO=${{ inputs.image_repo }}
-    - VARIANT=${{ inputs.variant }}
-    - VERSION=${{ inputs.version }}
-    - IMAGE_TAG=${{ inputs.image_tag || inputs.version }}
-    - WEB_UI=${{ inputs.web_ui }}
+  using: composite
+  steps:
+    - name: Run docker image
+      shell: bash
+      run: |
+        tag=$( echo ${{ github.ref_name }} | tr '/' ' ' | awk '{ print $1 }' )
+        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-image:${tag} \
+          ARCH=${{ inputs.arch }} \
+          IMAGE_NAME=${{ inputs.image_name }} \
+          IMAGE_REPO=${{ inputs.image_repo }} \
+          VARIANT=${{ inputs.variant }} \
+          VERSION=${{ inputs.version }} \
+          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
+          WEB_UI=${{ inputs.web_ui }}
