@@ -31,7 +31,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            jasonn3/build-container-installer
+            ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -50,7 +50,6 @@ jobs:
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
-          registry: ghcr.io/jasonn3
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
