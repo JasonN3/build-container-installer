@@ -1,4 +1,4 @@
-![Build status](https://github.com/jasonn3/build-container-installer/actions/workflows/build-and-test.yml/badge.svg?branch=main)
+![Build status](https://github.com/jasonn3/build-container-installer/actions/workflows/build-and-test.yml/badge.svg??event=push)
 
 # Bulid Container Installer Action
 This action is used to generate an ISO for installing OSTrees stored in a container. This utilizes the anaconda command `ostreecontainer`
