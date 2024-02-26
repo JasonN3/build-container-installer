@@ -2,12 +2,11 @@
 ## Formatting = UPPERCASE
 ARCH = x86_64
 VERSION = 39
-IMAGE_REPO = ghcr.io/ublue-os
-IMAGE_NAME = base-main
+IMAGE_REPO = quay.io/fedora-ostree-desktops
+IMAGE_NAME = base
 IMAGE_TAG = $(VERSION)
-VARIANT = Kinoite
+VARIANT = Server
 WEB_UI = false
-VOL_ID = 
 
 # Generated vars
 ## Formatting = _UPPERCASE
