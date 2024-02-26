@@ -91,13 +91,13 @@ jobs:
 
       - name: Rename ISO
         run: |
-          mv build/deploy.iso ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
 
       - name: Upload ISO as artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
-          path: end_iso/*.iso
+          path: build/*.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
