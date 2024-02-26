@@ -19,13 +19,13 @@ env:
 jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
-    container:
-      image: fedora:39
-      options: "--privileged"
     permissions:
       contents: read
       packages: write
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Lowercase Registry
         id: registry_case
         uses: ASzc/change-string-case-action@v6
