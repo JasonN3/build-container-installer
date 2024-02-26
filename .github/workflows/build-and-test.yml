@@ -71,6 +71,16 @@ jobs:
         with:
           string: ${{ env.IMAGE_REPO }}
 
+      - name: Get image version
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+
       - name: Build ISO
         uses: ./
         with:
@@ -79,6 +89,7 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
+          action_version: ${{ steps.meta.outputs.tags }}
 
       - name: Rename ISO
         run: |

@@ -29,6 +29,10 @@ inputs:
     description: Enable Anaconda WebUI
     required: false
     default: "false"
+  action_version:
+    description: Version of the action container to run
+    required: true
+    default: "latest"
 
 runs:
   using: composite
@@ -36,8 +40,7 @@ runs:
     - name: Run docker image
       shell: bash
       run: |
-        tag=$( echo ${{ github.ref_name }} | tr '/' ' ' | awk '{ print $1 }' )
-        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-image:${tag} \
+        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-image:${{ inputs.action_version }} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
