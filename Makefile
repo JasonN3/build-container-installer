@@ -27,7 +27,7 @@ endif
 
 # Step 6: Move end ISO
 ## Default action
-build/deploy.iso.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 
@@ -41,14 +41,19 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed 's/@IMAGE_REPO_ESCAPED@/$(_IMAGE_REPO_DOUBLE_ESCAPED)/' $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
 	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
 
+%.repo: /etc/yum.repos.d/%.repo
+	cp /etc/yum.repos.d/$*.repo $(_BASE_DIR)/$(basename $*.repo)
+	sed -i "s/\$releasever/${VERSION}/g" $(_BASE_DIR)/$(basename $*.repo)
+	sed -i "s/\$basearch/${ARCH}/g" $(_BASE_DIR)/$(basename $*.repo)
+
 # Step 2: Build boot.iso using Lorax
-boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
+boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl fedora.repo fedora-updates.repo
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
           --isfinal --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
-          --repo /etc/yum.repos.d/fedora.repo \
-          --repo /etc/yum.repos.d/fedora-updates.repo \
+          --repo $(_BASE_DIR)/fedora.repo \
+          --repo $(_BASE_DIR)/fedora-updates.repo \
           --add-template $(_BASE_DIR)/lorax_templates/set_installer.tmpl \
 		  --add-template $(_BASE_DIR)/lorax_templates/configure_upgrades.tmpl \
           $(_BASE_DIR)/results/
