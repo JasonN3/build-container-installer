@@ -7,6 +7,7 @@ IMAGE_NAME = base
 IMAGE_TAG = $(VERSION)
 VARIANT = Server
 WEB_UI = false
+REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
 
 # Generated vars
 ## Formatting = _UPPERCASE
@@ -14,6 +15,7 @@ _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
+_REPO_FILES = $(notdir $(REPOS))
 
 ifeq ($(VARIANT),'Server')
 _LORAX_ARGS = --macboot --noupgrade
@@ -47,13 +49,12 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$(basename $*).repo
 
 # Step 2: Build boot.iso using Lorax
-boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl fedora.repo fedora-updates.repo
+boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
           --isfinal --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
-          --repo $(_BASE_DIR)/fedora.repo \
-          --repo $(_BASE_DIR)/fedora-updates.repo \
+          $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file);) \
           --add-template $(_BASE_DIR)/lorax_templates/set_installer.tmpl \
 		  --add-template $(_BASE_DIR)/lorax_templates/configure_upgrades.tmpl \
           $(_BASE_DIR)/results/

@@ -13,4 +13,6 @@ make boot.iso $@
 
 make build/deploy.iso $@
 
-mv build /github/workspace/
+mkdir /github/workspace/build || true
+
+cp /build/*.iso /github/workspace/build
