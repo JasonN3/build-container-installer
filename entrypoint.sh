@@ -2,6 +2,11 @@
 
 set -ex
 
+for entry in $@
+do
+  export $entry
+done
+
 make build/container/${IMAGE_NAME}-${IMAGE_TAG} $@
 
 make boot.iso $@
