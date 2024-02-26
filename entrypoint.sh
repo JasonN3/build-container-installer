@@ -2,7 +2,7 @@
 
 set -ex
 
-make container/${IMAGE_NAME}-${IMAGE_VERSION} $@
+make container/${IMAGE_NAME}-${IMAGE_TAG} $@
 
 make boot.iso $@
 
