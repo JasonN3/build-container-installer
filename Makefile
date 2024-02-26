@@ -43,8 +43,8 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 
 %.repo: /etc/yum.repos.d/%.repo
 	cp /etc/yum.repos.d/$*.repo $(_BASE_DIR)/$(basename $*).repo
-	sed -i "s/\$releasever/${VERSION}/g" $(_BASE_DIR)/$(basename $*).repo
-	sed -i "s/\$basearch/${ARCH}/g" $(_BASE_DIR)/$(basename $*).repo
+	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/$(basename $*).repo
+	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$(basename $*).repo
 
 # Step 2: Build boot.iso using Lorax
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl fedora.repo fedora-updates.repo
