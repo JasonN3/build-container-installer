@@ -40,7 +40,7 @@ runs:
     - name: Run docker image
       shell: bash
       run: |
-        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-image:${{ inputs.action_version }} \
+        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${{ inputs.action_version }} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
