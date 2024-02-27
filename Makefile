@@ -54,7 +54,7 @@ boot.iso: $(foreach file,$(_LORAX_TEMPLATES),lorax_templates/$(file)) $(_REPO_FI
           --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
           $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
-          $(foreach file,$(_LORAX_TEMPLATES),--add-template lorax_templates/$(file)) \
+          $(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/lorax_templates/$(file)) \
 		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
 		  --rootfs-size 4 \
           $(_BASE_DIR)/results/
