@@ -37,13 +37,9 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 
 # Step 1: Generate Lorax Templates
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/'                         $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
+	$(eval _VARS = IMAGE_NAME IMAGE_TAG IMAGE_REPO_DOUBLE_ESCAPED)
+	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
 
-	sed 's/@IMAGE_TAG@/$(IMAGE_TAG)/'                           $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
-	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
-	
-	sed 's/@IMAGE_REPO_ESCAPED@/$(_IMAGE_REPO_DOUBLE_ESCAPED)/' $(_BASE_DIR)/lorax_templates/$*.tmpl > $(_BASE_DIR)/lorax_templates/$*.tmpl.tmp
-	mv $(_BASE_DIR)/lorax_templates/$*.tmpl{.tmp,}
 
 # Step 2: Replace vars in repo files
 %.repo: /etc/yum.repos.d/%.repo
@@ -58,7 +54,7 @@ boot.iso: $(foreach file,$(_LORAX_TEMPLATES),lorax_templates/$(file)) $(_REPO_FI
           --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
           $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
-          $(foreach file,$(_LORAX_TEMPLATES),--add-template $(file)) \
+          $(foreach file,$(_LORAX_TEMPLATES),--add-template lorax_templates/$(file)) \
 		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
 		  --rootfs-size 4 \
           $(_BASE_DIR)/results/
@@ -73,13 +69,8 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 
 # Step 5: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
-	sed 's/@IMAGE_NAME@/$(IMAGE_NAME)/' $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh
-
-	sed 's/@IMAGE_TAG@/$(IMAGE_TAG)/'   $(_BASE_DIR)/xorriso/$*.sh > $(_BASE_DIR)/xorriso/$*.sh.tmp
-	mv $(_BASE_DIR)/xorriso/$*.sh{.tmp,}
-
-	sed 's/@ARCH@/$(ARCH)/'             $(_BASE_DIR)/xorriso/$*.sh > $(_BASE_DIR)/xorriso/$*.sh.tmp
-	mv $(_BASE_DIR)/xorriso/$*.sh{.tmp,}
+	$(eval _VARS = IMAGE_NAME IMAGE_TAG ARCH VERSION)
+	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh 
 
 # Step 6: Generate xorriso input
 xorriso/input.txt: xorriso/gen_input.sh
