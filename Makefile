@@ -59,6 +59,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
           $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
           --add-template $(_BASE_DIR)/lorax_templates/set_installer.tmpl \
 		  --add-template $(_BASE_DIR)/lorax_templates/configure_upgrades.tmpl \
+		  -i glibc-langpack-* -i langpacks-* \
 		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
           $(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
