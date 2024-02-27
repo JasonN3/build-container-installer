@@ -1,0 +1,104 @@
+name: Create and publish an ISO
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+
+# Test Values
+env:
+  ARCH: 'x86_64'
+  IMAGE_NAME: 'base'
+  IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
+  VERSION: '39'
+  VARIANT: 'Server'
+
+jobs:
+  build-container:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Buildah Build
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: Containerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+
+  build-and-push-iso:
+    runs-on: ubuntu-latest
+    needs:
+      - build-container
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ env.IMAGE_REPO }}
+
+      - name: Get image version
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+
+      - name: Build ISO
+        uses: ./
+        with:
+          arch: ${{ env.ARCH}}
+          image_name: ${{ env.IMAGE_NAME}}
+          image_repo: ${{ env.IMAGE_REPO}}
+          version: ${{ env.VERSION }}
+          variant: ${{ env.VARIANT }}
+          action_version: ${{ steps.meta.outputs.tags }}
+
+      - name: Rename ISO
+        run: |
+          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+
+      - name: Upload ISO as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          path: build/*.iso
+          if-no-files-found: error
+          retention-days: 0
+          compression-level: 0
+          overwrite: true

@@ -1,5 +1,5 @@
 /debugdata
-/container
+/build
 /pkglists
 /results
 /lorax_templates/*.tmpl
@@ -8,5 +8,5 @@
 /original-pkgsizes.txt
 /final-pkgsizes.txt
 /lorax.conf
-/*.iso
+/output
 /*.log

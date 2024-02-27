@@ -1,0 +1,54 @@
+name: Build Contianer Installer
+description: generate an ISO for installing OSTrees stored in a container
+
+inputs:
+  arch:
+    description: Architecture for image to build
+    required: true
+    default: x86_64
+  image_name:
+    description: Name of the source container image
+    required: true
+    default: base
+  image_repo:
+    description: Repository containing the source container image
+    required: true
+    default: quay.io/fedora-ostree-desktops
+  variant:
+    description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
+    required: true
+    default: Server
+  version:
+    description: Fedora version of installer to build
+    required: true
+    default: "39"
+  image_tag:
+    description: Tag of the source container image. Defaults to the installer version
+    required: false
+  web_ui:
+    description: Enable Anaconda WebUI
+    required: false
+    default: "false"
+  action_version:
+    description: Version of the action container to run
+    required: true
+    default: "latest"
+  additional_templates:
+    description: Space delimetered list of additional Lorax templates to include
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: Run docker image
+      shell: bash
+      run: |
+        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${{ inputs.action_version }} \
+          ARCH=${{ inputs.arch }} \
+          IMAGE_NAME=${{ inputs.image_name }} \
+          IMAGE_REPO=${{ inputs.image_repo }} \
+          VARIANT=${{ inputs.variant }} \
+          VERSION=${{ inputs.version }} \
+          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
+          WEB_UI=${{ inputs.web_ui }} \
+          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
