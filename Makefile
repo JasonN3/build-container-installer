@@ -33,6 +33,7 @@ endif
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
+	implantisomd5 build/deploy.iso
 
 # Step 1: Generate Lorax Templates
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
