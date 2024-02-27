@@ -16,14 +16,22 @@ This will create an ISO with the baked in defaults of the container image.
 See [Customizing](#customizing) for information about customizing the image that gets created. The variable can either be defined as environment variables or as command arguments.
 Examples:
 
-Creating Bluefin GTS ISO
+Creating Universal Blue Silverblue ISO
 ```bash
-docker run --rm --privileged --volume .:/isogenerator/output -e VERSION=38 -e IMAGE_NAME=bluefin -e IMAGE_TAG=gts -e VARIANT=Silverblue ghcr.io/ublue-os/isogenerator:38
+docker run --rm --privileged --volume .:/isogenerator/output -e VERSION=39 -e IMAGE_NAME=silverblue-main -e IMAGE_TAG=latest -e VARIANT=Silverblue ghcr.io/ublue-os/isogenerator:39
+```
+```bash
+# Requires sudo to run
+sudo podman run --rm --privileged --volume .:/isogenerator/output -e VERSION=39 -e IMAGE_NAME=silverblue-main -e IMAGE_TAG=latest -e VARIANT=Silverblue ghcr.io/ublue-os/isogenerator:39
 ```
 
-Creating Bazzite Latest ISO
+Creating Universal Blue Kinoite ISO
 ```bash
-docker run --rm --privileged --volume .:/isogenerator/output -e VERSION=39 -e IMAGE_NAME=bazzite -e IMAGE_TAG=latest -e VARIANT=Kinoite ghcr.io/ublue-os/isogenerator:39
+docker run --rm --privileged --volume .:/isogenerator/output -e VERSION=39 -e IMAGE_NAME=kinoite-main -e IMAGE_TAG=latest -e VARIANT=Kinoite ghcr.io/ublue-os/isogenerator:39
+```
+```bash
+# Requires sudo to run
+sudo podman run --rm --privileged --volume .:/isogenerator/output -e VERSION=39 -e IMAGE_NAME=kinoite-main -e IMAGE_TAG=latest -e VARIANT=Kinoite ghcr.io/ublue-os/isogenerator:39
 ```
 
 ## Customizing
