@@ -9,6 +9,7 @@ VARIANT = Server
 WEB_UI = false
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
 ADDITIONAL_TEMPLATES = ""
+ROOTFS_SIZE = 4
 
 # Generated vars
 ## Formatting = _UPPERCASE
@@ -56,7 +57,7 @@ boot.iso: $(foreach file,$(_LORAX_TEMPLATES),lorax_templates/$(file)) $(_REPO_FI
           $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
           $(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/lorax_templates/$(file)) \
 		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
-		  --rootfs-size 4 \
+		  --rootfs-size $(ROOTFS_SIZE) \
           $(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 

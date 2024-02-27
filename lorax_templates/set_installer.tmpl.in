@@ -1,1 +1,1 @@
-append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=/run/install/repo/${IMAGE_NAME}-${VERSION} --transport=oci --no-signature-verification"
+append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=/run/install/repo/${IMAGE_NAME}-${IMAGE_TAG} --transport=oci --no-signature-verification"
