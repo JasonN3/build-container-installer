@@ -87,7 +87,7 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 	podman rmi $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 
 install-deps:
-	dnf install -y lorax xorriso podman git rpm-ostree
+	dnf install -y lorax xorriso podman git
 
 # Step 4: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
