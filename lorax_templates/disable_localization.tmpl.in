@@ -1,0 +1,1 @@
+replace use_geolocation #use_geolocation /etc/anaconda/anaconda.conf

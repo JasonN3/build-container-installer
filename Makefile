@@ -17,6 +17,7 @@ _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(notdir $(REPOS))
+_LORAX_TEMPLATES = configure_upgrades.tmpl set_installer.tmpl disable_localization.tmpl
 
 ifeq ($(VARIANT),'Server')
 _LORAX_ARGS = --macboot --noupgrade
@@ -51,15 +52,13 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$*.repo
 
 # Step 3: Build boot.iso using Lorax
-boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl $(_REPO_FILES)
+boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-          --isfinal --buildarch=$(ARCH) --volid=$(_VOLID) \
+          --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
           $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
-          --add-template $(_BASE_DIR)/lorax_templates/set_installer.tmpl \
-		  --add-template $(_BASE_DIR)/lorax_templates/configure_upgrades.tmpl \
-		  -i glibc-langpack-* -i langpacks-* \
+          $(foreach file,$(_LORAX_TEMPLATES),--add-template $(file)) \
 		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
 		  --rootfs-size 4 \
           $(_BASE_DIR)/results/
