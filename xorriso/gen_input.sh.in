@@ -5,11 +5,11 @@ echo "-outdev $(pwd)/build/deploy.iso"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-pushd container
+pushd container > /dev/null
 for file in $(find ${IMAGE_NAME}-${IMAGE_TAG})
 do
     echo "-map $(pwd)/${file} ${file}"
     echo "-chmod 0444 ${file}"
 done
-popd
+popd > /dev/null
 echo "-end"

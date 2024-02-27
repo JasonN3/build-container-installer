@@ -18,9 +18,9 @@ _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(notdir $(REPOS))
-_LORAX_TEMPLATES = configure_upgrades.tmpl set_installer.tmpl disable_localization.tmpl
+_LORAX_TEMPLATES = $(shell ls lorax_templates)
 
-ifeq ($(VARIANT),'Server')
+ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
 else
 _LORAX_ARGS = --nomacboot
