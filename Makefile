@@ -52,7 +52,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$*.repo
 
 # Step 3: Build boot.iso using Lorax
-boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
+boot.iso: $(foreach file,$(_LORAX_TEMPLATES),lorax_templates/$(file)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
           --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
