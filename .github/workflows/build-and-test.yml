@@ -81,6 +81,7 @@ jobs:
     needs:
       - check-changes
       - build-container
+    if: always() && (needs.build-container.result == 'success' || needs.build-container.result == 'skipped')
     permissions:
       contents: read
       packages: write
