@@ -37,6 +37,7 @@ $(IMAGE_NAME)-$(IMAGE_TAG).iso: output/$(IMAGE_NAME)-$(IMAGE_TAG).iso
 output/$(IMAGE_NAME)-$(IMAGE_TAG).iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/output || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
+	implantisomd5 $(_BASE_DIR)/output/$(IMAGE_NAME)-$(IMAGE_TAG).iso
 
 # Step 1: Generate Lorax Templates
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
@@ -60,10 +61,6 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
     curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL);\
 	fi
 
-	# Remove the "Test this media & install" menu entry
-	sed -i '/menuentry '\''Test this media & install @PRODUCT@ @VERSION@'\'' --class fedora --class gnu-linux --class gnu --class os {/,/}/d' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
-	sed -i '/menuentry '\''Test this media & install @PRODUCT@ @VERSION@'\'' --class fedora --class gnu-linux --class gnu --class os {/,/}/d' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
-
 	# Set the default menu entry to the first one
 	sed -i 's/set default="1"/set default="0"/' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
 	sed -i 's/set default="1"/set default="0"/' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
@@ -71,6 +68,9 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 	# Add Extra Boot Parameters to all menu entries
 	sed -i 's/linux @KERNELPATH@ @ROOT@ quiet/linux @KERNELPATH@ @ROOT@ quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
 	sed -i 's/linuxefi @KERNELPATH@ @ROOT@ quiet/linuxefi @KERNELPATH@ @ROOT@ quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
+
+	sed -i 's/linux @KERNELPATH@ @ROOT@ rd.live.check quiet/linux @KERNELPATH@ @ROOT@ rd.live.check quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
+	sed -i 's/linuxefi @KERNELPATH@ @ROOT@ rd.live.check quiet/linuxefi @KERNELPATH@ @ROOT@ rd.live.check quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
 
 	sed -i 's/linux @KERNELPATH@ @ROOT@ nomodeset quiet/linux @KERNELPATH@ @ROOT@ nomodeset quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
 	sed -i 's/linuxefi @KERNELPATH@ @ROOT@ nomodeset quiet/linuxefi @KERNELPATH@ @ROOT@ nomodeset quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
