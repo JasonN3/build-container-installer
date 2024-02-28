@@ -77,7 +77,7 @@ Use existing container image:
 	"name": "Existing Dockerfile",
 	// "build": {
 	// 	"context": "..",
-	// 	"dockerfile": "../Dockerfile",
+	// 	"dockerfile": "../Containerfile",
 	// 	"args": {
 	// 		"version": "39"
 	// 	}
@@ -95,7 +95,7 @@ Build a new container image:
 	"name": "Existing Dockerfile",
 	"build": {
 		"context": "..",
-		"dockerfile": "../Dockerfile",
+		"dockerfile": "../Containerfile",
 		"args": {
 			"version": "39"
 		}
@@ -106,3 +106,4 @@ Build a new container image:
 	"privileged": true
 }
 ```
+

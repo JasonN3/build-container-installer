@@ -39,7 +39,7 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 
 # Step 1: Generate Lorax Templates
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	$(eval _VARS = IMAGE_NAME IMAGE_TAG IMAGE_REPO_DOUBLE_ESCAPED)
+	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
 
 
@@ -98,9 +98,9 @@ clean:
 	rm -f $(_BASE_DIR)/lorax.conf || true
 	rm -f $(_BASE_DIR)/*.iso || true
 	rm -f $(_BASE_DIR)/*.log || true
-	
 
 install-deps:
 	dnf install -y lorax xorriso podman
 	
 .PHONY: clean install-deps
+
