@@ -162,7 +162,7 @@ jobs:
 
       - name: Add anaconda.ks to ISO
         run: |
-          wget ${{ needs.build-and-push-iso.outputs.artifact_url }}
+          wget --retry-on-http-error=404 ${{ needs.build-and-push-iso.outputs.artifact_url }}
           ls
           unzip *.zip
           cat << EOF > ks.cfg
