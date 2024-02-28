@@ -1,2 +1,2 @@
-append /etc/anaconda/conf.d/disable_localization.conf [Localization]
-append /etc/anaconda/conf.d/disable_localization.conf use_geolocation = False
+append /etc/anaconda/conf.d/disable_localization.conf "[Localization]"
+append /etc/anaconda/conf.d/disable_localization.conf "use_geolocation = False"
