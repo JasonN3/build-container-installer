@@ -22,3 +22,4 @@ mkdir /github/workspace/build || true
 # Copy resulting iso to github workspace and fix permissions
 cp build/deploy.iso /github/workspace/build
 chmod -R ugo=rwX /github/workspace/build
+

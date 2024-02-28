@@ -98,9 +98,9 @@ clean:
 	rm -f $(_BASE_DIR)/lorax.conf || true
 	rm -f $(_BASE_DIR)/*.iso || true
 	rm -f $(_BASE_DIR)/*.log || true
-	
 
 install-deps:
 	dnf install -y lorax xorriso podman
 	
 .PHONY: clean install-deps
+
