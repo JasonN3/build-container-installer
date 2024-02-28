@@ -32,6 +32,12 @@ inputs:
     description: Enable Anaconda WebUI
     required: true
     default: "false"
+  ENROLLMENT_PASSWORD:
+    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
+    required: false
+  SECURE_BOOT_KEY_URL:
+    description: Secure boot key that is installed from URL location
+    required: false
   ACTION_REPO:
     description: Repository with the build action
     required: false
@@ -107,7 +113,9 @@ runs:
           VARIANT=${{ inputs.VARIANT }} \
           VERSION=${{ inputs.VERSION }} \
           WEB_UI=${{ inputs.WEB_UI }} \
-          EXTRA_BOOT_PARAMS=${{ inputs.EXTRA_BOOT_PARAMS }}
+          EXTRA_BOOT_PARAMS=${{ inputs.EXTRA_BOOT_PARAMS }} \
+          SECURE_BOOT_KEY_URL=${{ inputs.SECURE_BOOT_KEY_URL }} \
+          ENROLLMENT_PASSWORD=${{ inputs.ENROLLMENT_PASSWORD }}
 
     - name: Create deploy.iso and generate sha256 checksum
       shell: bash
@@ -123,13 +131,3 @@ runs:
         mkdir end_iso
         sha256sum ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso > ./end_iso/${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}-CHECKSUM
         mv ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso end_iso/
-
-    - name: Upload ISO as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ inputs.IMAGE_NAME }}-${{ inputs.IMAGE_TAG || inputs.VERSION }}.iso
-        path: end_iso/*
-        if-no-files-found: error
-        retention-days: 0
-        compression-level: 0
-        overwrite: true

@@ -13,6 +13,8 @@ ENV IMAGE_TAG="${VERSION}"
 ENV VARIANT="Kinoite"
 ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
+ENV SECURE_BOOT_KEY_URL=""
+ENV ENROLLMENT_PASSWORD="ublue-os"
 
 COPY / /isogenerator
 WORKDIR /isogenerator

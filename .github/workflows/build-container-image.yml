@@ -1,9 +1,14 @@
 ---
 name: Build Container Image
 on:
+  merge_group:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '*.md'
+      - 'LICENSE'
+      - 'CODEOWNERS'
   push:
     branches:
       - main

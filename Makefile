@@ -8,6 +8,8 @@ IMAGE_TAG = $(VERSION)
 EXTRA_BOOT_PARAMS =
 VARIANT = Kinoite
 WEB_UI = false
+ENROLLMENT_PASSWORD = ublue-os
+SECURE_BOOT_KEY_URL =
 
 # Generated vars
 ## Formatting = _UPPERCASE
@@ -50,6 +52,14 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.tmpl
 	rm -Rf $(_BASE_DIR)/results
 
+	# Set the enrollment password
+	sed 's/@ENROLLMENT_PASSWORD@/$(ENROLLMENT_PASSWORD)/' $(_BASE_DIR)/scripts/enroll-secureboot-key.sh.in > $(_BASE_DIR)/scripts/enroll-secureboot-key.sh
+
+	# Download the secure boot key
+	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; then\
+    curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL);\
+	fi
+
 	# Remove the "Test this media & install" menu entry
 	sed -i '/menuentry '\''Test this media & install @PRODUCT@ @VERSION@'\'' --class fedora --class gnu-linux --class gnu --class os {/,/}/d' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
 	sed -i '/menuentry '\''Test this media & install @PRODUCT@ @VERSION@'\'' --class fedora --class gnu-linux --class gnu --class os {/,/}/d' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
@@ -68,6 +78,7 @@ boot.iso: lorax_templates/set_installer.tmpl lorax_templates/configure_upgrades.
 	sed -i 's/linux @KERNELPATH@ @ROOT@ inst.rescue quiet/linux @KERNELPATH@ @ROOT@ inst.rescue quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-bios.cfg
 	sed -i 's/linuxefi @KERNELPATH@ @ROOT@ inst.rescue quiet/linuxefi @KERNELPATH@ @ROOT@ inst.rescue quiet $(EXTRA_BOOT_PARAMS)/g' /usr/share/lorax/templates.d/99-generic/config_files/x86/grub2-efi.cfg
 
+	# Build boot.iso
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
           --isfinal --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
