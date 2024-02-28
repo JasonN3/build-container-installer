@@ -17,7 +17,7 @@ _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
-_REPO_FILES = $(notdir $(REPOS))
+_REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in))
 
 ifeq ($(VARIANT),Server)
@@ -43,10 +43,17 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 
 
 # Step 2: Replace vars in repo files
-%.repo: /etc/yum.repos.d/%.repo
+repos/%.repo: /etc/yum.repos.d/%.repo
+	if [[ ! -d repos ]]
+	then
+		mkdir repos
+	fi
 	cp /etc/yum.repos.d/$*.repo $(_BASE_DIR)/$*.repo
 	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/$*.repo
 	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$*.repo
+
+# Don't do anything for custom repos
+%.repo:
 
 # Step 3: Build boot.iso using Lorax
 boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
@@ -80,11 +87,12 @@ xorriso/input.txt: xorriso/gen_input.sh
 
 
 clean:
+	rm -Rf $(_BASE_DIR)/build || true
 	rm -Rf $(_BASE_DIR)/container || true
 	rm -Rf $(_BASE_DIR)/debugdata || true
 	rm -Rf $(_BASE_DIR)/pkglists || true
+	rm -Rf $(_BASE_DIR)/repos || true
 	rm -Rf $(_BASE_DIR)/results || true
-	rm -Rf $(_BASE_DIR)/build || true
 	rm -f $(_BASE_DIR)/lorax_templates/*.tmpl || true
 	rm -f $(_BASE_DIR)/xorriso/input.txt || true
 	rm -f $(_BASE_DIR)/xorriso/*.sh || true
@@ -92,6 +100,7 @@ clean:
 	rm -f $(_BASE_DIR)/lorax.conf || true
 	rm -f $(_BASE_DIR)/*.iso || true
 	rm -f $(_BASE_DIR)/*.log || true
+	
 
 install-deps:
 	dnf install -y lorax xorriso podman
