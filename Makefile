@@ -44,10 +44,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 
 # Step 2: Replace vars in repo files
 repos/%.repo: /etc/yum.repos.d/%.repo
-	if [[ ! -d repos ]]
-	then
-		mkdir repos
-	fi
+	mkdir repos || true
 	cp /etc/yum.repos.d/$*.repo $(_BASE_DIR)/$*.repo
 	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/$*.repo
 	sed -i "s/\$$basearch/${ARCH}/g" $(_BASE_DIR)/$*.repo
