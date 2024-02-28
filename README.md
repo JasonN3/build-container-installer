@@ -7,14 +7,14 @@ This action is used to generate an ISO for installing OSTrees stored in a contai
 This action is designed to be called from a GitHub workflow using the following format
 ```yaml
 - name: Build ISO
-	uses: jasonn3/build-container-installer/v1.0.0
-	with:
-		arch: ${{ env.ARCH}}
-		image_name: ${{ env.IMAGE_NAME}}
-		image_repo: ${{ env.IMAGE_REPO}}
-		version: ${{ env.VERSION }}
-		variant: ${{ env.VARIANT }}
-		action_version: v1.0.0
+  uses: jasonn3/build-container-installer/v1.0.0
+  with:
+    arch: ${{ env.ARCH}}
+    image_name: ${{ env.IMAGE_NAME}}
+    image_repo: ${{ env.IMAGE_REPO}}
+    version: ${{ env.VERSION }}
+    variant: ${{ env.VARIANT }}
+    action_version: v1.0.0
 ```
 
 See [Customizing](#customizing) for information about customizing the ISO that gets created using `with`
@@ -72,7 +72,12 @@ The code from VSCode will be available at `/workspaces/build-container-installer
 Privileged is required for access to loop devices for lorax.
 
 Use existing container image:
-```json
+<style>
+pl-ii {
+  @extend 
+}
+</style>
+```
 {
 	"name": "Existing Dockerfile",
 	// "build": {
@@ -90,7 +95,7 @@ Use existing container image:
 ```
 
 Build a new container image:
-```json
+```
 {
 	"name": "Existing Dockerfile",
 	"build": {
