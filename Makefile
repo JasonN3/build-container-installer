@@ -50,7 +50,8 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 
 # Step 3: Build boot.iso using Lorax
 boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
-	rm -Rf $(_BASE_DIR)/results
+	rm -Rf $(_BASE_DIR)/results || true
+	rm /etc/rpm/macros.image-language-conf || true
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
           --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
           $(_LORAX_ARGS) \
