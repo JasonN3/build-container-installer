@@ -146,6 +146,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-and-push-iso
+    if: always() && needs.build-and-push-iso.result == 'success'
     permissions:
       contents: read
       packages: write
