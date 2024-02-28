@@ -23,3 +23,4 @@ RUN dnf install -y make && make install-deps
 VOLUME /build-container-installer/build
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+
