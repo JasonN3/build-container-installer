@@ -4,7 +4,7 @@
 	"name": "Existing Dockerfile",
 	// "build": {
 	// 	"context": "..",
-	// 	"dockerfile": "../Dockerfile",
+	// 	"dockerfile": "../Containerfile",
 	// 	"args": {
 	// 		"version": "39"
 	// 	}
@@ -14,3 +14,4 @@
 	"shutdownAction": "stopContainer",
 	"privileged": true
 }
+

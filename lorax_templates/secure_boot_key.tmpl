@@ -1,0 +1,9 @@
+append usr/share/anaconda/interactive-defaults.ks "%post --logfile=/root/ks-post.log --erroronfail --nochroot"
+append usr/share/anaconda/interactive-defaults.ks "set -m"
+append usr/share/anaconda/interactive-defaults.ks "/run/install/repo/enroll-secureboot-key.sh"
+append usr/share/anaconda/interactive-defaults.ks "%end"
+
+append usr/share/anaconda/post-scripts/secure_boot_key.ks "%post --logfile=/root/ks-post.log --erroronfail --nochroot"
+append usr/share/anaconda/post-scripts/secure_boot_key.ks "set -m"
+append usr/share/anaconda/post-scripts/secure_boot_key.ks "/run/install/repo/enroll-secureboot-key.sh"
+append usr/share/anaconda/post-scripts/secure_boot_key.ks "%end"

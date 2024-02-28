@@ -1,0 +1,86 @@
+name: Test Generate ISO
+
+on:
+  merge_group:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - 'Containerfile'
+      - '*.md'
+      - 'LICENSE'
+      - 'CODEOWNERS'
+  workflow_dispatch:
+
+jobs:
+  build-and-push-iso:
+    name: Build ISO
+    runs-on: ubuntu-latest
+    container:
+      image: fedora:39
+      options: "--privileged"
+      volumes:
+        - "/:/host"
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 38
+          - 39
+        secure_boot:
+          - true
+          - false
+        include:
+          - secure_boot: true
+            SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
+            ENROLLMENT_PASSWORD: 'ublue-os'
+            SECURE_BOOT_STRING: '-secure'
+          - secure_boot: false
+            SECURE_BOOT_KEY_URL: ''
+            ENROLLMENT_PASSWORD: ''
+            SECURE_BOOT_STRING: ''
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build ISO
+        uses: ./
+        with:
+          ARCH: 'x86_64'
+          IMAGE_NAME: 'base-main'
+          IMAGE_REPO: 'ghcr.io/ublue-os'
+          VARIANT: 'Kinoite'
+          VERSION: ${{ matrix.version }}
+          ACTION_REPO: ${{ github.repository }}
+          ACTION_REF: ${{ github.ref }}
+          SECURE_BOOT_KEY_URL: ${{ matrix.SECURE_BOOT_KEY_URL }}
+          ENROLLMENT_PASSWORD: ${{ matrix.ENROLLMENT_PASSWORD }}
+
+      - name: Upload ISO as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-main-${{ matrix.version }}${{ matrix.SECURE_BOOT_STRING }}.iso
+          path: end_iso/*
+          if-no-files-found: error
+          retention-days: 0
+          compression-level: 0
+          overwrite: true
+
+  check:
+    name: Check build successful
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-iso
+    steps:
+      - name: Exit on failure for main
+        if: ${{ needs.build-and-push-iso.result == 'failure' || needs.build-and-push-iso.result == 'skipped' }}
+        shell: bash
+        run: exit 1
+      - name: Exit
+        shell: bash
+        run: exit 0
