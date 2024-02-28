@@ -28,7 +28,7 @@ inputs:
   web_ui:
     description: Enable Anaconda WebUI
     required: false
-    default: "false"
+    default: "true"
   action_version:
     description: Version of the action container to run
     required: true

@@ -8,7 +8,7 @@ IMAGE_TAG = $(VERSION)
 VARIANT = Server
 WEB_UI = true
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
-ADDITIONAL_TEMPLATES = ""
+ADDITIONAL_TEMPLATES = 
 ROOTFS_SIZE = 4
 
 # Generated vars
