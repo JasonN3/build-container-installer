@@ -1,5 +1,5 @@
-name: Build Contianer Installer
-description: generate an ISO for installing OSTrees stored in a container
+name: Build Container Installer
+description: Generates an ISO for installing an OSTree stored in a container image
 
 inputs:
   arch:
