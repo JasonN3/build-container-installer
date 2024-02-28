@@ -72,11 +72,6 @@ The code from VSCode will be available at `/workspaces/build-container-installer
 Privileged is required for access to loop devices for lorax.
 
 Use existing container image:
-<style>
-pl-ii {
-  @extend 
-}
-</style>
 ```
 {
 	"name": "Existing Dockerfile",
