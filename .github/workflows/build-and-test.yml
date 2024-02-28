@@ -87,7 +87,7 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
-          action_version: ${{ steps.meta.outputs.tags }}
+          action_version: ${{ steps.meta.outputs.tags || 'latest' }}
 
       - name: Rename ISO
         run: |
