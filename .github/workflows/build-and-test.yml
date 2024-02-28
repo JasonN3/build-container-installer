@@ -114,7 +114,7 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
-          action_version: ${{ steps.meta.outputs.tags }}
+          action_version: ${{ steps.meta.outputs.tags || 'latest' }}
 
       - name: Build ISO with latest container
         if: needs.check-changes.outputs.container == 'false'
@@ -125,7 +125,7 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
-          action_version: ${{ steps.meta.outputs.tags || 'latest' }}
+          action_version: 'latest'
 
       - name: Rename ISO
         run: |
