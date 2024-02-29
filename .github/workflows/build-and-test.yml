@@ -167,7 +167,6 @@ jobs:
       - name: Add anaconda.ks to ISO
         run: |
           ls
-          unzip *.zip
           cat << EOF > ks.cfg
           
           EOF
@@ -179,6 +178,6 @@ jobs:
           -end
           EOF
 
-      #- name: Start a VM
-      #  run: |
-      #    qemu-system-x86_64 --name "Anaconda" -m 4096 -cpu host -cdrom test.iso -drive file=disk.qcow2
+      - name: Start a VM
+        run: |
+          qemu-system-x86_64 --name "Anaconda" -m 4096 -cpu host -cdrom test.iso -drive file=disk.qcow2
