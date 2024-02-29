@@ -181,5 +181,10 @@ jobs:
 
       - name: Start a VM
         run: |
+          mkfifo vm.stdout
+          mkfifo vm.stdin
           qemu-system-x86_64 --name "Anaconda" -m 4096 -cpu kvm64 -display none -cdrom test.iso -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait &
-          timeout 1m nc localhost 4321
+          timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
+          nc localhost 4321 > vm.stdout < vm.stdin
+
+          tail -f vm.stdout
