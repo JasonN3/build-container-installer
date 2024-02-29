@@ -152,7 +152,7 @@ jobs:
       - name: Ensure qemu is installed
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86
+          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat
 
       - name: Create disk
         run: |
@@ -177,7 +177,9 @@ jobs:
           -chmod 0444 ks.cfg
           -end
           EOF
+          implantisomd5 test.iso 
 
       - name: Start a VM
         run: |
-          qemu-system-x86_64 --name "Anaconda" -m 4096 -cpu host -cdrom test.iso -drive file=disk.qcow2
+          qemu-system-x86_64 --name "Anaconda" -m 4096 -cpu kvm64 -cdrom test.iso -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait
+          timeout 1m nc localhost 4321
