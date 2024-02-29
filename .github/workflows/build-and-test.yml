@@ -85,8 +85,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-      artifact_url: ${{ steps.upload.outputs.artifact-url }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -160,9 +158,14 @@ jobs:
         run: |
           qemu-img create -f qcow2 disk.qcow2 50G
 
+      - name: Download generated ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+    
+
       - name: Add anaconda.ks to ISO
         run: |
-          wget --retry-on-http-error=404 ${{ needs.build-and-push-iso.outputs.artifact_url }}
           ls
           unzip *.zip
           cat << EOF > ks.cfg
