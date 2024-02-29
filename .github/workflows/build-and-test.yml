@@ -152,7 +152,7 @@ jobs:
       - name: Ensure qemu is installed
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip
+          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86
 
       - name: Create disk
         run: |
