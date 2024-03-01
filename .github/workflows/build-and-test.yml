@@ -166,15 +166,27 @@ jobs:
 
       - name: Add anaconda.ks to ISO
         run: |
-          ls
+          sudo mkdir /mnt/iso
+          sudo mount -o loop ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso /mnt/iso
+          cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
+          sed -i 's/quiet/console=ttyS0,115200n8/' grub.cfg
           cat << EOF > ks.cfg
-          
+          lang en_US.UTF-8
+          keyboard us
+          timezone Americas/New_York
+          zerombr
+          clearpart --all --initlabel
+          autopart
+          reboot
+          user --name=core --groups=wheel --password=foobar
           EOF
           xorriso -dialog on << EOF
           -indev ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
           -outdev test.iso
           -map ks.cfg ks.cfg
           -chmod 0444 ks.cfg
+          -map grub.cfg boot/grub2/grub.cfg
+          -chmod 0444 boot/grub2/grub.cfg
           -end
           EOF
           implantisomd5 test.iso 
@@ -183,7 +195,7 @@ jobs:
         run: |
           mkfifo vm.stdout
           mkfifo vm.stdin
-          qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu kvm64 -display none -cdrom test.iso -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait &
+          qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait &
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           nc localhost 4321 > vm.stdout < vm.stdin &
 
