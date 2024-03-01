@@ -200,5 +200,5 @@ jobs:
           mkfifo vm.stdin
           qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait &
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
-          
-          timeout 15m nc localhost 4321
+          nc localhost 4321 > vm.stdout < vm.stdin &
+          timeout 30m tail -f vm.stdout
