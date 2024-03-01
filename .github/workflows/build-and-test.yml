@@ -196,7 +196,7 @@ jobs:
 
       - name: Install the test VM
         run: |
-          qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait &; QEMU_PID=$!
+          qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait & QEMU_PID=$!
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (nc localhost 4321 | tee vm.stdout) &
@@ -204,7 +204,7 @@ jobs:
 
       - name: Start the test VM
         run: |
-          qemu-system-x86_64 -name "Anaconda" -boot c -m 4096 -cpu qemu64 -display none -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait &; export QEMU_PID=$!
+          qemu-system-x86_64 -name "Anaconda" -boot c -m 4096 -cpu qemu64 -display none -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (nc localhost 4321 | tee vm.stdout) &
