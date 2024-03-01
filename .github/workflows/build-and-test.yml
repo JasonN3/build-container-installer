@@ -17,30 +17,8 @@ env:
   VARIANT: 'Server'
 
 jobs:
-  check-changes:
-    name: Check Changes
-    runs-on: ubuntu-latest
-    outputs:
-      container: ${{ steps.changes.outputs.container }}
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            container:
-              - 'Containerfile'
-              - '/lorax_templates/**'
-              - '/xorriso/**'
-              - '/Makefile'
-              - '/entrypoint.sh'
-
   build-container:
     runs-on: ubuntu-latest
-    if: needs.check-changes.outputs.container == 'true'
-    needs:
-      - check-changes
     permissions:
       contents: read
       packages: write
@@ -79,9 +57,7 @@ jobs:
   build-and-push-iso:
     runs-on: ubuntu-latest
     needs:
-      - check-changes
       - build-container
-    if: always() && (needs.build-container.result == 'success' || needs.build-container.result == 'skipped')
     permissions:
       contents: read
       packages: write
@@ -104,7 +80,6 @@ jobs:
             type=ref,event=pr
 
       - name: Build ISO with new container
-        if: needs.check-changes.outputs.container == 'true'
         uses: ./
         with:
           arch: ${{ env.ARCH}}
@@ -112,17 +87,6 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
-
-      - name: Build ISO with latest container
-        if: needs.check-changes.outputs.container == 'false'
-        uses: ./
-        with:
-          arch: ${{ env.ARCH}}
-          image_name: ${{ env.IMAGE_NAME}}
-          image_repo: ${{ env.IMAGE_REPO}}
-          version: ${{ env.VERSION }}
-          variant: ${{ env.VARIANT }}
-          action_version: 'latest'
 
       - name: Rename ISO
         run: |
@@ -143,7 +107,6 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - build-and-push-iso
-    if: always() && needs.build-and-push-iso.result == 'success'
     permissions:
       contents: read
       packages: write
