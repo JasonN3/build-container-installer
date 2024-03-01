@@ -169,7 +169,7 @@ jobs:
           sudo mkdir /mnt/iso
           sudo mount -o loop ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso /mnt/iso
           cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
-          sed -i 's/quiet/console=ttyS0,115200n8/' grub.cfg
+          sed -i 's/quiet/console=ttyS0,115200n8 inst.ks=\/run\/install\/repo\/ks.cfg/' grub.cfg
           cat << EOF > ks.cfg
           lang en_US.UTF-8
           keyboard us
