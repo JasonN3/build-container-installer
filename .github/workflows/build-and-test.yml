@@ -163,10 +163,11 @@ jobs:
         with:
           name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
     
+      - name: Verify ISO
+        run: checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
 
-      - name: Add anaconda.ks to ISO
+      - name: Add Kickstart and Grub options to ISO
         run: |
-          checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
           sudo mkdir /mnt/iso
           sudo mount -o loop ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso /mnt/iso
           cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
@@ -181,7 +182,7 @@ jobs:
           autopart
           reboot
           user --name=core --groups=wheel --password=foobar
-          %ksappend /usr/share/anaconda/interactive-defaults.ks
+          %include /usr/share/anaconda/interactive-defaults.ks
           EOF
           xorriso -dialog on << EOF
           -indev base-39.iso
