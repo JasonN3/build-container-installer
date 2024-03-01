@@ -135,7 +135,7 @@ jobs:
           cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
           sed -i 's/quiet/console=ttyS0,115200n8 inst.ks=cdrom:\/ks.cfg/' grub.cfg
           sed -i 's/set default="1"/set default="0"/' grub.cfg
-          set -i 's/set timeout=60/set timeout=1/' grub.cfg
+          sed -i 's/set timeout=60/set timeout=1/' grub.cfg
           cat << EOF > ks.cfg
           lang en_US.UTF-8
           keyboard us
