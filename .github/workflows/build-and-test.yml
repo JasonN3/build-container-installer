@@ -181,12 +181,12 @@ jobs:
           user --name=core --groups=wheel --password=foobar
           EOF
           xorriso -dialog on << EOF
-          -indev ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          -indev base-39.iso
           -outdev test.iso
+          -boot_image any replay
           -map ks.cfg ks.cfg
           -chmod 0444 ks.cfg
           -map grub.cfg boot/grub2/grub.cfg
-          -chmod 0444 boot/grub2/grub.cfg
           -end
           EOF
           implantisomd5 test.iso 
