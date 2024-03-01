@@ -200,7 +200,7 @@ jobs:
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (nc localhost 4321 | tee vm.stdout) &
-          timeout 30m base -c "echo ${QEMU_PID}; wait $QEMU_PID"
+          timeout 30m bash -c "echo ${QEMU_PID}; wait $QEMU_PID"
 
       - name: Start the test VM
         run: |
