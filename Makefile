@@ -36,6 +36,10 @@ ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
 endif
 
+ifneq ($(FLATPAK_REMOTE_REFS),)
+_LORAX_ARGS += -i flatpak-libs
+endif
+
 # Step 7: Buid end ISO
 ## Default action
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
@@ -105,7 +109,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo
+	dnf install -y lorax xorriso skopeo flatpak
 	
 .PHONY: clean install-deps
 
