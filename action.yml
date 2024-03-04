@@ -34,8 +34,20 @@ inputs:
     required: true
     default: "latest"
   additional_templates:
-    description: Space delimetered list of additional Lorax templates to include
+    description: Space delimited list of additional Lorax templates to include
     required: false
+  flatpak_remote_name:
+    description: Name of the Flatpak remote repo
+    required: false
+    default: "flathub"
+  flatpak_remote_url:
+    description: The URL of the Flatpak remote repo
+    required: false
+    default: https://dl.flathub.org/repo/
+  flatpak_remote_refs:
+    description: Space delimited list of refs to the flatpak packages to install
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -51,5 +63,8 @@ runs:
           VERSION=${{ inputs.version }} \
           IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
           WEB_UI=${{ inputs.web_ui }} \
-          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
+          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}" \
+          FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
+          FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
+          FLATPAK_REMOTE_REFS=${{ inputs.flatpak_remote_refs }}
 

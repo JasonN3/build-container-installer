@@ -15,6 +15,7 @@ env:
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
   VERSION: '39'
   VARIANT: 'Server'
+  FLATPAK_REFS: app/org.videolan.VLC/x86_64/stable
 
 jobs:
   build-container:
@@ -88,6 +89,7 @@ jobs:
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
           action_version: ${{ steps.meta.outputs.tags || 'latest' }}
+          flatpak_remote_refs: ${{ env.FLATPAK_REFS }}
 
       - name: Rename ISO
         run: |
