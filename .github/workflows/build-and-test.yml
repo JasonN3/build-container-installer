@@ -111,10 +111,13 @@ jobs:
       contents: read
       packages: write
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Ensure qemu is installed
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum
+          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible
 
       - name: Create disk
         run: |
@@ -127,6 +130,17 @@ jobs:
     
       - name: Verify ISO
         run: checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+
+      - name: Run ISO checks
+        run: |
+          for check in $(ls tests/iso)
+          do
+            if [[ -f $check && $check != "README.md" ]]
+            then
+              chmod +x $check
+              ./${check} ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+            fi
+          done
 
       - name: Add Kickstart and Grub options to ISO
         run: |
@@ -184,20 +198,19 @@ jobs:
           
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
 
-          VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
-          echo "VM ready for tests at IP ${VM_IP}"
-          #if ! (echo /dev/tcp/${VM_IP}/22)
-          #then
-            echo ${VM_USER} >> vm.stdin
-
-            timeout 30m bash -c "while ! (grep 'Password:' vm.stdout); do sleep 1; done"
-            echo > vm.stdout
-            echo ${VM_PASS} >> vm.stdin
-
-            timeout 30m bash -c "while ! (grep '#' vm.stdout); do sleep 1; done"
-            echo > vm.stdout
-            echo "dnf install -y openssh; systemctl enable --now sshd"
-            timeout 30m bash -c "while ! (grep '#' vm.stdout); do sleep 1; done"
-          #fi
+          export VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
+          if ! (echo /dev/tcp/${VM_IP}/22)
+          then
+            echo "SSH must be installed and enabled inside the container"
+          fi
           
           echo "VM ready for tests at IP ${VM_IP}"
+          for check in $(ls tests/vm)
+          do
+            if [[ -f $check && $check != "README.md" ]]
+            then
+              chmod +x $check
+              ./${check}
+            fi
+          done
+
