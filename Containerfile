@@ -11,6 +11,7 @@ ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
 
 RUN mkdir /build-container-installer
+COPY /external /build-container-installer/external
 COPY /lorax_templates /build-container-installer/lorax_templates
 COPY /xorriso /build-container-installer/xorriso
 COPY /Makefile /build-container-installer
