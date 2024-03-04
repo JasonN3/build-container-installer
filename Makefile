@@ -98,7 +98,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso podman
+	dnf install -y lorax xorriso skopeo
 	
 .PHONY: clean install-deps
 
