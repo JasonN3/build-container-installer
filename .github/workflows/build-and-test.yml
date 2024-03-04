@@ -166,6 +166,9 @@ jobs:
           wait $QEMU_PID
 
       - name: Start the test VM
+        env:
+          VM_USER: core
+          VM_PASS: foobar
         run: |
           mkfifo vm.stdin
           qemu-system-x86_64 -name "Anaconda" \
@@ -175,11 +178,26 @@ jobs:
             -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
             -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
           echo "PID: $QEMU_PID"
+
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
+          
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
-          timeout 1m bash -c 'echo "core" >> vm.stdin'
-          timeout 30m bash -c "while ! (grep 'Password:' vm.stdout); do sleep 1; done"
-          timeout 1m bash -c 'echo "foobar" >> vm.stdin'
-          echo "VM ready for tests"
-          { echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq
+
+          VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
+          echo "VM ready for tests at IP ${VM_IP}"
+          #if ! (echo /dev/tcp/${VM_IP}/22)
+          #then
+            echo ${VM_USER} >> vm.stdin
+
+            timeout 30m bash -c "while ! (grep 'Password:' vm.stdout); do sleep 1; done"
+            echo > vm.stdout
+            echo ${VM_PASS} >> vm.stdin
+
+            timeout 30m bash -c "while ! (grep '#' vm.stdout); do sleep 1; done"
+            echo > vm.stdout
+            echo "dnf install -y openssh; systemctl enable --now sshd"
+            timeout 30m bash -c "while ! (grep '#' vm.stdout); do sleep 1; done"
+          #fi
+          
+          echo "VM ready for tests at IP ${VM_IP}"
