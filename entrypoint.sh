@@ -7,7 +7,7 @@ mknod -m 0660 /dev/loop0 b 7 0 2>/dev/null || true
 
 for i
 do
-  export ${i@Q}
+  export ${i}
 done
 
 # Pull container
