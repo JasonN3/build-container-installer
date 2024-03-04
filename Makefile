@@ -40,9 +40,9 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	# Support interactive-defaults.ks
-	while readline -r line; do echo "append usr/share/anaconda/interactive-defaults.ks \"${line}\"" >> lorax_templates/post_%.tmpl; done < lorax_templates/scripts/post/%
+	while readline -r line; do echo "append usr/share/anaconda/interactive-defaults.ks \"${line}\"" >> lorax_templates/post_$*.tmpl; done < lorax_templates/scripts/post/$*
 	# Support new Anacond method
-	while readline -r line; do echo "append usr/share/anaconda/post-scripts/configure_upgrades.ks \"${line}\"" >> lorax_templates/post_%.tmpl; done < lorax_templates/scripts/post/%
+	while readline -r line; do echo "append usr/share/anaconda/post-scripts/configure_upgrades.ks \"${line}\"" >> lorax_templates/post_$*.tmpl; done < lorax_templates/scripts/post/$*
 
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED)
