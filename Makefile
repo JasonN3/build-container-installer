@@ -109,7 +109,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree
 	
 .PHONY: clean install-deps
 
