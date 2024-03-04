@@ -18,7 +18,7 @@ _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
-_LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post))),lorax_templates/post_$(file).tmpl)
+_LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
