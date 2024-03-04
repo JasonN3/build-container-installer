@@ -69,5 +69,5 @@ runs:
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}" \
           FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
           FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
-          FLATPAK_REMOTE_REFS=${{ inputs.flatpak_remote_refs }}
+          "FLATPAK_REMOTE_REFS=${{ inputs.flatpak_remote_refs }}"
 
