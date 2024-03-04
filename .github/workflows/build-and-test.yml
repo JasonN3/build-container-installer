@@ -182,4 +182,4 @@ jobs:
           timeout 30m bash -c "while ! (grep 'Password:' vm.stdout); do sleep 1; done"
           timeout 1m bash -c 'echo "foobar" >> vm.stdin'
           echo "VM ready for tests"
-          { echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -j '."return"[] | ."name", (."ip-addresses"[] | ."ip-address"),"\n"'
+          { echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq
