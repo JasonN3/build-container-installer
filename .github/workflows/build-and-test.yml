@@ -172,4 +172,7 @@ jobs:
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (nc localhost 4321 | tee vm.stdout) &
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
+          timeout 1m bash -c 'echo "core" | nc localhost 4321'
+          timeout 30m bash -c "while ! (grep -i 'password:' vm.stdout); do sleep 1; done"
+          timeout 1m bash -c 'echo "foobar" | nc localhost 4321'
           echo "VM ready for tests"
