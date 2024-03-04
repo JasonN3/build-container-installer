@@ -24,7 +24,7 @@ _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in))
 _FLATPAK_TEMPLATES = $(_BASE_DIR)/external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
-_TEMPLATE_VARS = FLATPAK_REMOTE_NAME FLATPAK_REMOTE_URL FLATPAK_REMOTE_REFS
+_TEMPLATE_VARS = flatpak_remote_name flatpak_remote_url flatpak_remote_refs
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
