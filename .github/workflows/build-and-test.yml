@@ -202,7 +202,7 @@ jobs:
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
 
           export VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
-          if ! (echo /dev/tcp/${VM_IP}/22)
+          if ! (echo > /dev/tcp/${VM_IP}/22)
           then
             echo "SSH must be installed and enabled inside the container"
           fi
