@@ -114,7 +114,7 @@ jobs:
       - name: Ensure qemu is installed
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat isomd5sum
+          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum
 
       - name: Create disk
         run: |
@@ -159,7 +159,7 @@ jobs:
 
       - name: Install the test VM
         run: |
-          timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait & QEMU_PID=$!
+          timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & QEMU_PID=$!
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (nc localhost 4321 | tee vm.stdout) &
@@ -168,12 +168,13 @@ jobs:
       - name: Start the test VM
         run: |
           mkfifo vm.stdin
-          qemu-system-x86_64 -name "Anaconda" -boot c -m 4096 -cpu qemu64 -display none -smp 2 -drive file=disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
+          qemu-system-x86_64 -name "Anaconda" -boot c -m 4096 -cpu qemu64 -display none -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
           timeout 1m bash -c 'echo "core" >> vm.stdin'
-          timeout 30m bash -c "while ! (grep -i 'password:' vm.stdout); do sleep 1; done"
+          timeout 30m bash -c "while ! (grep 'Password:' vm.stdout); do sleep 1; done"
           timeout 1m bash -c 'echo "foobar" >> vm.stdin'
           echo "VM ready for tests"
+          { echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -j '."return"[] | ."name", (."ip-addresses"[] | ."ip-address"),"\n"'
