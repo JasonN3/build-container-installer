@@ -133,6 +133,9 @@ jobs:
 
       - name: Run ISO checks
         run: |
+          set -ex
+          pwd
+          ls
           for check in $(ls tests/iso)
           do
             if [[ -f $check && $check != "README.md" ]]
