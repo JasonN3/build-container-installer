@@ -136,7 +136,7 @@ jobs:
           set -ex
           pwd
           ls
-          for check in $(ls tests/iso)
+          for check in $(ls tests/iso/*)
           do
             if [[ -f $check && $check != "README.md" ]]
             then
