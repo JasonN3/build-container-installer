@@ -76,10 +76,8 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 
 # Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
-	mkdir container || true
-	podman pull $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
-	podman save --format oci-dir -o $(_BASE_DIR)/container/$(IMAGE_NAME)-$(IMAGE_TAG) $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
-	podman rmi $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
+	mkdir $(_BASE_DIR)/container || true
+	skopeo copy docker://$(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG) oci:$(_BASE_DIR)/container/$(IMAGE_NAME)-$(IMAGE_TAG)
 
 # Step 5: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
@@ -107,7 +105,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso podman
+	dnf install -y lorax xorriso skopeo
 	
 .PHONY: clean install-deps
 

@@ -14,7 +14,6 @@ This action is designed to be called from a GitHub workflow using the following 
     image_repo: ${{ env.IMAGE_REPO}}
     version: ${{ env.VERSION }}
     variant: ${{ env.VARIANT }}
-    action_version: v1.0.0
 ```
 
 See [Customizing](#customizing) for information about customizing the ISO that gets created using `with`

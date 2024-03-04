@@ -31,8 +31,8 @@ inputs:
     default: "false"
   action_version:
     description: Version of the action container to run
-    required: true
-    default: "latest"
+    deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
+    required: false
   additional_templates:
     description: Space delimited list of additional Lorax templates to include
     required: false
@@ -55,7 +55,10 @@ runs:
     - name: Run docker image
       shell: bash
       run: |
-        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${{ inputs.action_version }} \
+        # Check if running inside of the action repo
+        if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
+        if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
+        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${tag} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \

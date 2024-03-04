@@ -90,7 +90,6 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
-          action_version: ${{ steps.meta.outputs.tags || 'latest' }}
           flatpak_remote_refs: ${{ env.FLATPAK_REFS }}
 
       - name: Rename ISO
