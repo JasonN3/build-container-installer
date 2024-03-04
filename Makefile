@@ -18,7 +18,7 @@ _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
-_LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in))
+_LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(subst scripts/,,$(subst post/,post_,$(shell ls lorax_templates/scripts/post))),$(file).tmpl)
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
@@ -38,6 +38,12 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 	implantisomd5 build/deploy.iso
 
 # Step 1: Generate Lorax Templates
+lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
+	# Support interactive-defaults.ks
+	while readline -r line; echo "append usr/share/anaconda/interactive-defaults.ks \"${line}\"" >> lorax_templates/post_%.tmpl; done < lorax_templates/scripts/post/%
+	# Support new Anacond method
+	while readline -r line; echo "append usr/share/anaconda/post-scripts/configure_upgrades.ks \"${line}\"" >> lorax_templates/post_%.tmpl; done < lorax_templates/scripts/post/%
+
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl

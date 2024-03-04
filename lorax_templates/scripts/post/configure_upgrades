@@ -1,0 +1,6 @@
+if (which bootc &> /dev/null)
+then
+  bootc switch ${_IMAGE_REPO_ESCAPED}\/${IMAGE_NAME}:${IMAGE_TAG}
+else
+  sed -i 's/container-image-reference=.*/container-image-reference=ostree-image-signed:docker:\/\/${_IMAGE_REPO_DOUBLE_ESCAPED}\/${IMAGE_NAME}:${IMAGE_TAG}/' /ostree/deploy/default/deploy/*.origin
+fi
