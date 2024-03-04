@@ -41,9 +41,9 @@ inputs:
     required: false
     default: "flathub"
   flatpak_remote_url:
-    description: The URL of the Flatpak remote repo
+    description: The URL of the Flatpak remote flatpakrepo file
     required: false
-    default: https://dl.flathub.org/repo/
+    default: https://flathub.org/repo/flathub.flatpakrepo
   flatpak_remote_refs:
     description: Space delimited list of refs to the flatpak packages to install
     required: false

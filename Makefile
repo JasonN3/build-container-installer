@@ -10,7 +10,7 @@ WEB_UI = false
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
 ADDITIONAL_TEMPLATES = ""
 FLATPAK_REMOTE_NAME = flathub
-FLATPAK_REMOTE_URL = https://dl.flathub.org/repo/
+FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
 FLATPAK_REMOTE_REFS = 
 
 ROOTFS_SIZE = 4
