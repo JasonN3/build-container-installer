@@ -47,13 +47,21 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Lowercase Registry
+      id: registry_case
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ghcr.io/${{ github.repository }}
+        
     - name: Run docker image
       shell: bash
       run: |
         # Check if running inside of the action repo
         if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
         if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
-        docker run --privileged --volume .:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${tag} \
+        image=${{ steps.registry_case.outputs.lowercase }}
+        if [[ ${{ github.event_name }} == 'pull_request' ]]; then image="${image}/build-container-installer"; fi
+        docker run --privileged --volume .:/github/workspace/ ${image}:${tag} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
