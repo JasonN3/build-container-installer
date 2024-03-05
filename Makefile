@@ -19,6 +19,7 @@ _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
+_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
@@ -42,20 +43,41 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	# Support interactive-defaults.ks
 	$(eval _ISO_FILE = usr/share/anaconda/interactive-defaults.ks)
 	
-	echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl
+	header=0; \
 	while read -r line; \
 	do \
-	  echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+	  if [[ $$line =~ ^\<\% ]]; \
+	  then \
+			echo $$line >> lorax_templates/post_$*.tmpl; \
+			echo >> lorax_templates/post_$*.tmpl; \
+	  else \
+		  if [[ $$header == 0 ]]; \
+			then \
+			  echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				header=1; \
+			fi; \
+	    echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+		fi; \
 	done < lorax_templates/scripts/post/$*
 	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
 
-	# Support new Anacond method
+	# Support new Anaconda method
 	$(eval _ISO_FILE = usr/share/anaconda/post-scripts/configure_upgrades.ks)
 
-	echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl
+	header=0; \
 	while read -r line; \
 	do \
-	  echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+	  if [[ $$line =~ ^\<\% ]]; \
+	  then \
+			echo >> lorax_templates/post_$*.tmpl; \
+	  else \
+		  if [[ $$header == 0 ]]; \
+			then \
+			  echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				header=1; \
+			fi; \
+	    echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+		fi; \
 	done < lorax_templates/scripts/post/$*
 	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
 
@@ -79,13 +101,14 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	rm /etc/rpm/macros.image-language-conf || true
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-          --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
-          $(_LORAX_ARGS) \
-          $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
-          $(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
-		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
-		  --rootfs-size $(ROOTFS_SIZE) \
-          $(_BASE_DIR)/results/
+		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
+		$(_LORAX_ARGS) \
+		$(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
+		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
+		$(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
+		--rootfs-size $(ROOTFS_SIZE) \
+		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
+		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 
 # Step 4: Download container image
