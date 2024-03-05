@@ -1,4 +1,4 @@
-#!/usr/bin/env ansible-playbook -i ansible_inventory
+#!/usr/bin/env -S ansible-playbook -i ansible_inventory
 ---
 - name: Test for flatpaks
   hosts: vm
