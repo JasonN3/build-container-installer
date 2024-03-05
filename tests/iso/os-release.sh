@@ -13,7 +13,7 @@ sudo mount -o loop $iso /mnt/iso
 # Mount squashfs
 sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
-FOUND_VERSION=$(cat /mnt/install/os-release | grep VERSION_ID | cut -d= -f2)
+FOUND_VERSION=$(cat /mnt/install/etc/os-release | grep VERSION_ID | cut -d= -f2)
 
 # Cleanup
 sudo umount /mnt/install
