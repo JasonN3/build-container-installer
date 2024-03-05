@@ -15,6 +15,9 @@ env:
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
   VERSION: '39'
   VARIANT: 'Server'
+  SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
+  ENROLLMENT_PASSWORD: 'container-installer'
+
 
 jobs:
   build-container:
