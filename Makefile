@@ -178,6 +178,11 @@ clean:
 
 install-deps:
 	dnf install -y lorax xorriso skopeo
+
+test-iso:
+	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
+	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
+	$(foreach test,$(_TESTS),./tests/iso/$(test) deploy.iso)
 	
 .PHONY: clean install-deps
 
