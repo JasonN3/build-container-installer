@@ -1,0 +1,8 @@
+.devcontainer
+.github
+lorax_templates/scripts
+lorax_templates/*.in
+xorriso/*.in
+.gitignore
+action.yml
+Containerfile
