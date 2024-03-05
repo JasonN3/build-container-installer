@@ -1,0 +1,1 @@
+Place scripts that will test the ISO. The ISO file will be passed as the first argument
