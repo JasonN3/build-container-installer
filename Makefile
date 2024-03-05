@@ -8,6 +8,8 @@ IMAGE_TAG = $(VERSION)
 VARIANT = Server
 WEB_UI = false
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
+ENROLLMENT_PASSWORD =
+SECURE_BOOT_KEY_URL =
 ADDITIONAL_TEMPLATES = ""
 ROOTFS_SIZE = 4
 
@@ -100,6 +102,15 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	rm /etc/rpm/macros.image-language-conf || true
+
+	# Set the enrollment password
+	sed 's/@ENROLLMENT_PASSWORD@/$(ENROLLMENT_PASSWORD)/' $(_BASE_DIR)/scripts/enroll-secureboot-key.sh.in > $(_BASE_DIR)/scripts/enroll-secureboot-key.sh
+
+	# Download the secure boot key
+	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; then\
+    curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL);\
+	fi
+
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
 		$(_LORAX_ARGS) \

@@ -29,6 +29,13 @@ inputs:
     description: Enable Anaconda WebUI
     required: false
     default: "false"
+  enrollment_password:
+    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
+    required: false
+    default: "container-installer"
+  secure_boot_key_url:
+    description: Secure boot key that is installed from URL location
+    required: false
   action_version:
     description: Version of the action container to run
     deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
@@ -54,5 +61,7 @@ runs:
           VERSION=${{ inputs.version }} \
           IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
           WEB_UI=${{ inputs.web_ui }} \
+          ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
+          SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
 
