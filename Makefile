@@ -14,7 +14,7 @@ FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
 FLATPAK_REMOTE_REFS = 
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
-ADDITIONAL_TEMPLATES = ""
+ADDITIONAL_TEMPLATES = 
 ROOTFS_SIZE = 4
 
 # Generated vars
@@ -186,6 +186,12 @@ clean:
 
 install-deps:
 	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree
-	
-.PHONY: clean install-deps
 
+test: test-iso
+
+test-iso:
+	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
+	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
+	$(foreach test,$(_TESTS),./tests/iso/$(test) deploy.iso)
+	
+.PHONY: clean install-deps test test-iso
