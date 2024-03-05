@@ -6,9 +6,15 @@ echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
 echo "-map $(pwd)/results/boot/grub2/grub.cfg boot/grub2/grub.cfg"
-echo "-chmod 0444 boot/grub2/grub.cfg
+echo "-chmod 0444 boot/grub2/grub.cfg"
 echo "-map $(pwd)/results/EFI/BOOT/grub.cfg EFI/BOOT/grub.cfg"
-echo "-chmod 0444 boot/grub2/grub.cfg
+echo "-chmod 0444 EFI/BOOT/grub.cfg"
+
+if [ -f $(pwd)/sb_pubkey.der ]; then
+	echo "-map $(pwd)/sb_pubkey.der sb_pubkey.der"
+	echo "-chmod 0444 /sb_pubkey.der"
+fi
+
 pushd container > /dev/null
 for file in $(find ${IMAGE_NAME}-${IMAGE_TAG})
 do
@@ -17,4 +23,3 @@ do
 done
 popd > /dev/null
 echo "-end"
-

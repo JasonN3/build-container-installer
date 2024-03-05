@@ -11,10 +11,7 @@ ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
 
 RUN mkdir /build-container-installer
-COPY /lorax_templates /build-container-installer/lorax_templates
-COPY /xorriso /build-container-installer/xorriso
-COPY /Makefile /build-container-installer
-COPY /entrypoint.sh /
+COPY / /build-container-installer/
 
 WORKDIR /build-container-installer
 
@@ -22,5 +19,5 @@ RUN dnf install -y make && make install-deps
 
 VOLUME /build-container-installer/build
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 
