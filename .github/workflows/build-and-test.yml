@@ -90,6 +90,8 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           version: ${{ env.VERSION }}
           variant: ${{ env.VARIANT }}
+          secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
+          enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
 
       - name: Rename ISO
         run: |
