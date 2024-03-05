@@ -15,13 +15,13 @@ do
 done
 
 # Pull container
-make container/${IMAGE_NAME}-${IMAGE_TAG} $args[@]
+make container/${IMAGE_NAME}-${IMAGE_TAG} ${args[@]}
 
 # Build base ISO
-make boot.iso $args[@]
+make boot.iso ${args[@]}
 
 # Add container to ISO
-make build/deploy.iso $args[@]
+make build/deploy.iso ${args[@]}
 
 # Make output dir in github workspace
 mkdir /github/workspace/build || true
