@@ -66,8 +66,8 @@ runs:
           VERSION=${{ inputs.version }} \
           IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
           WEB_UI=${{ inputs.web_ui }} \
-          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}" \
+          ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
           FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
-          "FLATPAK_REMOTE_REFS=${{ inputs.flatpak_remote_refs }}"
+          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}"
 
