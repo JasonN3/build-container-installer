@@ -1,4 +1,4 @@
-replace 'flatpak_manager.add_remote("fedora", "oci+https://registry.fedoraproject.org")', 'flatpak_manager.add_remote("${flatpak_remote_name}", "${_flatpak_repo_url}")' /usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
+replace "flatpak_manager.add_remote(\"fedora\", \"oci+https://registry.fedoraproject.org\")", "flatpak_manager.add_remote(\"${flatpak_remote_name}\", \"${_flatpak_repo_url}\")" /usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
 append usr/share/anaconda/interactive-defaults.ks "%post --erroronfail"
 append usr/share/anaconda/interactive-defaults.ks "cat ${_flatpak_repo_gpg} | base64 -d > /ostree/deploy/default/var/lib/flatpak/repo/flathub.trustedkeys.gpg"
 append usr/share/anaconda/interactive-defaults.ks "%end"
