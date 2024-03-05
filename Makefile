@@ -67,7 +67,7 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 			fi; \
 			if [[ $$skip == 0 ]]; \
 			then \
-				echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+				echo "append $(_ISO_FILE) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$*.tmpl; \
 			fi; \
 			skip=0; \
 		fi; \
@@ -99,7 +99,7 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 			fi; \
 			if [[ $$skip == 0 ]]; \
 			then \
-				echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+				echo "append $(_ISO_FILE) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$*.tmpl; \
 			fi; \
 			skip=0; \
 		fi; \
