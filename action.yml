@@ -66,6 +66,6 @@ runs:
           WEB_UI=${{ inputs.web_ui }} \
           ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
           SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
-          OUTPUT_DIR=${{ inputs.output_dir }}
+          OUTPUT_DIR=${{ inputs.output_dir }} \
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
 
