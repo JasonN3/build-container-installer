@@ -39,7 +39,7 @@ runcmd mkdir -p ${root}/flatpak
 runcmd ostree init --repo=${dest_repo} --mode=archive-z2
 <%
 cmd_result = subprocess.run(['ostree', 'refs', '--repo={0}'.format(${flatpak_repo})])
-found_refs = cmd_result.stdout.decode('utf-8').trim().split('\n')
+found_refs = cmd_result.stdout.decode('utf-8').strip().split('\n')
 %>
 %for ref in found_refs:
     runcmd sh -c "ostree --repo=${dest_repo} pull-local ${flatpak_repo} $(ostree --repo=${flatpak_repo} rev-parse ${flatpak_remote_name}/${ref})"
