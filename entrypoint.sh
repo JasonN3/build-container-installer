@@ -11,7 +11,7 @@ do
   key=$(echo ${i} | cut -d= -f1)
   value=$(echo ${i} | cut -d= -f2-)
   export ${key}="${value}"
-  args+=("${key}=\"${value}\"")
+  args+=("${key}=${value}")
 done
 
 # Pull container
