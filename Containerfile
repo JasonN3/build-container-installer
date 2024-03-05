@@ -19,7 +19,7 @@ WORKDIR /build-container-installer
 
 RUN dnf install -y make && make install-deps
 
-VOLUME /build-container-installer/build
+VOLUME ${OUTPUT_DIR}
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 

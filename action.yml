@@ -36,6 +36,9 @@ inputs:
   secure_boot_key_url:
     description: Secure boot key that is installed from URL location
     required: false
+  output_dir:
+    description: Define a specific output directory
+    required: false
   action_version:
     description: Version of the action container to run
     deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
@@ -63,5 +66,6 @@ runs:
           WEB_UI=${{ inputs.web_ui }} \
           ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
           SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
+          OUTPUT_DIR=${{ inputs.output_dir }}
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
 
