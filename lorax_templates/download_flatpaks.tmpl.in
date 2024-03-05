@@ -38,7 +38,7 @@ runcmd flatpak remote-add --user ${flatpak_remote_name} ${flatpak_remote_url}
 runcmd mkdir -p ${root}/flatpak
 runcmd ostree init --repo=${dest_repo} --mode=archive-z2
 <%
-cmd_result = subprocess.run(['ostree', 'refs', '--repo={0}'.format(${flatpak_repo})])
+cmd_result = subprocess.run(['ostree', 'refs', '--repo={0}'.format(flatpak_repo)])
 found_refs = cmd_result.stdout.decode('utf-8').strip().split('\n')
 %>
 %for ref in found_refs:
