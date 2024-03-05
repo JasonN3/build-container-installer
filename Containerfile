@@ -9,10 +9,8 @@ ENV IMAGE_TAG="${VERSION}"
 ENV VARIANT="Server"
 ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
-ENV OUTPUT_DIR="/github/workspace/build"
 
 RUN mkdir /build-container-installer
-
 COPY / /build-container-installer/
 
 WORKDIR /build-container-installer
