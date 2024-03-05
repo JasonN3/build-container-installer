@@ -2,7 +2,7 @@
 
 set -ex
 
-for entry in $@;
+for entry in $@
 do
 	export $entry
 done
@@ -22,4 +22,4 @@ mkdir ${OUTPUT_DIR} || true
 # Copy resulting iso to github workspace and fix permissions
 cp build/deploy.iso ${OUTPUT_DIR}
 chmod -R ugo=rwX ${OUTPUT_DIR}
-echo "::set-output name=iso::${OUTPUT_DIR/deploy.iso/}"
+echo "::set-output name=iso::${OUTPUT_DIR}/deploy.iso"
