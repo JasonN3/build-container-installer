@@ -133,7 +133,6 @@ jobs:
 
       - name: Run ISO checks
         run: |
-          set -ex
           mv ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso deploy.iso
           make test-iso
 
