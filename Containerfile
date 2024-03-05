@@ -14,7 +14,6 @@ RUN mkdir /build-container-installer
 COPY /lorax_templates /build-container-installer/lorax_templates
 COPY /xorriso /build-container-installer/xorriso
 COPY /Makefile /build-container-installer
-COPY /scripts /build-container-installer/scripts
 COPY /entrypoint.sh /
 
 WORKDIR /build-container-installer
