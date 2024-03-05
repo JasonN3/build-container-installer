@@ -5,6 +5,8 @@ echo "-outdev $(pwd)/build/deploy.iso"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
+echo "-map $(pwd)/results/grub/grub.cfg grub/grub.cfg"
+echo "-chmod 0444 grub/grub.cfg
 pushd container > /dev/null
 for file in $(find ${IMAGE_NAME}-${IMAGE_TAG})
 do
