@@ -4,7 +4,7 @@ set -ex
 
 for entry in $@
 do
-	export $entry
+    export $entry
 done
 
 # Pull container
