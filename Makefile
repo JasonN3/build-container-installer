@@ -8,6 +8,8 @@ IMAGE_TAG = $(VERSION)
 VARIANT = Server
 WEB_UI = false
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
+ENROLLMENT_PASSWORD =
+SECURE_BOOT_KEY_URL =
 ADDITIONAL_TEMPLATES = ""
 ROOTFS_SIZE = 4
 
@@ -19,7 +21,7 @@ _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
-_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED
+_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED ENROLLMENT_PASSWORD
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
@@ -44,19 +46,30 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	$(eval _ISO_FILE = usr/share/anaconda/interactive-defaults.ks)
 	
 	header=0; \
+	skip=0; \
 	while read -r line; \
 	do \
-	  if [[ $$line =~ ^\<\% ]]; \
-	  then \
+		if [[ $$line =~ ^\<\% ]]; \
+		then \
 			echo $$line >> lorax_templates/post_$*.tmpl; \
 			echo >> lorax_templates/post_$*.tmpl; \
-	  else \
-		  if [[ $$header == 0 ]]; \
+		else \
+			if [[ $$header == 0 ]]; \
 			then \
-			  echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				if [[ $$line =~ ^##\ (.*)$$ ]]; \
+				then \
+					echo "append $(_ISO_FILE) \"%post --erroronfail $${BASH_REMATCH[1]}\"" >> lorax_templates/post_$*.tmpl; \
+					skip=1; \
+				else \
+					echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				fi; \
 				header=1; \
 			fi; \
-	    echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+			if [[ $$skip == 0 ]]; \
+			then \
+				echo "append $(_ISO_FILE) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$*.tmpl; \
+			fi; \
+			skip=0; \
 		fi; \
 	done < lorax_templates/scripts/post/$*
 	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
@@ -65,18 +78,30 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	$(eval _ISO_FILE = usr/share/anaconda/post-scripts/configure_upgrades.ks)
 
 	header=0; \
+	skip=0; \
 	while read -r line; \
 	do \
-	  if [[ $$line =~ ^\<\% ]]; \
-	  then \
+		if [[ $$line =~ ^\<\% ]]; \
+		then \
+			echo $$line >> lorax_templates/post_$*.tmpl; \
 			echo >> lorax_templates/post_$*.tmpl; \
-	  else \
-		  if [[ $$header == 0 ]]; \
+		else \
+			if [[ $$header == 0 ]]; \
 			then \
-			  echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				if [[ $$line =~ ^##\ (.*)$$ ]]; \
+				then \
+					echo "append $(_ISO_FILE) \"%post --erroronfail $${BASH_REMATCH[1]}\"" >> lorax_templates/post_$*.tmpl; \
+					skip=1; \
+				else \
+					echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				fi; \
 				header=1; \
 			fi; \
-	    echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+			if [[ $$skip == 0 ]]; \
+			then \
+				echo "append $(_ISO_FILE) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$*.tmpl; \
+			fi; \
+			skip=0; \
 		fi; \
 	done < lorax_templates/scripts/post/$*
 	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
@@ -100,6 +125,13 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	rm /etc/rpm/macros.image-language-conf || true
+
+	# Download the secure boot key
+	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
+	then \
+    	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL); \
+	fi
+
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
 		$(_LORAX_ARGS) \
