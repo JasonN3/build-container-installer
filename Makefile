@@ -10,8 +10,8 @@ WEB_UI = false
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
-ADDITIONAL_TEMPLATES = ""
-EXTRA_BOOT_PARAMS = 
+ADDITIONAL_TEMPLATES =
+EXTRA_BOOT_PARAMS =
 ROOTFS_SIZE = 4
 
 # Generated vars
