@@ -7,7 +7,9 @@ mknod -m 0660 /dev/loop0 b 7 0 2>/dev/null || true
 
 for i
 do
-  export ${i}
+  key=$(echo ${i} | cut -d= -f1)
+  value=$(echo ${i} | cut -d= -f2-)
+  export ${key}="${value}"
 done
 
 # Pull container
