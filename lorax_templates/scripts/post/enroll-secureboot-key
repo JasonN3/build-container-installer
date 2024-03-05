@@ -1,8 +1,9 @@
-#!/bin/sh
+<%page args="enrollment_password "/>
+## --nochroot
 
 set -oue pipefail
 
-readonly ENROLLMENT_PASSWORD=@ENROLLMENT_PASSWORD@
+readonly ENROLLMENT_PASSWORD=${enrollment_password}
 readonly SECUREBOOT_KEY="/run/install/repo/sb_pubkey.der"
 
 if [[ ! -d "/sys/firmware/efi" ]]; then
