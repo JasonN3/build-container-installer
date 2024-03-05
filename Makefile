@@ -26,8 +26,7 @@ _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in))
 _FLATPAK_TEMPLATES = $(_BASE_DIR)/external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 _FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-_TEMPLATE_VARS = FLATPAK_REMOTE_NAME FLATPAK_REMOTE_URL FLATPAK_REMOTE_REFS _FLATPAK_REPO_URL _FLATPAK_REPO_GPG
-
+_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED FLATPAK_REMOTE_NAME FLATPAK_REMOTE_URL FLATPAK_REMOTE_REFS _FLATPAK_REPO_URL _FLATPAK_REPO_GPG
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
@@ -51,8 +50,50 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 	implantisomd5 build/deploy.iso
 
 # Step 1: Generate Lorax Templates
+lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
+	# Support interactive-defaults.ks
+	$(eval _ISO_FILE = usr/share/anaconda/interactive-defaults.ks)
+	
+	header=0; \
+	while read -r line; \
+	do \
+	  if [[ $$line =~ ^\<\% ]]; \
+	  then \
+			echo $$line >> lorax_templates/post_$*.tmpl; \
+			echo >> lorax_templates/post_$*.tmpl; \
+	  else \
+		  if [[ $$header == 0 ]]; \
+			then \
+			  echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				header=1; \
+			fi; \
+	    echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+		fi; \
+	done < lorax_templates/scripts/post/$*
+	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
+
+	# Support new Anaconda method
+	$(eval _ISO_FILE = usr/share/anaconda/post-scripts/configure_upgrades.ks)
+
+	header=0; \
+	while read -r line; \
+	do \
+	  if [[ $$line =~ ^\<\% ]]; \
+	  then \
+			echo >> lorax_templates/post_$*.tmpl; \
+	  else \
+		  if [[ $$header == 0 ]]; \
+			then \
+			  echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
+				header=1; \
+			fi; \
+	    echo "append $(_ISO_FILE) \"$$line\"" >> lorax_templates/post_$*.tmpl; \
+		fi; \
+	done < lorax_templates/scripts/post/$*
+	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
+
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED)
+	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
 
 # Step 2: Replace vars in repo files
@@ -70,15 +111,15 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	rm /etc/rpm/macros.image-language-conf || true
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-          --isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
-          $(_LORAX_ARGS) \
-          $(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
-          $(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
-		  $(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
-		  $(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
-		  --rootfs-size $(ROOTFS_SIZE) \
-		  $(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
-          $(_BASE_DIR)/results/
+		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
+		$(_LORAX_ARGS) \
+		$(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
+		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
+		$(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
+    $(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
+		--rootfs-size $(ROOTFS_SIZE) \
+		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
+		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 
 # Step 4: Download container image
