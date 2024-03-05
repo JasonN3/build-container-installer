@@ -5,12 +5,14 @@ echo "-outdev $(pwd)/build/deploy.iso"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-pushd container > /dev/null
-for file in $(find ${IMAGE_NAME}-${IMAGE_TAG})
-do
-    echo "-map $(pwd)/${file} ${file}"
-    echo "-chmod 0444 ${file}"
+if [ -f $(pwd)/sb_pubkey.der ]; then
+	echo "-map $(pwd)/sb_pubkey.der sb_pubkey.der"
+	echo "-chmod 0444 /sb_pubkey.der"
+fi
+pushd container >/dev/null
+for file in $(find ${IMAGE_NAME}-${IMAGE_TAG}); do
+	echo "-map $(pwd)/${file} ${file}"
+	echo "-chmod 0444 ${file}"
 done
 popd > /dev/null
 echo "-end"
-
