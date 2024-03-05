@@ -25,7 +25,6 @@ _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
-_FLATPAK_TEMPLATES = $(_BASE_DIR)/external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 _FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
 _TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED FLATPAK_REMOTE_NAME FLATPAK_REMOTE_URL FLATPAK_REMOTE_REFS _FLATPAK_REPO_URL _FLATPAK_REPO_GPG ENROLLMENT_PASSWORD
