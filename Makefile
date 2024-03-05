@@ -187,11 +187,16 @@ clean:
 install-deps:
 	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree
 
-test: test-iso
+test: test-iso test-vm
 
 test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
 	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
 	$(foreach test,$(_TESTS),./tests/iso/$(test) deploy.iso)
+
+test-vm:
+	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
+	$(foreach test,$(_TESTS),chmod +x tests/vm/$(test))
+	$(foreach test,$(_TESTS),./tests/vm/$(test) deploy.iso)
 	
-.PHONY: clean install-deps test test-iso
+.PHONY: clean install-deps test test-iso test-vm

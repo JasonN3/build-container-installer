@@ -208,12 +208,14 @@ jobs:
           fi
           
           echo "VM ready for tests at IP ${VM_IP}"
-          for check in $(ls tests/vm)
-          do
-            if [[ -f $check && $check != "README.md" ]]
-            then
-              chmod +x $check
-              ./${check}
-            fi
-          done
+          echo "Creating Ansible inventory"
+          cat << EOF > ansible_inventory
+          hosts:
+            vm:
+              ansible_host: ${VM_IP}
+              ansible_user: ${VM_USER}
+              ansible_password: ${VM_PASS}
+          EOF
+          
+          make test-vm
 

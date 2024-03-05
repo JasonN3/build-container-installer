@@ -21,16 +21,19 @@ See [Customizing](#customizing) for information about customizing the ISO that g
 ## Customizing
 The following variables can be used to customize the created ISO.
 
-| Variable          | Description                                              | Default Value                  |
-| ----------------- | -------------------------------------------------------- | ------------------------------ |
-| ARCH              | Architecture for image to build                          | x86_64                         |
-| VERSION           | Fedora version of installer to build                     | 39                             |
-| IMAGE_REPO        | Repository containing the source container image         | quay.io/fedora-ostree-desktops |
-| IMAGE_NAME        | Name of the source container image                       | base                           |
-| IMAGE_TAG         | Tag of the source container image                        | *VERSION*                      |
-| EXTRA_BOOT_PARAMS | Extra params used by grub to boot the anaconda installer | \[empty\]                      |
-| VARIANT           | Source container variant\*                               | Server                         |
-| WEB_UI            | Enable Anaconda WebUI (experimental)                     | false                          |
+| Variable            | Description                                              | Default Value                                |
+| ------------------- | -------------------------------------------------------- | -------------------------------------------- |
+| ARCH                | Architecture for image to build                          | x86_64                                       |
+| VERSION             | Fedora version of installer to build                     | 39                                           |
+| IMAGE_REPO          | Repository containing the source container image         | quay.io/fedora-ostree-desktops               |
+| IMAGE_NAME          | Name of the source container image                       | base                                         |
+| IMAGE_TAG           | Tag of the source container image                        | *VERSION*                                    |
+| EXTRA_BOOT_PARAMS   | Extra params used by grub to boot the anaconda installer | \[empty\]                                    |
+| VARIANT             | Source container variant\*                               | Server                                       |
+| WEB_UI              | Enable Anaconda WebUI (experimental)                     | false                                        |
+| FLATPAK_REMOTE_NAME | Name of the Flatpak repo                                 | flathub                                      |
+| FLATPAK_REMOTE_URL  | URL to the flatpakrepo file                              | https://flathub.org/repo/flathub.flatpakrepo |
+| FLATPAK_REMOTE_REFS | Space delimited list of Flatpak package refs to install  | \[empty\]                                    |
 
 Available options for VARIANT can be found by running `dnf provides system-release`. 
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite

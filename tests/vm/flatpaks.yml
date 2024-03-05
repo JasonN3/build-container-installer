@@ -1,0 +1,22 @@
+#!/usr/bin/env ansible-playbook -i ansible_inventory
+---
+- name: Test for flatpaks
+  hosts: vm
+  gather_facts: no
+
+  tasks:
+  - name: Get gpg key
+    ansible.builtin.set-fact:
+      found_gpg: "{{ slurpfile['/ostree/deploy/default/var/lib/flatpak/repo'] | base64 }}"
+      expected_gpg: "{{ lookup('ansible.builtin.url', 'https://flathub.org/repo/flathub.flatpakrepo', split_lines=True) | regex_search('^GPGKey=(.*)$', '\\1' multiline=True, ignorecase=True) }}"
+  
+  - name: Test GPG key
+    ansible.builtin.assert:
+    that:
+      - found_gpg == found_gpg
+    fail_msg: "Installed GPG key does not match GPG key in flatpakrepo file"
+    success_msg: "GPG key matches"
+
+  - name: Test updating flatpak packages
+    ansible.builtin.command:
+      cmd: /usr/bin/flatpak update -y
