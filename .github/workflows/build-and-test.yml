@@ -17,6 +17,7 @@ env:
   VARIANT: 'Server'
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
+  OUTPUT_DIR: '/github/workspace/build'
 
 
 jobs:
@@ -95,14 +96,14 @@ jobs:
 
       - name: Rename ISO
         run: |
-          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          mv ${{ env.OUTPUT_DIR }}/deploy.iso ${{ env.OUTPUT_DIR }}/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
 
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
-          path: build/*.iso
+          path: ${{ env.OUTPUT_DIR }}/*.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
