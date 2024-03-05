@@ -29,22 +29,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Docker meta - pull request
-        if: github.event_name == 'pull_request'
-        id: meta_pull
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            ghcr.io/${{ github.repository }}/build-container-installer
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Docker meta - pull request
-        if: github.event_name != 'pull_request'
-        id: meta_main
+      - name: Docker meta
+        id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
@@ -60,7 +46,8 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           containerfiles: Containerfile
-          tags: ${{ steps.meta_pull.outputs.tags || steps.meta_main.outputs.tags }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
