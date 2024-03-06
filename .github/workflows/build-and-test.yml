@@ -57,14 +57,16 @@ jobs:
 
   build-and-push-iso:
     runs-on: ubuntu-latest
-    env:
-      ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}
     needs:
       - build-container
     permissions:
       contents: read
       packages: write
     steps:
+      - name: Set Environment Variables
+        run: |
+          echo "ISO_NAME=${{ env.IMAGE_NAME }}-${{ env.VERSION }}" >> $GITHUB_ENV
+
       - name: Checkout repo
         uses: actions/checkout@v4
 
