@@ -31,6 +31,7 @@ The following variables can be used to customize the created ISO.
 | EXTRA_BOOT_PARAMS | Extra params used by grub to boot the anaconda installer | \[empty\]                      |
 | VARIANT           | Source container variant\*                               | Server                         |
 | WEB_UI            | Enable Anaconda WebUI (experimental)                     | false                          |
+| ISO_NAME          | Name of the ISO you wish to output when completed        | IMAGE_NAME-IMAGE_TAG           |
 
 Available options for VARIANT can be found by running `dnf provides system-release`. 
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
@@ -55,12 +56,12 @@ Examples:
 
 Building an ISO to install Fedora 38
 ```bash
-docker run --rm --privileged --volume .:/build-container-installer/build -e VERSION=38 -e IMAGE_NAME=base -e IMAGE_TAG=38 -e VARIANT=Server ghcr.io/jasonn3/build-container-installer:latest
+docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
 ```
 
 Building an ISO to install Fedora 39
 ```bash
-docker run --rm --privileged --volume .:/build-container-installer/build -e VERSION=39 -e IMAGE_NAME=base -e IMAGE_TAG=39 -e VARIANT=Server ghcr.io/jasonn3/build-container-installer:latest
+docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
 ```
 
 ### VSCode Dev Container
