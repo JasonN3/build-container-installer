@@ -86,6 +86,7 @@ jobs:
 
       - name: Build ISO with new container
         uses: ./
+        id: build
         with:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
@@ -101,7 +102,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ISO_NAME }}.iso
-          path: ${{ github.workspace}}/*
+          path: | 
+            ${{ steps.build.outputs.iso-path }}
+            ${{ steps.build.outputs.checksum-path }}
           if-no-files-found: error
           retention-days: 0
           compression-level: 0

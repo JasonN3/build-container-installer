@@ -47,10 +47,19 @@ inputs:
     description: Space delimetered list of additional Lorax templates to include
     required: false
 
+outputs:
+  iso-path:
+    value: ${{ steps.run_docker.outputs.ISO_PATH }}
+    description: The location of the .iso object
+  checksum-path:
+    value: ${{ steps.run_docker.outputs.CHECKSUM_PATH }}
+    description: The location of the checksum
+
 runs:
   using: composite
   steps:
     - name: Run docker image
+      id: run_docker
       shell: bash
       run: |
         # Check if running inside of the action repo
@@ -68,4 +77,6 @@ runs:
           ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
           SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
+        echo "ISO_PATH=$(realpath ${{ github.workspace }}/${{ inputs.iso_name }}.iso)" >> $GITHUB_OUTPUT
+        echo "CHECKSUM_PATH=$(realpath ${{ github.workspace }}/${{ inputs.iso_name }}-CHECKSUM)" >> $GITHUB_OUTPUT
 
