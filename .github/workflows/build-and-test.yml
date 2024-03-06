@@ -94,16 +94,12 @@ jobs:
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
 
-      - name: Rename ISO
-        run: |
-          mv ${{ env.OUTPUT_DIR }}/deploy.iso ${{ env.OUTPUT_DIR }}/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
-
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
-          path: ${{ env.OUTPUT_DIR }}/*.iso
+          path: ${{ github.workspace}}/{{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0

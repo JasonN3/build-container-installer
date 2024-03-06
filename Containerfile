@@ -9,7 +9,6 @@ ENV IMAGE_TAG="${VERSION}"
 ENV VARIANT="Server"
 ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
-ENV OUTPUT_DIR="/build-container-installer/build"
 
 RUN mkdir /build-container-installer
 
@@ -19,7 +18,7 @@ WORKDIR /build-container-installer
 
 RUN dnf install -y make && make install-deps
 
-VOLUME ${OUTPUT_DIR}
+VOLUME /build-container-installer/build
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 
