@@ -87,7 +87,7 @@ runs:
         if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
         if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]; then cache="${cache} -v /cache/dnf:/cache/dnf"; fi
         if [[ "${{ inputs.enable_cache_skopeo }}" == "true" ]]; then cache="${cache} -v /cache/skopeo:/cache/skopeo"; fi
-        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${tag} \
+        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
