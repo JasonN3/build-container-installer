@@ -32,7 +32,6 @@ inputs:
   iso_name:
     description: Used for specifying the name of the output iso
     required: false
-    default: "${{ inputs.image_name }}-${{ inputs.image_tag || inputs.version }}"
   enrollment_password:
     description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
     required: false
