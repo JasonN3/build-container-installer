@@ -14,5 +14,3 @@ make boot.iso $@
 
 # Add container to ISO
 make build/deploy.iso $@
-
-mv build/deploy.iso build/${ISO_NAME}.iso

@@ -12,6 +12,7 @@ ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
 ADDITIONAL_TEMPLATES = 
 ROOTFS_SIZE = 4
+ISO_NAME = $(IMAGE_NAME)-$(IMAGE_TAG)
 
 # Generated vars
 ## Formatting = _UPPERCASE
@@ -39,6 +40,7 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 	mkdir $(_BASE_DIR)/build || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 build/deploy.iso
+	mv build/deploy.iso build/$(ISO_NAME).iso
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%

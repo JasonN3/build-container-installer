@@ -46,7 +46,7 @@ jobs:
         with:
           containerfiles: Containerfile
           tags: ${{ steps.meta.outputs.tags }}
-          
+
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
         with:
