@@ -54,6 +54,12 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Make cache directory
+      shell: bash
+      run: |
+        mkdir /cache
+        chmod 777 /cache
+
     - name: Load dnf cache
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
