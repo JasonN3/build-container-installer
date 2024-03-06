@@ -41,6 +41,8 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 build/deploy.iso
 	mv build/deploy.iso build/$(ISO_NAME).iso
+	cd build
+	sha256sum $(ISO_NAME).iso > $(ISO_NAME)-CHECKSUM
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
@@ -176,7 +178,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo
+	dnf install -y lorax xorriso skopeo coreutils
 
 test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
