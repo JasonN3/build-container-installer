@@ -15,6 +15,7 @@ COPY / /build-container-installer/
 
 WORKDIR /build-container-installer
 VOLUME /build-container-installer/build
+VOLUME /build-container-installer/repos
 VOLUME /cache
 
 RUN dnf install -y make && make install-deps
