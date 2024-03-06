@@ -97,6 +97,8 @@ jobs:
           iso_name: ${{ env.ISO_NAME }}
 
       - name: Upload ISO as artifact
+        env:
+          ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}
         id: upload
         uses: actions/upload-artifact@v4
         with:
