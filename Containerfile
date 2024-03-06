@@ -11,10 +11,7 @@ ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
 
 RUN mkdir /build-container-installer
-COPY /lorax_templates /build-container-installer/lorax_templates
-COPY /xorriso /build-container-installer/xorriso
-COPY /Makefile /build-container-installer
-COPY /entrypoint.sh /
+COPY / /build-container-installer/
 
 WORKDIR /build-container-installer
 VOLUME /build-container-installer/build
@@ -23,5 +20,8 @@ VOLUME /cache
 RUN dnf install -y make && make install-deps
 RUN ln -s ~/.local/share/containers/cache /cache/skopeo
 
-ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+VOLUME /build-container-installer/build
+VOLUME /cache
+
+ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 
