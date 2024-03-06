@@ -14,10 +14,3 @@ make boot.iso $@
 
 # Add container to ISO
 make build/deploy.iso $@
-
-# Make output dir in github workspace
-mkdir ${OUTPUT_DIR} || true
-
-# Copy resulting iso to github workspace and fix permissions
-cp /build-container-installer/build/deploy.iso ${OUTPUT_DIR}
-chmod -R ugo=rwX ${OUTPUT_DIR}
