@@ -8,12 +8,26 @@ This action is designed to be called from a GitHub workflow using the following 
 ```yaml
 - name: Build ISO
   uses: jasonn3/build-container-installer/v1.0.0
+  id: build
   with:
     arch: ${{ env.ARCH}}
     image_name: ${{ env.IMAGE_NAME}}
     image_repo: ${{ env.IMAGE_REPO}}
     version: ${{ env.VERSION }}
     variant: ${{ env.VARIANT }}
+
+# This example is for uploading your ISO as a Github artifact. You can do something similar using any cloud storage, so long as you copy the output
+- name: Upload ISO as artifact
+  id: upload
+  uses: actions/upload-artifact@v4
+  with:
+    name: my_iso.iso
+    path: |
+      ${{ steps.build.outputs.iso_path }}
+      ${{ steps.build.outputs.checksum-path }}
+  if-no-files-found: error
+  retention-days: 0
+  compression-level: 0
 ```
 
 See [Customizing](#customizing) for information about customizing the ISO that gets created using `with`
@@ -21,6 +35,7 @@ See [Customizing](#customizing) for information about customizing the ISO that g
 ## Customizing
 The following variables can be used to customize the created ISO.
 
+### Inputs
 | Variable          | Description                                              | Default Value                  |
 | ----------------- | -------------------------------------------------------- | ------------------------------ |
 | ARCH              | Architecture for image to build                          | x86_64                         |
@@ -35,6 +50,14 @@ The following variables can be used to customize the created ISO.
 
 Available options for VARIANT can be found by running `dnf provides system-release`. 
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
+
+### Outputs
+| Variable          | Description                                              | Usage                                            |
+| ----------------- | -------------------------------------------------------- | ------------------------------------------------ |
+| iso-path          | Path to ISO file that the action creates                 | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_path }} |
+| checksum-path     | Path to the checksum file that the action creates        | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_path }} |
+
+For outputs, see example above.
 
 ## Development
 ### Makefile
