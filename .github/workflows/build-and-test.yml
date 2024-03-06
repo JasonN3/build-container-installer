@@ -84,7 +84,7 @@ jobs:
 
       - name: Build ISO with new container
         env:
-          ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}
+          ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}
         uses: ./
         with:
           arch: ${{ env.ARCH}}
@@ -98,7 +98,7 @@ jobs:
 
       - name: Upload ISO as artifact
         env:
-          ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}
+          ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}
         id: upload
         uses: actions/upload-artifact@v4
         with:
