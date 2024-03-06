@@ -2,9 +2,8 @@
 
 set -ex
 
-for entry in $@
-do
-  export $entry
+for entry in $@; do
+	export $entry
 done
 
 # Pull container
@@ -20,6 +19,5 @@ make build/deploy.iso $@
 mkdir ${OUTPUT_DIR} || true
 
 # Copy resulting iso to github workspace and fix permissions
-cp build/deploy.iso ${OUTPUT_DIR}
+cp /build-container-installer/build/deploy.iso ${OUTPUT_DIR}
 chmod -R ugo=rwX ${OUTPUT_DIR}
-echo "::set-output name=iso::${OUTPUT_DIR}/deploy.iso"
