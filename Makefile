@@ -34,7 +34,7 @@ ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
 endif
 
-# Step 7: Buid end ISO
+# Step 7: Build end ISO
 ## Default action
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
