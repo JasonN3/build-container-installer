@@ -98,7 +98,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
-          path: ${{ github.workspace}}/{{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          path: ${{ github.workspace}}/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
