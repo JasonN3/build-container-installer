@@ -13,7 +13,7 @@ env:
   ARCH: 'x86_64'
   IMAGE_NAME: 'base'
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
-  VERSION: '39'
+  IMAGE_TAG: '39'
   VARIANT: 'Server'
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
@@ -64,6 +64,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        version:
+          - 38
+          - 39
+          - 40
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -88,20 +94,21 @@ jobs:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
           image_repo: ${{ env.IMAGE_REPO}}
-          version: ${{ env.VERSION }}
+          image_tag: ${{ env.IMAGE_TAG }}
+          version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
 
       - name: Rename ISO
         run: |
-          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
 
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
           path: build/*.iso
           if-no-files-found: error
           retention-days: 0
@@ -115,6 +122,12 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        version:
+          - 38
+          - 39
+          - 40
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -131,14 +144,16 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
     
       - name: Verify ISO
-        run: checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+        run: checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
 
       - name: Run ISO checks
+        env:
+          VERSION: ${{ matrix.version }}
         run: |
-          mv ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso deploy.iso
+          mv ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso deploy.iso
           make test-iso
 
       - name: Add Kickstart and Grub options to ISO
