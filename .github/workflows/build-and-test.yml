@@ -59,13 +59,13 @@ jobs:
 
   build-and-push-iso:
     runs-on: ubuntu-latest
+    env:
+      ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}
     needs:
       - build-container
     permissions:
       contents: read
       packages: write
-    env:
-      ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
