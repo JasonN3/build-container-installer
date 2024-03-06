@@ -18,7 +18,6 @@ env:
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
-
 jobs:
   build-container:
     runs-on: ubuntu-latest
@@ -55,7 +54,6 @@ jobs:
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
-
 
   build-and-push-iso:
     runs-on: ubuntu-latest
