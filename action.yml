@@ -39,7 +39,7 @@ inputs:
   output_dir:
     description: Define a specific output directory
     required: false
-    default: "/github/workspace/build"
+    default: "/build-container-installer/build"
   action_version:
     description: Version of the action container to run
     deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
