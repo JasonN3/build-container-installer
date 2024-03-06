@@ -41,10 +41,7 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 build/deploy.iso
 	mv build/deploy.iso build/$(ISO_NAME).iso
-	ls build/
-	pushd build/
-	sha256sum $(ISO_NAME).iso > $(ISO_NAME)-CHECKSUM
-	popd
+	cd build && sha256sum $(ISO_NAME).iso > $(ISO_NAME)-CHECKSUM
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
