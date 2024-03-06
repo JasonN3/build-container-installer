@@ -7,9 +7,10 @@ IMAGE_NAME = base
 IMAGE_TAG = $(VERSION)
 VARIANT = Server
 WEB_UI = false
-REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
+REPOS = $(subst :,\:,$(shell ls /etc/yum.repos.d/*.repo))
 ADDITIONAL_TEMPLATES = ""
 ROOTFS_SIZE = 4
+DNF_CACHE = 
 
 # Generated vars
 ## Formatting = _UPPERCASE
@@ -20,15 +21,22 @@ _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
 _TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED
+_LORAX_ARGS = 
 
-ifeq ($(VARIANT),Server)
-_LORAX_ARGS = --macboot --noupgrade
+ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+_LORAX_ARGS += --nomacboot --noupgrade
+else ifeq ($(VARIANT),Server)
+_LORAX_ARGS += --macboot --noupgrade
 else
-_LORAX_ARGS = --nomacboot
+_LORAX_ARGS += --nomacboot
 endif
 
 ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
+endif
+
+ifneq ($(DNF_CACHE),)
+_LORAX_ARGS += --cachedir $(DNF_CACHE)
 endif
 
 # Step 7: Buid end ISO
@@ -85,6 +93,7 @@ lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
 
+repos: $(_REPO_FILES)
 
 # Step 2: Replace vars in repo files
 repos/%.repo: /etc/yum.repos.d/%.repo

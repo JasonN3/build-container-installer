@@ -19,8 +19,10 @@ COPY /entrypoint.sh /
 WORKDIR /build-container-installer
 
 RUN dnf install -y make && make install-deps
+RUN ln -s ~/.local/share/containers/cache /cache/skopeo
 
 VOLUME /build-container-installer/build
+VOLUME /cache
 
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
 

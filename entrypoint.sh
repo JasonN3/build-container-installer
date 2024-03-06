@@ -11,7 +11,7 @@ done
 make container/${IMAGE_NAME}-${IMAGE_TAG} $@
 
 # Build base ISO
-make boot.iso $@
+make boot.iso DNF_CACHE=/cache/dnf $@
 
 # Add container to ISO
 make build/deploy.iso $@
