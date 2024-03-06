@@ -127,7 +127,6 @@ jobs:
         version:
           - 38
           - 39
-          - 40
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
