@@ -9,6 +9,7 @@ ENV IMAGE_TAG="${VERSION}"
 ENV VARIANT="Server"
 ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
+ENV ISO_NAME="${IMAGE_NAME}-${IMAGE_TAG}"
 
 RUN mkdir /build-container-installer
 

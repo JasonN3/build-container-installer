@@ -29,6 +29,10 @@ inputs:
     description: Enable Anaconda WebUI
     required: false
     default: "false"
+  iso_name:
+    description: Used for specifying the name of the output iso
+    required: false
+    default: "${{ inputs.image_name }}-${{ inputs.image_tag || inputs.version }}"
   enrollment_password:
     description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
     required: false
@@ -61,6 +65,7 @@ runs:
           VERSION=${{ inputs.version }} \
           IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
           WEB_UI=${{ inputs.web_ui }} \
+          ISO_NAME=${{ inputs.iso_name }} \
           ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
           SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
