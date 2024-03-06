@@ -17,7 +17,6 @@ env:
   VARIANT: 'Server'
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
-  ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}
 
 
 jobs:
@@ -84,6 +83,8 @@ jobs:
             type=ref,event=pr
 
       - name: Build ISO with new container
+        env:
+          ISO_NAME: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_VERSION }}
         uses: ./
         with:
           arch: ${{ env.ARCH}}
