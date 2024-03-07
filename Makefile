@@ -206,7 +206,7 @@ test-iso:
 
 test-vm:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
-	$(foreach test,$(_TESTS),chmod +x tests/vm/$(test))
-	$(foreach test,$(_TESTS),./tests/vm/$(test) deploy.iso)
+	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
+	for test in $(_TESTS); do ./tests/vm/${test} deploy.iso; done
 	
 .PHONY: clean install-deps test test-iso test-vm
