@@ -49,20 +49,19 @@ inputs:
 
 outputs:
   output-directory:
-    value: ${{ steps.run_docker.outputs.OUTPUT_DIRECTORY }}
+    value: ${{ steps.rename_iso.outputs.OUTPUT_DIRECTORY }}
     description: The location of all output objects
   iso-path:
-    value: ${{ steps.run_docker.outputs.ISO_PATH }}
+    value: ${{ steps.rename_iso.outputs.ISO_PATH }}
     description: The location of the .iso object
   checksum-path:
-    value: ${{ steps.run_docker.outputs.CHECKSUM_PATH }}
+    value: ${{ steps.rename_iso.outputs.CHECKSUM_PATH }}
     description: The location of the checksum
 
 runs:
   using: composite
   steps:
     - name: Run docker image
-      id: run_docker
       shell: bash
       run: |
         # Check if running inside of the action repo
@@ -81,11 +80,12 @@ runs:
           SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
     - name: Rename ISO file
+      id: rename_iso
       shell: bash
       run: |
         mv ${{ github.workspace }}/build/deploy.iso ${{ github.workspace }}/build/${{ inputs.iso_name }}.iso
         cd ${{ github.workspace }}/build
         sha256sum ${{ inputs.iso_name }}.iso > ${{ inputs.iso_name }}-CHECKSUM
-        echo "OUTPUT_DIRECTORY=$(realpath ${{ github.workspace }}/build/)" >> $GITHUB_OUTPUT
+        echo "OUTPUT_DIRECTORY=$(realpath ${{ github.workspace }}/build)" >> $GITHUB_OUTPUT
         echo "ISO_PATH=$(realpath ${{ github.workspace }}/build/${{ inputs.iso_name }}.iso)" >> $GITHUB_OUTPUT
         echo "CHECKSUM_PATH=$(realpath ${{ github.workspace }}/build/${{ inputs.iso_name }}-CHECKSUM)" >> $GITHUB_OUTPUT
