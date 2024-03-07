@@ -64,8 +64,8 @@ runs:
     - name: Make cache directory
       shell: bash
       run: |
-        sudo mkdir -p /cache/dnf /cache/skopeo
-        sudo chmod 777 /cache /cache/dnf /cache/skopeo
+        sudo mkdir /cache
+        sudo chmod 777 /cache
 
     - name: Load dnf cache
       id: load_dnf_cache
@@ -86,6 +86,11 @@ runs:
       with:
         path: /cache/skopeo
         key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
+
+    - name: Ensure cache directories exist
+      shell: bash
+      run: |
+        mkdir /cache/dnf /cache/skopeo
 
     - name: Run docker image
       shell: bash
