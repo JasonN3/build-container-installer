@@ -42,7 +42,7 @@ endif
 
 ifneq ($(DNF_CACHE),)
 _LORAX_ARGS += --cachedir $(DNF_CACHE)
-_LORAX_TEMPLATES += lorax_templates/copy_dnf_cache.tpml.in
+_LORAX_TEMPLATES += lorax_templates/copy_dnf_cache.tpml
 endif
 
 # Step 7: Buid end ISO
