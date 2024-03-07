@@ -100,6 +100,6 @@ runs:
         mv ${{ github.workspace }}/build/deploy.iso ${full_path} || true
         cd $(dirname ${full_path})
         iso_fn=$(basename ${iso_name})
-        sha256sum ${iso_fn} > ${iso_fn%.iso}-CHECKSUM
+        sha256sum ${iso_fn} > ${iso_fn}-CHECKSUM
         echo "iso_path=${full_path}" >> $GITHUB_OUTPUT
         echo "iso_name=${iso_fn}" >> $GITHUB_OUTPUT
