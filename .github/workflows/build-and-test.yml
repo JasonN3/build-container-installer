@@ -148,11 +148,9 @@ jobs:
         run: checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
 
       - name: Run ISO checks
-        env:
-          VERSION: ${{ matrix.version }}
         run: |
           mv ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso deploy.iso
-          make test-iso
+          make test-iso VERSION=${{ matrix.version }}
 
       - name: Add Kickstart and Grub options to ISO
         run: |
