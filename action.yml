@@ -92,10 +92,10 @@ runs:
         then
           full_path="${iso_name}"
         else
-          fullpath="${{ github.workspace }}/${iso_name}"
+          full_path="${{ github.workspace }}/${iso_name}"
         fi
-        mv ${{ github.workspace }}/build/deploy.iso ${fullpath} || true
-        cd $(dirname ${fullpath})
+        mv ${{ github.workspace }}/build/deploy.iso ${full_path} || true
+        cd $(dirname ${full_path})
         iso_fn=$(basename ${iso_name})
         sha256sum ${iso_fn} > ${iso_fn%.iso}-CHECKSUM
         echo "ISO=${full_path}" >> $GITHUB_OUTPUT
