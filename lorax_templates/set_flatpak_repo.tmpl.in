@@ -1,2 +1,4 @@
-replace "flatpak_manager\.add_remote\(\"fedora\", \"oci\+https://registry\.fedoraproject\.org\"\)" "flatpak_manager.add_remote(\"${flatpak_remote_name}\", \"${_flatpak_repo_url}\")" /usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
-replace "flatpak_manager\.replace_installed_refs_remote\(\"fedora\"\)" "flatpak_manager.replace_installed_refs_remote(\"${flatpak_remote_name}\")" /usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
+<%page args="flatpak_remote_name, _flatpak_repo_url"/>
+
+replace "flatpak_manager\.add_remote\(\".*\", \".*\"\)" "flatpak_manager.add_remote(\"${flatpak_remote_name}\", \"${_flatpak_repo_url}\")" /usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
+replace "flatpak_manager\.replace_installed_refs_remote\(\".*\"\)" "flatpak_manager.replace_installed_refs_remote(\"${flatpak_remote_name}\")" /usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py

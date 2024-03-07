@@ -189,8 +189,19 @@ test: test-iso test-vm
 
 test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
+
+	sudo apt-get update
+	sudo apt-get install -y squashfs-tools
+	sudo mkdir /mnt/{iso,install}
+	sudo mount -o loop $iso /mnt/iso
+	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
+
 	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
-	$(foreach test,$(_TESTS),./tests/iso/$(test) deploy.iso)
+	$(foreach test,$(_TESTS),./tests/iso/$(test))
+
+	# Cleanup
+	sudo umount /mnt/install
+	sudo umount /mnt/iso
 
 test-vm:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
