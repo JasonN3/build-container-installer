@@ -15,3 +15,6 @@ make boot.iso $@
 
 # Add container to ISO
 make build/deploy.iso $@
+
+cp build/deploy.iso /github/workspace/build
+chmod -R ugo=rwx /github/workspace/build

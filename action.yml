@@ -65,7 +65,7 @@ runs:
         # Check if running inside of the action repo
         if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
         if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
-        docker run --privileged --volume /github/workspace:/build-container-installer/build ghcr.io/jasonn3/build-container-installer:${tag} \
+        docker run --privileged --volume ${{ github.workspace }}:/github/workspace ghcr.io/jasonn3/build-container-installer:${tag} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
@@ -80,8 +80,8 @@ runs:
     - name: Rename ISO file
       shell: bash
       run: |
-        mv /github/workspace/deploy.iso /github/workspace/${{ inputs.iso_name }}.iso
-        cd /github/workspace
+        mv ${{ github.workspace }}/deploy.iso ${{ github.workspace }}/${{ inputs.iso_name }}.iso
+        cd ${{ github.workspace }}
         sha256sum ${{ inputs.iso_name }}.iso > ${{ inputs.iso_name }}-CHECKSUM
         echo "ISO_PATH=$(realpath ${{ github.workspace }}/${{ inputs.iso_name }}.iso)" >> $GITHUB_OUTPUT
         echo "CHECKSUM_PATH=$(realpath ${{ github.workspace }}/${{ inputs.iso_name }}-CHECKSUM)" >> $GITHUB_OUTPUT
