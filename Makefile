@@ -197,8 +197,8 @@ test-iso:
 	sudo mount -o loop deploy.iso /mnt/iso
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
-	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
-	$(foreach test,$(_TESTS),./tests/iso/$(test))
+	chmod +x $(foreach test,$(_TESTS),tests/iso/$(test))
+	for test in $(_TESTS); do ./tests/iso/$${test}; done
 
 	# Cleanup
 	sudo umount /mnt/install
@@ -207,6 +207,6 @@ test-iso:
 test-vm:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
-	for test in $(_TESTS); do ./tests/vm/${test} deploy.iso; done
+	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 	
 .PHONY: clean install-deps test test-iso test-vm
