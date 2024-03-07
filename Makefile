@@ -194,8 +194,6 @@ test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
 	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 
-	export $(foreach var,$(_VARS),$(var)=$($(var)))
-
 	sudo apt-get update
 	sudo apt-get install -y squashfs-tools
 	sudo modprobe loop
@@ -204,7 +202,10 @@ test-iso:
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
 	chmod +x $(foreach test,$(_TESTS),tests/iso/$(test))
-	for test in $(_TESTS); do ./tests/iso/$${test}; done
+	for test in $(_TESTS); \
+	do \
+	  $(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
+	done
 
 	# Cleanup
 	sudo umount /mnt/install
