@@ -30,7 +30,7 @@ inputs:
     required: false
     default: "false"
   iso_name:
-    description: Name of the resulting ISO. Relative paths are relative to ${{ github.workspace }}
+    description: "Name of the resulting ISO. Relative paths are relative to ${{ github.workspace }}"
     required: false
     default: build/deploy.iso
   enrollment_password:
