@@ -1,6 +1,6 @@
 #!/bin/bash
 
-add_line=$(grep flatpak_manager.add_remote /mnt/install/usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
+add_line=$(grep flatpak_manager.add_remote /mnt/install/usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
 
 add_line_repo=$(echo ${add_line} | grep ${FLATPAK_REMOTE_NAME})
 add_line_url=$(echo ${add_line} | grep ${_flatpak_repo_url})
@@ -18,7 +18,7 @@ then
     result=1
 fi
 
-replace_line=$(grep flatpak_manager.replace_installed_refs_remote /mnt/install/usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
+replace_line=$(grep flatpak_manager.replace_installed_refs_remote /mnt/install/usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
 
 replace_line_repo=$(echo ${replace_line} | grep ${FLATPAK_REMOTE_NAME})
 
