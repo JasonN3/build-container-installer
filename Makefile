@@ -147,7 +147,7 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 		$(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
 		$(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
-    $(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
+		$(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
 		--rootfs-size $(ROOTFS_SIZE) \
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
@@ -192,6 +192,9 @@ test: test-iso test-vm
 
 test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
+	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
+
+	export $(foreach var,$(_VARS),$(var)=$($(var)))
 
 	sudo apt-get update
 	sudo apt-get install -y squashfs-tools

@@ -5,7 +5,7 @@ set -ex
 add_line=$(grep flatpak_manager.add_remote /mnt/install/usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
 
 add_line_repo=$(echo ${add_line} | grep ${FLATPAK_REMOTE_NAME})
-add_line_url=$(echo ${add_line} | grep ${_flatpak_repo_url})
+add_line_url=$(echo ${add_line} | grep ${_FLATPAK_REPO_URL})
 
 result=0
 if [ -z "${add_line_repo}" ]
