@@ -137,7 +137,13 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 # Step 3: Build boot.iso using Lorax
 boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
-	rm /etc/rpm/macros.image-language-conf || true
+	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
+	cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.orig || true
+	ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+		echo "module_platform_id=platform:el${VERSION} >> /etc/dnf/dnf.conf
+	else
+		echo "module_platform_id=platform:f${VERSION} >> /etc/dnf/dnf.conf
+	endif
 
 	# Download the secure boot key
 	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
@@ -155,6 +161,8 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
+	mv /etc/rpm/macros.image-language-conf.orig /etc/rpm/macros.image-language-conf || true
+	mv -f /etc/dnf/dnf.conf.orig /etc/dnf/dnf.conf || true
 
 # Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
