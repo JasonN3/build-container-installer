@@ -1,4 +1,0 @@
-[submodule "external/fedora-lorax-templates"]
-	path = external/fedora-lorax-templates
-	url = https://pagure.io/fedora-lorax-templates.git
-	branch = f39
