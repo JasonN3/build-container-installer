@@ -216,6 +216,8 @@ jobs:
               ansible_user: ${VM_USER}
               ansible_password: ${VM_PASS}
           EOF
+
+          cat ansible_inventory
           
           make test-vm
 
