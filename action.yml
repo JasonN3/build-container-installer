@@ -91,6 +91,7 @@ runs:
       shell: bash
       run: |
         mkdir /cache/dnf || true
+        mkdir /cache/dnf_new || true
         mkdir /cache/skopeo || true
 
     - name: Run docker image
@@ -101,6 +102,7 @@ runs:
         if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
         if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]; then cache="${cache} -v /cache/dnf:/cache/dnf"; fi
         if [[ "${{ inputs.enable_cache_skopeo }}" == "true" ]]; then cache="${cache} -v /cache/skopeo:/cache/skopeo"; fi
+        if [[ "${{ steps.load_dnf_cache.outputs.cache-hit}}" == "false" ]]; then cache="${cache} -v /cache/dnf_new:/cache/dnf_new"; fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
           ARCH=${{ inputs.arch }} \
           IMAGE_NAME=${{ inputs.image_name }} \
@@ -120,7 +122,7 @@ runs:
       if: inputs.enable_cache_dnf == 'true' && steps.load_dnf_cache.outputs.cache-hit == 'false'
       uses: actions/cache/save@v4
       with:
-        path: /cache/dnf
+        path: /cache/dnf_new
         key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
 
     - name: Save skopeo cache

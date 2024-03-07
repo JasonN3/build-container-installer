@@ -15,7 +15,7 @@ EXTRA_BOOT_PARAMS =
 ROOTFS_SIZE = 4
 DNF_CACHE = 
 
-# Generated vars
+# Generated/internal vars
 ## Formatting = _UPPERCASE
 _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
@@ -23,6 +23,8 @@ _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
+_EXCLUDED_TEMPLATES = lorax_templates/copy_dnf_cache.tpml.in
+_LORAX_TEMPLATES = $(filter-out $(_EXCLUDED_TEMPLATES),$(_LORAX_TEMPLATES))
 _TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED ENROLLMENT_PASSWORD
 _LORAX_ARGS = 
 
@@ -40,6 +42,7 @@ endif
 
 ifneq ($(DNF_CACHE),)
 _LORAX_ARGS += --cachedir $(DNF_CACHE)
+_LORAX_TEMPLATES += lorax_templates/copy_dnf_cache.tpml.in
 endif
 
 # Step 7: Buid end ISO
