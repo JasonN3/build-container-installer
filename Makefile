@@ -145,8 +145,8 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
-	cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.orig || true
-	echo "module_platform_id=$(_PLATFORM_ID)" >> /etc/dnf/dnf.conf
+	cp /etc/os-release /etc/os-release.orig || true
+	sed -i 's/PLATFORM_ID=.*/PLATFORM_ID="$(_PLATFORM_ID)"/" /etc/os-release
 
 	# Download the secure boot key
 	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
@@ -164,8 +164,8 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
-	mv /etc/rpm/macros.image-language-conf.orig /etc/rpm/macros.image-language-conf || true
-	mv -f /etc/dnf/dnf.conf.orig /etc/dnf/dnf.conf || true
+	mv -f /etc/rpm/macros.image-language-conf.orig /etc/rpm/macros.image-language-conf || true
+	mv -f /etc/os-release.orig /etc/os-release || true
 
 # Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
