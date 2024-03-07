@@ -93,7 +93,6 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	do \
 		if [[ $$line =~ ^\<\% ]]; \
 		then \
-			echo $$line >> lorax_templates/post_$*.tmpl; \
 			echo >> lorax_templates/post_$*.tmpl; \
 		else \
 			if [[ $$header == 0 ]]; \
