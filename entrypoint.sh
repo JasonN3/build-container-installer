@@ -2,7 +2,8 @@
 
 set -ex
 
-for entry in $@; do
+for entry in $@
+do
 	export $entry
 done
 
