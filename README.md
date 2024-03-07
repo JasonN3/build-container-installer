@@ -34,27 +34,28 @@ See [Customizing](#customizing) for information about customizing the ISO that g
 The following variables can be used to customize the created ISO.
 
 ### Inputs
-| Variable          | Description                                              | Default Value                  |
-| ----------------- | -------------------------------------------------------- | ------------------------------ |
-| ARCH              | Architecture for image to build                          | x86_64                         |
-| VERSION           | Fedora version of installer to build                     | 39                             |
-| IMAGE_REPO        | Repository containing the source container image         | quay.io/fedora-ostree-desktops |
-| IMAGE_NAME        | Name of the source container image                       | base                           |
-| IMAGE_TAG         | Tag of the source container image                        | *VERSION*                      |
-| EXTRA_BOOT_PARAMS | Extra params used by grub to boot the anaconda installer | \[empty\]                      |
-| VARIANT           | Source container variant\*                               | Server                         |
-| WEB_UI            | Enable Anaconda WebUI (experimental)                     | false                          |
-| ISO_NAME          | Name of the ISO you wish to output when completed        | IMAGE_NAME-IMAGE_TAG           |
+| Variable             | Description                                                                  | Default Value                  |
+| -------------------- | ---------------------------------------------------------------------------- | ------------------------------ |
+| additional_templates | Space delimited list of additional Lorax templates to include                | \[empty\]                      |
+| arch                 | Architecture for image to build                                              | x86_64                         |
+| enrollment_password  | Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined) | container-installer            |
+| extra_boot_params    | Extra params used by grub to boot the anaconda installer                     | \[empty\]                      |
+| image_name           | Name of the source container image                                           | base                           |
+| image_repo           | Repository containing the source container image                             | quay.io/fedora-ostree-desktops |
+| image_tag            | Tag of the source container image                                            | *VERSION*                      |
+| iso_name             | Name of the ISO you wish to output when completed                            | build/deploy.iso               |
+| secure_boot_key_url  | Secure boot key that is installed from URL location                          | \[empty\]                      |
+| variant              | Source container variant\*                                                   | Server                         |
+| version              | Fedora version of installer to build                                         | 39                             |
+| web_ui               | Enable Anaconda WebUI (experimental)                                         | false                          |
 
-Available options for VARIANT can be found by running `dnf provides system-release`. 
+\*Available options for VARIANT can be found by running `dnf provides system-release`.
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
 
 ### Outputs
 | Variable          | Description                                            | Usage                                                    |
 | ----------------- | ------------------------------------------------------ | -------------------------------------------------------- |
-| output-directory  | Path to all files in the output directory              | ${{ steps.YOUR_ID_FOR_ACTION.outputs.output-directory }} |
-| iso-path          | Path to just the ISO file that the action creates      | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso-path }}         |
-| checksum-path     | Path to just the checksum file that the action creates | ${{ steps.YOUR_ID_FOR_ACTION.outputs.checksum-path }}    |
+| iso_name          | Path to just the ISO file that the action creates      | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }}         |
 
 For outputs, see example above.
 

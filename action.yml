@@ -2,10 +2,24 @@ name: Build Container Installer
 description: Generates an ISO for installing an OSTree stored in a container image
 
 inputs:
+  action_version:
+    description: Version of the action container to run
+    deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
+    required: false
+  additional_templates:
+    description: Space delimited list of additional Lorax templates to include
+    required: false
   arch:
     description: Architecture for image to build
     required: true
     default: x86_64
+  enrollment_password:
+    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
+    required: false
+    default: "container-installer"
+  extra_boot_params:
+    description: Extra params used by grub to boot the anaconda installer
+    required: false
   image_name:
     description: Name of the source container image
     required: true
@@ -14,6 +28,16 @@ inputs:
     description: Repository containing the source container image
     required: true
     default: quay.io/fedora-ostree-desktops
+  image_tag:
+    description: Tag of the source container image. Defaults to the installer version
+    required: false
+  iso_name:
+    description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
+    required: false
+    default: build/deploy.iso
+  secure_boot_key_url:
+    description: Secure boot key that is installed from URL location
+    required: false
   variant:
     description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
     required: true
@@ -22,31 +46,10 @@ inputs:
     description: Fedora version of installer to build
     required: true
     default: "39"
-  image_tag:
-    description: Tag of the source container image. Defaults to the installer version
-    required: false
   web_ui:
     description: Enable Anaconda WebUI
     required: false
     default: "false"
-  iso_name:
-    description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
-    required: false
-    default: build/deploy.iso
-  enrollment_password:
-    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
-    required: false
-    default: "container-installer"
-  secure_boot_key_url:
-    description: Secure boot key that is installed from URL location
-    required: false
-  action_version:
-    description: Version of the action container to run
-    deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
-    required: false
-  additional_templates:
-    description: Space delimited list of additional Lorax templates to include
-    required: false
 
 outputs:
   iso_name:
