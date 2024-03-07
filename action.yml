@@ -53,8 +53,11 @@ inputs:
 
 outputs:
   iso_name:
-    value: ${{ steps.rename_iso.outputs.ISO }}
-    description: The location of the .iso object
+    value: ${{ steps.rename_iso.outputs.iso_name }}
+    description: The name of the resulting .iso
+  iso_path:
+    value: ${{ steps.rename_iso.outputs.iso_path }}
+    description: The name and path of the resulting .iso
 
 runs:
   using: composite
@@ -98,4 +101,5 @@ runs:
         cd $(dirname ${full_path})
         iso_fn=$(basename ${iso_name})
         sha256sum ${iso_fn} > ${iso_fn%.iso}-CHECKSUM
-        echo "ISO=${full_path}" >> $GITHUB_OUTPUT
+        echo "iso_path=${full_path}" >> $GITHUB_OUTPUT
+        echo "iso_name=${iso_fn}" >> $GITHUB_OUTPUT

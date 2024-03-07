@@ -105,10 +105,10 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
+          name: ${{ steps.build.outputs.iso_name }}
           path: |
-            ${{ steps.build.outputs.iso_name }}
-            ${{ steps.build.outputs.iso_name }}-CHECKSUM
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
