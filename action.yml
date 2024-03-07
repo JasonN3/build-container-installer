@@ -61,6 +61,7 @@ runs:
         sudo chmod 777 /cache
 
     - name: Load dnf cache
+      id: load_cache
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
       if: inputs.enable_cache_dnf == 'true'
@@ -68,6 +69,7 @@ runs:
       with:
         path: /cache/dnf
         key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
+        restore-keys: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}-${{ github.}}
 
     - name: Run docker image
       shell: bash
@@ -92,7 +94,7 @@ runs:
     - name: Save dnf cache
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
-      if: inputs.enable_cache_dnf == 'true'
+      if: inputs.enable_cache_dnf == 'true' && steps.load_cache.outputs.cache-hit == 'false'
       uses: actions/cache/save@v4
       with:
         path: /cache/dnf
