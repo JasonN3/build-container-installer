@@ -38,10 +38,8 @@ runcmd flatpak remote-add --user ${flatpak_remote_name} ${flatpak_remote_url}
 runcmd mkdir -p ${root}/flatpak
 runcmd ostree init --repo=${dest_repo} --mode=archive-z2
 <%
-f = open("/findme.txt", "a")
-f.write("I'm here!")
-f.close()
-cmd_result = subprocess.run(['ostree', 'refs', '--repo=/flatpak/repo'], stdout=subprocess.PIPE)
+cmd_result = subprocess.run(['ostree', 'refs', '--repo={0}'.format(flatpak_repo)], stdout=subprocess.PIPE)
+subprocess.run(['bash', '-c', 'echo "Help" >> /findme2.txt'])
 all_refs = cmd_result.stdout.decode('utf-8').strip().split('\n')
 found_refs = [entry[7:] for entry in all_refs if entry.startswith('deploy/')]
 %>
