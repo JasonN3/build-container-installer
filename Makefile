@@ -193,7 +193,7 @@ test-iso:
 	sudo apt-get update
 	sudo apt-get install -y squashfs-tools
 	sudo modprobe loop
-	sudo mkdir /mnt/{iso,install}
+	sudo mkdir /mnt/iso /mnt/install
 	sudo mount -o loop deploy.iso /mnt/iso
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
