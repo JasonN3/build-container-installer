@@ -47,6 +47,13 @@ inputs:
   dnf_cache_key:
     description: Overrides the dnf cache key
     required: false
+  enable_cache_skopeo: 
+    description: Whether to enable caching for skopeo
+    required: false
+    default: "true"
+  skopeo_cache_key:
+    description: Overrides the skopeo cache key
+    required: false
   additional_templates:
     description: Space delimetered list of additional Lorax templates to include
     required: false
@@ -61,7 +68,7 @@ runs:
         sudo chmod 777 /cache
 
     - name: Load dnf cache
-      id: load_cache
+      id: load_dnf_cache
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
       if: inputs.enable_cache_dnf == 'true'
@@ -69,7 +76,16 @@ runs:
       with:
         path: /cache/dnf
         key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
-        restore-keys: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}-${{ github.}}
+
+    - name: Load skopeo cache
+      id: load_skopeo_cache
+      env:
+        skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.image_tag }}
+      if: inputs.enable_cache_skopeo == 'true'
+      uses: actions/cache/restore@v4
+      with:
+        path: /cache/skopeo
+        key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
 
     - name: Run docker image
       shell: bash
@@ -94,8 +110,17 @@ runs:
     - name: Save dnf cache
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
-      if: inputs.enable_cache_dnf == 'true' && steps.load_cache.outputs.cache-hit == 'false'
+      if: inputs.enable_cache_dnf == 'true' && steps.load_dnf_cache.outputs.cache-hit == 'false'
       uses: actions/cache/save@v4
       with:
         path: /cache/dnf
         key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
+
+    - name: Save skopeo cache
+      env:
+        skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.image_tag }}
+      if: inputs.enable_cache_skopeo == 'true' && steps.load_skopeo_cache.outputs.cache-hit == 'false'
+      uses: actions/cache/save@v4
+      with:
+        path: /cache/skopeo
+        key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}

@@ -190,5 +190,5 @@ test-iso:
 	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
 	$(foreach test,$(_TESTS),./tests/iso/$(test) deploy.iso)
 	
-.PHONY: clean install-deps
+.PHONY: clean install-deps test-iso container/$(IMAGE_NAME)-$(IMAGE_TAG)
 
