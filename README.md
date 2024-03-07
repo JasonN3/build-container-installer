@@ -23,10 +23,10 @@ This action is designed to be called from a GitHub workflow using the following 
   id: upload
   uses: actions/upload-artifact@v4
   with:
-    name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ env.VERSION }}.iso
+    name: ${{ steps.build.outputs.iso_name }}
     path: |
-      ${{ steps.build.outputs.iso_name }}
-      ${{ steps.build.outputs.iso_name }}-CHECKSUM
+      ${{ steps.build.outputs.iso_path }}
+      ${{ steps.build.outputs.iso_path }}-CHECKSUM
   if-no-files-found: error
   retention-days: 0
   compression-level: 0
@@ -57,9 +57,10 @@ The following variables can be used to customize the created ISO.
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
 
 ### Outputs
-| Variable          | Description                                            | Usage                                                    |
-| ----------------- | ------------------------------------------------------ | -------------------------------------------------------- |
-| iso_name          | Path to just the ISO file that the action creates      | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }}         |
+| Variable | Description                             | Usage                                            |
+| -------- | ----------------------------------------| ------------------------------------------------ |
+| iso_name | The name of the resulting .iso          | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
+| iso_path | The name and path of the resulting .iso | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
 
 For outputs, see example above.
 
