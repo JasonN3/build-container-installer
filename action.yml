@@ -44,7 +44,7 @@ inputs:
     deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
     required: false
   additional_templates:
-    description: Space delimetered list of additional Lorax templates to include
+    description: Space delimited list of additional Lorax templates to include
     required: false
 
 outputs:
