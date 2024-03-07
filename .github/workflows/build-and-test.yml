@@ -67,11 +67,9 @@ jobs:
         version:
           - 38
           - 39
+    outputs:
+      iso_name: ${{ steps.build.outputs.iso_name }}
     steps:
-      - name: Set Environment Variables
-        run: |
-          echo "ISO_NAME=${{ env.IMAGE_NAME }}-${{ matrix.VERSION }}" >> $GITHUB_ENV
-
       - name: Checkout repo
         uses: actions/checkout@v4
 
@@ -101,14 +99,16 @@ jobs:
           variant: ${{ env.VARIANT }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
-          iso_name: ${{ env.ISO_NAME }}
+          iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
 
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ISO_NAME }}.iso
-          path: ${{ steps.build.outputs.output-directory }}
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_name }}
+            ${{ steps.build.outputs.iso_name }}-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
@@ -127,17 +127,13 @@ jobs:
           - 38
           - 39
     steps:
-      - name: Set Environment Variables
-        run: |
-          echo "ISO_NAME=${{ env.IMAGE_NAME }}-${{ matrix.VERSION }}" >> $GITHUB_ENV
-
       - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Ensure qemu is installed
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make
+          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils
 
       - name: Create disk
         run: |
@@ -146,14 +142,16 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.ISO_NAME }}.iso
+          name: ${{ needs.build-and-push-iso.outputs.iso_name }}
     
       - name: Verify ISO
-        run: checkisomd5 ${{ env.ISO_NAME }}.iso
+        run: |
+          checkisomd5 ${{ needs.build-and-push-iso.outputs.iso_name }}
+          sha256sum -c ${{ needs.build-and-push-iso.outputs.iso_name }}-CHECKSUM
 
       - name: Run ISO checks
         run: |
-          mv ${{ env.ISO_NAME }}.iso deploy.iso
+          mv ${{ needs.build-and-push-iso.outputs.iso_name }} deploy.iso
           make test-iso VERSION=${{ matrix.version }}
 
       - name: Add Kickstart and Grub options to ISO
