@@ -22,9 +22,7 @@ This action is designed to be called from a GitHub workflow using the following 
   uses: actions/upload-artifact@v4
   with:
     name: my_iso.iso
-    path: |
-      ${{ steps.build.outputs.iso_path }}
-      ${{ steps.build.outputs.checksum-path }}
+    path: ${{ steps.build.outputs.output-directory }}
   if-no-files-found: error
   retention-days: 0
   compression-level: 0
@@ -52,10 +50,11 @@ Available options for VARIANT can be found by running `dnf provides system-relea
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
 
 ### Outputs
-| Variable          | Description                                              | Usage                                            |
-| ----------------- | -------------------------------------------------------- | ------------------------------------------------ |
-| iso-path          | Path to ISO file that the action creates                 | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_path }} |
-| checksum-path     | Path to the checksum file that the action creates        | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_path }} |
+| Variable          | Description                                            | Usage                                                    |
+| ----------------- | ------------------------------------------------------ | -------------------------------------------------------- |
+| output-directory  | Path to all files in the output directory              | ${{ steps.YOUR_ID_FOR_ACTION.outputs.output-directory }} |
+| iso-path          | Path to just the ISO file that the action creates      | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso-path }}         |
+| checksum-path     | Path to just the checksum file that the action creates | ${{ steps.YOUR_ID_FOR_ACTION.outputs.checksum-path }}    |
 
 For outputs, see example above.
 
@@ -129,4 +128,3 @@ Build a new container image:
 	"privileged": true
 }
 ```
-

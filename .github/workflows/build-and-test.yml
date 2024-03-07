@@ -108,9 +108,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ISO_NAME }}.iso
-          path: | 
-            ${{ steps.build.outputs.iso-path }}
-            ${{ steps.build.outputs.checksum-path }}
+          path: ${{ steps.build.outputs.output-directory }}
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
@@ -226,4 +224,3 @@ jobs:
               ./${check}
             fi
           done
-

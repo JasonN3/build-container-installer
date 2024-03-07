@@ -16,5 +16,9 @@ make boot.iso $@
 # Add container to ISO
 make build/deploy.iso $@
 
+# Make output dir in github workspace
+mkdir /github/workspace/build || true
+
+# Copy resulting iso to githubworkspace and fix permissions
 cp build/deploy.iso /github/workspace/build
 chmod -R ugo=rwx /github/workspace/build

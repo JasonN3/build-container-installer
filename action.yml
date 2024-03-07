@@ -48,6 +48,9 @@ inputs:
     required: false
 
 outputs:
+  output-directory:
+    value: ${{ steps.run_docker.outputs.OUTPUT_DIRECTORY }}
+    description: The location of all output objects
   iso-path:
     value: ${{ steps.run_docker.outputs.ISO_PATH }}
     description: The location of the .iso object
@@ -80,8 +83,9 @@ runs:
     - name: Rename ISO file
       shell: bash
       run: |
-        mv ${{ github.workspace }}/deploy.iso ${{ github.workspace }}/${{ inputs.iso_name }}.iso
-        cd ${{ github.workspace }}
+        mv ${{ github.workspace }}/build/deploy.iso ${{ github.workspace }}/build/${{ inputs.iso_name }}.iso
+        cd ${{ github.workspace }}/build
         sha256sum ${{ inputs.iso_name }}.iso > ${{ inputs.iso_name }}-CHECKSUM
-        echo "ISO_PATH=$(realpath ${{ github.workspace }}/${{ inputs.iso_name }}.iso)" >> $GITHUB_OUTPUT
-        echo "CHECKSUM_PATH=$(realpath ${{ github.workspace }}/${{ inputs.iso_name }}-CHECKSUM)" >> $GITHUB_OUTPUT
+        echo "OUTPUT_DIRECTORY=$(realpath ${{ github.workspace }}/build/)" >> $GITHUB_OUTPUT
+        echo "ISO_PATH=$(realpath ${{ github.workspace }}/build/${{ inputs.iso_name }}.iso)" >> $GITHUB_OUTPUT
+        echo "CHECKSUM_PATH=$(realpath ${{ github.workspace }}/build/${{ inputs.iso_name }}-CHECKSUM)" >> $GITHUB_OUTPUT
