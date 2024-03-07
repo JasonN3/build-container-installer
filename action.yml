@@ -64,8 +64,8 @@ runs:
     - name: Make cache directory
       shell: bash
       run: |
-        sudo mkdir /cache
-        sudo chmod 777 /cache
+        sudo mkdir -p /cache/dnf /cache/skopeo
+        sudo chmod 777 /cache /cache/dnf /cache/skopeo
 
     - name: Load dnf cache
       id: load_dnf_cache
