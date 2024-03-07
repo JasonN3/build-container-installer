@@ -30,8 +30,9 @@ inputs:
     required: false
     default: "false"
   iso_name:
-    description: Used for specifying the name of the output iso
+    description: Name of the resulting ISO. Relative paths are relative to ${{ github.workspace }}
     required: false
+    default: build/deploy.iso
   enrollment_password:
     description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
     required: false
@@ -48,15 +49,9 @@ inputs:
     required: false
 
 outputs:
-  output-directory:
-    value: ${{ steps.rename_iso.outputs.OUTPUT_DIRECTORY }}
-    description: The location of all output objects
-  iso-path:
-    value: ${{ steps.rename_iso.outputs.ISO_PATH }}
+  iso_name:
+    value: ${{ steps.rename_iso.outputs.ISO }}
     description: The location of the .iso object
-  checksum-path:
-    value: ${{ steps.rename_iso.outputs.CHECKSUM_PATH }}
-    description: The location of the checksum
 
 runs:
   using: composite
@@ -79,13 +74,25 @@ runs:
           ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
           SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
+
     - name: Rename ISO file
       id: rename_iso
       shell: bash
       run: |
-        mv ${{ github.workspace }}/build/deploy.iso ${{ github.workspace }}/build/${{ inputs.iso_name }}.iso
-        cd ${{ github.workspace }}/build
-        sha256sum ${{ inputs.iso_name }}.iso > ${{ inputs.iso_name }}-CHECKSUM
-        echo "OUTPUT_DIRECTORY=$(realpath ${{ github.workspace }}/build)" >> $GITHUB_OUTPUT
-        echo "ISO_PATH=$(realpath ${{ github.workspace }}/build/${{ inputs.iso_name }}.iso)" >> $GITHUB_OUTPUT
-        echo "CHECKSUM_PATH=$(realpath ${{ github.workspace }}/build/${{ inputs.iso_name }}-CHECKSUM)" >> $GITHUB_OUTPUT
+        if [[ ! ( "${{ inputs.iso_name }}" =~ \.iso$ ) ]]
+        then
+          iso_name="${{ inputs.iso_name }}.iso"
+        else
+          iso_name="${{ inputs.iso_name }}"
+        fi
+        if [[ "${{ inputs.iso_name }}" =~ ^/ ]]
+        then
+          full_path="${iso_name}"
+        else
+          fullpath="${{ github.workspace }}/${iso_name}"
+        fi
+        mv ${{ github.workspace }}/build/deploy.iso ${fullpath} || true
+        cd $(dirname ${fullpath})
+        iso_fn=$(basename ${iso_name})
+        sha256sum ${iso_fn} > ${iso_fn%.iso}-CHECKSUM
+        echo "ISO=${full_path}" >> $GITHUB_OUTPUT
