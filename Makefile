@@ -146,7 +146,7 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
 	cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.orig || true
-	echo "module_platform_id=$(_PLATFORM_ID) >> /etc/dnf/dnf.conf
+	echo "module_platform_id=$(_PLATFORM_ID)" >> /etc/dnf/dnf.conf
 
 	# Download the secure boot key
 	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
