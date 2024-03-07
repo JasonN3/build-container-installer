@@ -90,7 +90,8 @@ runs:
     - name: Ensure cache directories exist
       shell: bash
       run: |
-        mkdir /cache/dnf /cache/skopeo
+        mkdir /cache/dnf || true
+        mkdir /cache/skopeo || true
 
     - name: Run docker image
       shell: bash
