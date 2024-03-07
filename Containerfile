@@ -19,7 +19,6 @@ VOLUME /build-container-installer/repos
 VOLUME /cache
 
 RUN dnf install -y make && make install-deps
-RUN ln -s /cache/skopeo /build-container-installer/container && mkdir /cache/dnf
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 
