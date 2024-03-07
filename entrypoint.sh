@@ -4,7 +4,7 @@ set -ex
 
 for entry in $@
 do
-	export $entry
+  export $entry
 done
 
 # Pull container
@@ -19,6 +19,6 @@ make build/deploy.iso $@
 # Make output dir in github workspace
 mkdir /github/workspace/build || true
 
-# Copy resulting iso to githubworkspace and fix permissions
+# Copy resulting iso to github workspace and fix permissions
 cp build/deploy.iso /github/workspace/build
 chmod -R ugo=rwx /github/workspace/build
