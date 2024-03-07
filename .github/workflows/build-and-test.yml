@@ -140,7 +140,7 @@ jobs:
       - name: Run ISO checks
         run: |
           mv ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso deploy.iso
-          make test-iso
+          make test-iso FLATPAK_REMOTE_REFS=${{ env.FLATPAK_REMOTE_REFS}}
 
       - name: Add Kickstart and Grub options to ISO
         run: |
