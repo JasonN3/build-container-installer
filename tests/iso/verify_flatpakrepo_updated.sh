@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export
+
 set -ex
 
 add_line=$(grep flatpak_manager.add_remote /mnt/install/usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
