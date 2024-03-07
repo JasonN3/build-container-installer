@@ -105,7 +105,7 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.build.outputs.iso_name }}
+          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
           path: |
             ${{ steps.build.outputs.iso_name }}
             ${{ steps.build.outputs.iso_name }}-CHECKSUM
