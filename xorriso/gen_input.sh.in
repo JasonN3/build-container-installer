@@ -10,7 +10,8 @@ echo "-chmod 0444 boot/grub2/grub.cfg"
 echo "-map $(pwd)/results/EFI/BOOT/grub.cfg EFI/BOOT/grub.cfg"
 echo "-chmod 0444 EFI/BOOT/grub.cfg"
 
-if [ -f $(pwd)/sb_pubkey.der ]; then
+if [ -f $(pwd)/sb_pubkey.der ]
+then
 	echo "-map $(pwd)/sb_pubkey.der sb_pubkey.der"
 	echo "-chmod 0444 /sb_pubkey.der"
 fi
