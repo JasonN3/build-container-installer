@@ -45,6 +45,13 @@ _LORAX_ARGS += --cachedir $(DNF_CACHE)
 _LORAX_TEMPLATES += lorax_templates/copy_dnf_cache.tmpl
 endif
 
+ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+_PLATFORM_ID = platform:el$(VERSION)
+else
+_PLATFORM_ID = platform:f$(VERSION)
+endif
+
+
 # Step 7: Buid end ISO
 ## Default action
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
@@ -139,11 +146,7 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
 	cp /etc/dnf/dnf.conf /etc/dnf/dnf.conf.orig || true
-	ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
-		echo "module_platform_id=platform:el${VERSION} >> /etc/dnf/dnf.conf
-	else
-		echo "module_platform_id=platform:f${VERSION} >> /etc/dnf/dnf.conf
-	endif
+	echo "module_platform_id=$(_PLATFORM_ID) >> /etc/dnf/dnf.conf
 
 	# Download the secure boot key
 	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
