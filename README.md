@@ -13,16 +13,20 @@ This action is designed to be called from a GitHub workflow using the following 
     arch: ${{ env.ARCH}}
     image_name: ${{ env.IMAGE_NAME}}
     image_repo: ${{ env.IMAGE_REPO}}
+    image_tag: ${{ env.IMAGE_TAG }}
     version: ${{ env.VERSION }}
     variant: ${{ env.VARIANT }}
+    iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ env.VERSION }}.iso
 
 # This example is for uploading your ISO as a Github artifact. You can do something similar using any cloud storage, so long as you copy the output
 - name: Upload ISO as artifact
   id: upload
   uses: actions/upload-artifact@v4
   with:
-    name: my_iso.iso
-    path: ${{ steps.build.outputs.output-directory }}
+    name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ env.VERSION }}.iso
+    path: |
+      ${{ steps.build.outputs.iso_name }}
+      ${{ steps.build.outputs.iso_name }}-CHECKSUM
   if-no-files-found: error
   retention-days: 0
   compression-level: 0
