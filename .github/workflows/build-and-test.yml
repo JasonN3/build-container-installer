@@ -18,7 +18,6 @@ env:
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
-
 jobs:
   build-container:
     runs-on: ubuntu-latest
@@ -47,7 +46,7 @@ jobs:
         with:
           containerfiles: Containerfile
           tags: ${{ steps.meta.outputs.tags }}
-          
+
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
         with:
@@ -55,7 +54,6 @@ jobs:
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
-
 
   build-and-push-iso:
     runs-on: ubuntu-latest
@@ -69,6 +67,9 @@ jobs:
         version:
           - 38
           - 39
+    outputs:
+      iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
+      iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -89,6 +90,7 @@ jobs:
 
       - name: Build ISO with new container
         uses: ./
+        id: build
         with:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
@@ -98,17 +100,22 @@ jobs:
           variant: ${{ env.VARIANT }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
+          iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
 
-      - name: Rename ISO
+      - name: Save output
+        id: save_output
+        shell: bash
         run: |
-          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
+          echo "iso_name-${{ matrix.version }}=${{ steps.build.outputs.iso_name}}" >> $GITHUB_OUTPUT
 
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
-          path: build/*.iso
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
@@ -133,7 +140,7 @@ jobs:
       - name: Ensure qemu is installed
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make
+          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils
 
       - name: Create disk
         run: |
@@ -142,14 +149,16 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
+          name: ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
     
       - name: Verify ISO
-        run: checkisomd5 ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
+        run: |
+          checkisomd5 ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
+          sha256sum -c ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}-CHECKSUM
 
       - name: Run ISO checks
         run: |
-          mv ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso deploy.iso
+          mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
           make test-iso VERSION=${{ matrix.version }}
 
       - name: Add Kickstart and Grub options to ISO
@@ -224,4 +233,3 @@ jobs:
               ./${check}
             fi
           done
-

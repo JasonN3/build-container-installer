@@ -34,7 +34,7 @@ ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
 endif
 
-# Step 7: Buid end ISO
+# Step 7: Build end ISO
 ## Default action
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
@@ -177,7 +177,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo
+	dnf install -y lorax xorriso skopeo coreutils
 
 test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))

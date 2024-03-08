@@ -8,12 +8,28 @@ This action is designed to be called from a GitHub workflow using the following 
 ```yaml
 - name: Build ISO
   uses: jasonn3/build-container-installer/v1.0.0
+  id: build
   with:
     arch: ${{ env.ARCH}}
     image_name: ${{ env.IMAGE_NAME}}
     image_repo: ${{ env.IMAGE_REPO}}
+    image_tag: ${{ env.IMAGE_TAG }}
     version: ${{ env.VERSION }}
     variant: ${{ env.VARIANT }}
+    iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ env.VERSION }}.iso
+
+# This example is for uploading your ISO as a Github artifact. You can do something similar using any cloud storage, so long as you copy the output
+- name: Upload ISO as artifact
+  id: upload
+  uses: actions/upload-artifact@v4
+  with:
+    name: ${{ steps.build.outputs.iso_name }}
+    path: |
+      ${{ steps.build.outputs.iso_path }}
+      ${{ steps.build.outputs.iso_path }}-CHECKSUM
+  if-no-files-found: error
+  retention-days: 0
+  compression-level: 0
 ```
 
 See [Customizing](#customizing) for information about customizing the ISO that gets created using `with`
@@ -21,19 +37,34 @@ See [Customizing](#customizing) for information about customizing the ISO that g
 ## Customizing
 The following variables can be used to customize the created ISO.
 
-| Variable          | Description                                              | Default Value                  |
-| ----------------- | -------------------------------------------------------- | ------------------------------ |
-| ARCH              | Architecture for image to build                          | x86_64                         |
-| VERSION           | Fedora version of installer to build                     | 39                             |
-| IMAGE_REPO        | Repository containing the source container image         | quay.io/fedora-ostree-desktops |
-| IMAGE_NAME        | Name of the source container image                       | base                           |
-| IMAGE_TAG         | Tag of the source container image                        | *VERSION*                      |
-| EXTRA_BOOT_PARAMS | Extra params used by grub to boot the anaconda installer | \[empty\]                      |
-| VARIANT           | Source container variant\*                               | Server                         |
-| WEB_UI            | Enable Anaconda WebUI (experimental)                     | false                          |
+### Inputs
+| Variable             | Description                                                                  | Default Value                  |
+| -------------------- | ---------------------------------------------------------------------------- | ------------------------------ |
+| additional_templates | Space delimited list of additional Lorax templates to include                | \[empty\]                      |
+| arch                 | Architecture for image to build                                              | x86_64                         |
+| enrollment_password  | Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined) | container-installer            |
+| extra_boot_params    | Extra params used by grub to boot the anaconda installer                     | \[empty\]                      |
+| image_name           | Name of the source container image                                           | base                           |
+| image_repo           | Repository containing the source container image                             | quay.io/fedora-ostree-desktops |
+| image_tag            | Tag of the source container image                                            | *VERSION*                      |
+| iso_name             | Name of the ISO you wish to output when completed                            | build/deploy.iso               |
+| secure_boot_key_url  | Secure boot key that is installed from URL location\*\*                      | \[empty\]                      |
+| variant              | Source container variant\*                                                   | Server                         |
+| version              | Fedora version of installer to build                                         | 39                             |
+| web_ui               | Enable Anaconda WebUI (experimental)                                         | false                          |
 
-Available options for VARIANT can be found by running `dnf provides system-release`. 
+\*Available options for VARIANT can be found by running `dnf provides system-release`.
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
+
+\*\* If you need to reference a local file, you can use `file://*path*`
+
+### Outputs
+| Variable | Description                             | Usage                                            |
+| -------- | ----------------------------------------| ------------------------------------------------ |
+| iso_name | The name of the resulting .iso          | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
+| iso_path | The name and path of the resulting .iso | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
+
+For outputs, see example above.
 
 ## Development
 ### Makefile
@@ -41,26 +72,26 @@ The Makefile contains all of the commands that are run in the action. There are 
 
 `make install-deps` can be used to install the necessary packages
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. All variable should be specified CAPITALIZED.
 
 ### Container
 A container with `make install-deps` already run is provided at `ghcr.io/jasonn3/build-container-installer:latest`
 
 To use the container file, run `docker run --privileged --volume .:/build-container-installer/build ghcr.io/jasonn3/build-container-installer:latest`.
 
-This will create an ISO with the baked in defaults of the container image.
+This will create an ISO with the baked in defaults of the container image. The resulting file will be called `deploy.iso`
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created. The variable can either be defined as environment variables.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. The variable can either be defined as environment variables. All variable should be specified CAPITALIZED.
 Examples:
 
 Building an ISO to install Fedora 38
 ```bash
-docker run --rm --privileged --volume .:/build-container-installer/build -e VERSION=38 -e IMAGE_NAME=base -e IMAGE_TAG=38 -e VARIANT=Server ghcr.io/jasonn3/build-container-installer:latest
+docker run --rm --privileged --volume .:/github/workspace/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
 ```
 
 Building an ISO to install Fedora 39
 ```bash
-docker run --rm --privileged --volume .:/build-container-installer/build -e VERSION=39 -e IMAGE_NAME=base -e IMAGE_TAG=39 -e VARIANT=Server ghcr.io/jasonn3/build-container-installer:latest
+docker run --rm --privileged --volume .:/github/workspace/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
 ```
 
 ### VSCode Dev Container
@@ -105,4 +136,3 @@ Build a new container image:
 	"privileged": true
 }
 ```
-
