@@ -48,13 +48,15 @@ The following variables can be used to customize the created ISO.
 | image_repo           | Repository containing the source container image                             | quay.io/fedora-ostree-desktops |
 | image_tag            | Tag of the source container image                                            | *VERSION*                      |
 | iso_name             | Name of the ISO you wish to output when completed                            | build/deploy.iso               |
-| secure_boot_key_url  | Secure boot key that is installed from URL location                          | \[empty\]                      |
+| secure_boot_key_url  | Secure boot key that is installed from URL location\*\*                      | \[empty\]                      |
 | variant              | Source container variant\*                                                   | Server                         |
 | version              | Fedora version of installer to build                                         | 39                             |
 | web_ui               | Enable Anaconda WebUI (experimental)                                         | false                          |
 
 \*Available options for VARIANT can be found by running `dnf provides system-release`.
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
+
+\*\* If you need to reference a local file, you can use `file://*path*`
 
 ### Outputs
 | Variable | Description                             | Usage                                            |
@@ -70,7 +72,7 @@ The Makefile contains all of the commands that are run in the action. There are 
 
 `make install-deps` can be used to install the necessary packages
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. All variable should be specified CAPITALIZED.
 
 ### Container
 A container with `make install-deps` already run is provided at `ghcr.io/jasonn3/build-container-installer:latest`
@@ -79,17 +81,17 @@ To use the container file, run `docker run --privileged --volume .:/build-contai
 
 This will create an ISO with the baked in defaults of the container image. The resulting file will be called `deploy.iso`
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created. The variable can either be defined as environment variables.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. The variable can either be defined as environment variables. All variable should be specified CAPITALIZED.
 Examples:
 
 Building an ISO to install Fedora 38
 ```bash
-docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
+docker run --rm --privileged --volume .:/github/workspace/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
 ```
 
 Building an ISO to install Fedora 39
 ```bash
-docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
+docker run --rm --privileged --volume .:/github/workspace/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
 ```
 
 ### VSCode Dev Container
