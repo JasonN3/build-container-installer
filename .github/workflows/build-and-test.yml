@@ -15,7 +15,7 @@ env:
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
   IMAGE_TAG: '39'
   VARIANT: 'Server'
-  FLATPAK_REMOTE_REFS: app/org.videolan.VLC/x86_64/stable  org.kde.Platform/x86_64/5.15-23.08
+  FLATPAK_REMOTE_REFS: app/org.videolan.VLC/x86_64/stable  runtime/org.kde.Platform/x86_64/5.15-23.08
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
