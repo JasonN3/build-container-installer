@@ -6,7 +6,7 @@
 
   tasks:
   - name: Get gpg key
-    ansible.builtin.set-fact:
+    ansible.builtin.set_fact:
       found_gpg: "{{ slurpfile['/ostree/deploy/default/var/lib/flatpak/repo'] | base64 }}"
       expected_gpg: "{{ lookup('ansible.builtin.url', 'https://flathub.org/repo/flathub.flatpakrepo', split_lines=True) | regex_search('^GPGKey=(.*)$', '\\1' multiline=True, ignorecase=True) }}"
   
