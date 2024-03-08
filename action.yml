@@ -14,7 +14,7 @@ inputs:
     required: true
     default: x86_64
   enrollment_password:
-    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
+    description: Used for supporting secure boot (requires secure_boot_key_url to be defined)
     required: false
     default: "container-installer"
   extra_boot_params:
