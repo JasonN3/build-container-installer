@@ -12,10 +12,10 @@
   
   - name: Test GPG key
     ansible.builtin.assert:
-    that:
-      - found_gpg == found_gpg
-    fail_msg: "Installed GPG key does not match GPG key in flatpakrepo file"
-    success_msg: "GPG key matches"
+      that:
+        - found_gpg == found_gpg
+      fail_msg: "Installed GPG key does not match GPG key in flatpakrepo file"
+      success_msg: "GPG key matches"
 
   - name: Test updating flatpak packages
     ansible.builtin.command:
