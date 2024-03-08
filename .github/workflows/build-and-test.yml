@@ -227,11 +227,12 @@ jobs:
           echo "VM ready for tests at IP ${VM_IP}"
           echo "Creating Ansible inventory"
           cat << EOF > ansible_inventory
-          hosts:
-            vm:
-              ansible_host: ${VM_IP}
-              ansible_user: ${VM_USER}
-              ansible_password: ${VM_PASS}
+          ungrouped:
+            hosts:
+              vm:
+                ansible_host: ${VM_IP}
+                ansible_user: ${VM_USER}
+                ansible_password: ${VM_PASS}
           EOF
 
           cat ansible_inventory
