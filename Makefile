@@ -45,7 +45,7 @@ ifneq ($(FLATPAK_REMOTE_REFS),)
 _LORAX_ARGS += -i flatpak-libs
 endif
 
-# Step 7: Buid end ISO
+# Step 7: Build end ISO
 ## Default action
 build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
@@ -188,7 +188,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree
+  dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils
 
 test: test-iso test-vm
 

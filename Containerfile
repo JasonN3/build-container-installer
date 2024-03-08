@@ -11,6 +11,7 @@ ENV VERSION="${VERSION}"
 ENV WEB_UI="false"
 
 RUN mkdir /build-container-installer
+
 COPY / /build-container-installer/
 
 WORKDIR /build-container-installer

@@ -2,10 +2,36 @@ name: Build Container Installer
 description: Generates an ISO for installing an OSTree stored in a container image
 
 inputs:
+  action_version:
+    description: Version of the action container to run
+    deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
+    required: false
+  additional_templates:
+    description: Space delimited list of additional Lorax templates to include
+    required: false
   arch:
     description: Architecture for image to build
     required: true
     default: x86_64
+  enrollment_password:
+    description: Used for supporting secure boot (requires secure_boot_key_url to be defined)
+    required: false
+    default: "container-installer"
+  extra_boot_params:
+    description: Extra params used by grub to boot the anaconda installer
+    required: false
+  flatpak_remote_name:
+    description: Name of the Flatpak remote repo
+    required: false
+    default: "flathub"
+  flatpak_remote_refs:
+    description: Space delimited list of refs to the flatpak packages to install
+    required: false
+    default: ""
+  flatpak_remote_url:
+    description: The URL of the Flatpak remote flatpakrepo file
+    required: false
+    default: https://flathub.org/repo/flathub.flatpakrepo
   image_name:
     description: Name of the source container image
     required: true
@@ -14,6 +40,16 @@ inputs:
     description: Repository containing the source container image
     required: true
     default: quay.io/fedora-ostree-desktops
+  image_tag:
+    description: Tag of the source container image. Defaults to the installer version
+    required: false
+  iso_name:
+    description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
+    required: false
+    default: build/deploy.iso
+  secure_boot_key_url:
+    description: Secure boot key that is installed from URL location
+    required: false
   variant:
     description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
     required: true
@@ -22,39 +58,18 @@ inputs:
     description: Fedora version of installer to build
     required: true
     default: "39"
-  image_tag:
-    description: Tag of the source container image. Defaults to the installer version
-    required: false
   web_ui:
     description: Enable Anaconda WebUI
     required: false
     default: "false"
-  enrollment_password:
-    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
-    required: false
-    default: "container-installer"
-  secure_boot_key_url:
-    description: Secure boot key that is installed from URL location
-    required: false
-  action_version:
-    description: Version of the action container to run
-    deprecationMessage: No longer used. github.action_ref replaces the need for this. Will be removed in a future version.
-    required: false
-  additional_templates:
-    description: Space delimited list of additional Lorax templates to include
-    required: false
-  flatpak_remote_name:
-    description: Name of the Flatpak remote repo
-    required: false
-    default: "flathub"
-  flatpak_remote_url:
-    description: The URL of the Flatpak remote flatpakrepo file
-    required: false
-    default: https://flathub.org/repo/flathub.flatpakrepo
-  flatpak_remote_refs:
-    description: Space delimited list of refs to the flatpak packages to install
-    required: false
-    default: ""
+
+outputs:
+  iso_name:
+    value: ${{ steps.rename_iso.outputs.iso_name }}
+    description: The name of the resulting .iso
+  iso_path:
+    value: ${{ steps.rename_iso.outputs.iso_path }}
+    description: The name and path of the resulting .iso
 
 runs:
   using: composite
@@ -65,17 +80,40 @@ runs:
         # Check if running inside of the action repo
         if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
         if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
-        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ghcr.io/jasonn3/build-container-installer:${tag} \
+        docker run --privileged --volume ${{ github.workspace }}:/github/workspace ghcr.io/jasonn3/build-container-installer:${tag} \
+          ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH=${{ inputs.arch }} \
+          ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
+          FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
+          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
+          FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
+          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
+          SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           VARIANT=${{ inputs.variant }} \
           VERSION=${{ inputs.version }} \
-          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
-          WEB_UI=${{ inputs.web_ui }} \
-          ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
-          FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
-          FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
-          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}"
-          ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
-          SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
+          WEB_UI=${{ inputs.web_ui }}
+
+    - name: Rename ISO file
+      id: rename_iso
+      shell: bash
+      run: |
+        if [[ ! ( "${{ inputs.iso_name }}" =~ \.iso$ ) ]]
+        then
+          iso_name="${{ inputs.iso_name }}.iso"
+        else
+          iso_name="${{ inputs.iso_name }}"
+        fi
+        if [[ "${{ inputs.iso_name }}" =~ ^/ ]]
+        then
+          full_path="${iso_name}"
+        else
+          full_path="${{ github.workspace }}/${iso_name}"
+        fi
+        mv ${{ github.workspace }}/build/deploy.iso ${full_path} || true
+        cd $(dirname ${full_path})
+        iso_fn=$(basename ${iso_name})
+        sha256sum ${iso_fn} > ${iso_fn}-CHECKSUM
+        echo "iso_path=${full_path}" >> $GITHUB_OUTPUT
+        echo "iso_name=${iso_fn}" >> $GITHUB_OUTPUT
