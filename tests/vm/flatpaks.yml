@@ -5,15 +5,19 @@
   gather_facts: no
 
   tasks:
+  - name: Get install GPG key
+    ansible.builtint.slurp:
+      src: /ostree/deploy/default/var/lib/flatpak/repo/flathub.trustedkeys.gpg
+    register: found_gpg
+
   - name: Get gpg key
     ansible.builtin.set_fact:
-      found_gpg: "{{ slurpfile['/ostree/deploy/default/var/lib/flatpak/repo'] | b64encode }}"
       expected_gpg: "{{ lookup('ansible.builtin.url', 'https://flathub.org/repo/flathub.flatpakrepo', split_lines=True) | regex_search('^GPGKey=(.*)$', '\\1' multiline=True, ignorecase=True) }}"
   
   - name: Test GPG key
     ansible.builtin.assert:
       that:
-        - found_gpg == found_gpg
+        - expected_gpg == found_gpg['content']
       fail_msg: "Installed GPG key does not match GPG key in flatpakrepo file"
       success_msg: "GPG key matches"
 
