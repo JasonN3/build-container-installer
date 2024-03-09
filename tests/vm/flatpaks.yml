@@ -6,7 +6,7 @@
 
   tasks:
   - name: Get install GPG key
-    ansible.builtint.slurp:
+    ansible.builtin.slurp:
       src: /ostree/deploy/default/var/lib/flatpak/repo/flathub.trustedkeys.gpg
     register: found_gpg
 
