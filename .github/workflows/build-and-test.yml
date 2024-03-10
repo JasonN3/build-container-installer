@@ -227,6 +227,13 @@ jobs:
           (tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
           
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
+          echo "${VM_USER}" >> vm.stdin
+          timeout 30m bash -c "while ! (grep 'Password:' vm.stdout); do sleep 1; done"
+          echo "${VM_Pass}" >> vm.stdin
+          echo > vm.stdout
+          timeout 30m bash -c "while ! (grep '#\|\$' vm.stdout); do sleep 1; done"
+          echo "sudo systemctl start sshd" >> vm.stdin
+          ( timeout 30m bash -c "while ! (grep 'Password' vm.stdout); do sleep 1; done" && echo "${VM_PASS}" >> vm.stdin ) || true
 
           export VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
           if ! (echo > /dev/tcp/${VM_IP}/22)
