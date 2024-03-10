@@ -217,11 +217,15 @@ jobs:
         env:
           VM_USER: core
           VM_PASS: foobar
+          VM_IP: "127.0.0.1"
+          VM_PORT: "5555"
         run: |
           mkfifo vm.stdin
           qemu-system-x86_64 -name "Anaconda" \
             -m 4096 -cpu qemu64 -display none -smp 2 \
             -chardev socket,path=/tmp/qga.sock,server,nowait,id=qga0 \
+            -device e1000,netdev=net0 \
+            -netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
             -device virtio-serial \
             -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
             -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
@@ -232,19 +236,19 @@ jobs:
           
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
 
-          export VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
-          if ! (echo > /dev/tcp/${VM_IP}/22)
+          if ! (echo > /dev/tcp/${VM_IP}/${VM_PORT})
           then
             echo "SSH must be installed and enabled inside the container"
           fi
           
-          echo "VM ready for tests at IP ${VM_IP}"
+          echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
           echo "Creating Ansible inventory"
           cat << EOF > ansible_inventory
           ungrouped:
             hosts:
               vm:
                 ansible_host: ${VM_IP}
+                ansible_port: ${VM_PORT}
                 ansible_user: ${VM_USER}
                 ansible_password: ${VM_PASS}
           EOF
