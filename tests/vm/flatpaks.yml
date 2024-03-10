@@ -10,10 +10,18 @@
       src: /ostree/deploy/default/var/lib/flatpak/repo/flathub.trustedkeys.gpg
     register: found_gpg
 
+  - name: debug
+    ansible.builtin.debug:
+      var: found_gpg
+
   - name: Get gpg key
     ansible.builtin.set_fact:
       expected_gpg: "{{ lookup('ansible.builtin.url', 'https://flathub.org/repo/flathub.flatpakrepo', split_lines=True) | regex_search('^GPGKey=(.*)$', '\\1', multiline=True, ignorecase=True) }}"
-  
+
+  - name: debug
+    ansible.builtin.debug:
+      var: expected_gpg
+      
   - name: Test GPG key
     ansible.builtin.assert:
       that:
