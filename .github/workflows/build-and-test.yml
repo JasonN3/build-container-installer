@@ -190,10 +190,6 @@ jobs:
           poweroff
           user --name=core --groups=wheel --password=foobar
           %include /usr/share/anaconda/interactive-defaults.ks
-          %post
-          systemctl disable firewalld
-          systemctl enable sshd
-          %end
           EOF
           xorriso -dialog on << EOF
           -indev deploy.iso
@@ -251,6 +247,7 @@ jobs:
                 ansible_port: ${VM_PORT}
                 ansible_user: ${VM_USER}
                 ansible_password: ${VM_PASS}
+                ansible_ssh_common_args='-o StrictHostKeyChecking=no'
           EOF
           
           make test-vm
