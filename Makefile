@@ -54,6 +54,7 @@ endif
 ifneq ($(DNF_CACHE),)
 _LORAX_ARGS      += --cachedir $(DNF_CACHE)
 _LORAX_TEMPLATES += $(_LORAX_TEMPLATES_CACHE)
+_TEMPLATE_VARS   += DNF_CACHE
 endif
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
