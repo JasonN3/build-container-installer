@@ -1,0 +1,11 @@
+<%page args="_flatpak_repo_gpg"/>
+
+if [[ -d /ostree/deploy/default/var/lib/flatpak/repo ]]
+then
+    echo ${_flatpak_repo_gpg} | base64 -d > /ostree/deploy/default/var/lib/flatpak/repo/flathub.trustedkeys.gpg
+elif [[ -d /var/lib/flatpak/repo ]]
+then
+    echo ${_flatpak_repo_gpg} | base64 -d > /var/lib/flatpak/repo/flathub.trustedkeys.gpg
+else
+    echo "Could not find Flatpaks repo"
+fi
