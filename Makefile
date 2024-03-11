@@ -219,7 +219,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext
 
 test: test-iso test-vm
 
