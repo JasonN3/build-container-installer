@@ -16,7 +16,7 @@
 
   - name: Get gpg key
     ansible.builtin.set_fact:
-      expected_gpg: "{{ lookup('ansible.builtin.url', 'https://flathub.org/repo/flathub.flatpakrepo', split_lines=True) | regex_search('^GPGKey=(.*)$', '\\1', multiline=True, ignorecase=True) }}"
+      expected_gpg: "{{ lookup('ansible.builtin.url', 'https://flathub.org/repo/flathub.flatpakrepo', split_lines=True) | replace(',', '\n') | regex_search('^GPGKey=(.*)$', '\\1', multiline=True, ignorecase=True) }}"
 
   - name: debug
     ansible.builtin.debug:
