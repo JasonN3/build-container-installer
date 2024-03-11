@@ -1,4 +1,4 @@
-<%page args="enrollment_password "/>
+<%page args="enrollment_password"/>
 ## --nochroot
 
 set -oue pipefail
