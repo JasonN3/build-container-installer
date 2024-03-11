@@ -122,18 +122,21 @@ runs:
         mkdir /cache/skopeo || true
 
     - name: Run docker image
+      env:
+        ACTION_REPO: ${{ github.action_repository }}
+        ACTION_REF: ${{ github.action_ref }}
       shell: bash
       run: |
         # Check if running inside of the action repo
-        if [[ -z "${{ github.action_repository }}" ]]
+        if [[ -z "${ACTION_REPO}" || "${ACTION_REPO}" == "${{ github.repository }}" ]]
         then
           if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]
             then tag=pr-${BASH_REMATCH[1]}
           else
-            tag=${{ github.ref_name }}
+            tag=${ACTION_REF}
           fi
         else
-           tag=${{ github.action_ref }}
+           tag=${ACTION_REF}
         fi        
         if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]
         then
