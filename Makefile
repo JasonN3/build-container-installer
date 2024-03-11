@@ -8,6 +8,10 @@ IMAGE_TAG = $(VERSION)
 VARIANT = Server
 WEB_UI = false
 REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
+ADDITIONAL_TEMPLATES = 
+FLATPAK_REMOTE_NAME = flathub
+FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
+FLATPAK_REMOTE_REFS = 
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
 ADDITIONAL_TEMPLATES =
@@ -22,7 +26,10 @@ _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
-_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED ENROLLMENT_PASSWORD
+_EXTERNAL_TEMPLATES = fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
+_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
+_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
+_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED FLATPAK_REMOTE_NAME FLATPAK_REMOTE_URL FLATPAK_REMOTE_REFS _FLATPAK_REPO_URL _FLATPAK_REPO_GPG ENROLLMENT_PASSWORD
 
 ifeq ($(VARIANT),Server)
 _LORAX_ARGS = --macboot --noupgrade
@@ -32,6 +39,10 @@ endif
 
 ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
+endif
+
+ifneq ($(FLATPAK_REMOTE_REFS),)
+_LORAX_ARGS += -i flatpak-libs
 endif
 
 # Step 7: Build end ISO
@@ -84,7 +95,6 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	do \
 		if [[ $$line =~ ^\<\% ]]; \
 		then \
-			echo $$line >> lorax_templates/post_$*.tmpl; \
 			echo >> lorax_templates/post_$*.tmpl; \
 		else \
 			if [[ $$header == 0 ]]; \
@@ -110,7 +120,6 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
-
 
 # Step 2: Replace vars in repo files
 repos/%.repo: /etc/yum.repos.d/%.repo
@@ -139,6 +148,8 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 		$(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
 		$(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
+		$(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
+		$(foreach file,$(_EXTERNAL_TEMPLATES),--add-template $(_BASE_DIR)/external/$(file)) \
 		--rootfs-size $(ROOTFS_SIZE) \
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
@@ -177,12 +188,34 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo coreutils
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils
+
+test: test-iso test-vm
 
 test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
-	$(foreach test,$(_TESTS),chmod +x tests/iso/$(test))
-	$(foreach test,$(_TESTS),./tests/iso/$(test) deploy.iso)
-	
-.PHONY: clean install-deps
+	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 
+	sudo apt-get update
+	sudo apt-get install -y squashfs-tools
+	sudo modprobe loop
+	sudo mkdir /mnt/iso /mnt/install
+	sudo mount -o loop deploy.iso /mnt/iso
+	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
+
+	chmod +x $(foreach test,$(_TESTS),tests/iso/$(test))
+	for test in $(_TESTS); \
+	do \
+	  $(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
+	done
+
+	# Cleanup
+	sudo umount /mnt/install
+	sudo umount /mnt/iso
+
+test-vm:
+	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
+	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
+	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
+	
+.PHONY: clean install-deps test test-iso test-vm

@@ -15,6 +15,7 @@ env:
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
   IMAGE_TAG: '39'
   VARIANT: 'Server'
+  FLATPAK_REMOTE_REFS: app/org.videolan.VLC/x86_64/stable  runtime/org.kde.Platform/x86_64/5.15-23.08
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
@@ -27,6 +28,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Docker meta
         id: meta
@@ -62,7 +65,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    continue-on-error: false
     strategy:
+      fail-fast: false
       matrix:
         version:
           - 38
@@ -98,6 +103,7 @@ jobs:
           image_tag: ${{ env.IMAGE_TAG }}
           version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
+          flatpak_remote_refs: ${{ env.FLATPAK_REMOTE_REFS }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
           iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
@@ -128,7 +134,9 @@ jobs:
     permissions:
       contents: read
       packages: write
+    continue-on-error: false
     strategy:
+      fail-fast: false
       matrix:
         version:
           - 38
@@ -136,6 +144,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Ensure qemu is installed
         run: |
@@ -159,7 +169,7 @@ jobs:
       - name: Run ISO checks
         run: |
           mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
-          make test-iso VERSION=${{ matrix.version }}
+          make test-iso VERSION=${{ matrix.version }} FLATPAK_REMOTE_REFS="${{ env.FLATPAK_REMOTE_REFS}}"
 
       - name: Add Kickstart and Grub options to ISO
         run: |
@@ -203,11 +213,15 @@ jobs:
         env:
           VM_USER: core
           VM_PASS: foobar
+          VM_IP: "127.0.0.1"
+          VM_PORT: "5555"
         run: |
           mkfifo vm.stdin
           qemu-system-x86_64 -name "Anaconda" \
             -m 4096 -cpu qemu64 -display none -smp 2 \
             -chardev socket,path=/tmp/qga.sock,server,nowait,id=qga0 \
+            -device e1000,netdev=net0 \
+            -netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
             -device virtio-serial \
             -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
             -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
@@ -218,18 +232,23 @@ jobs:
           
           timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
 
-          export VM_IP=$({ echo '{"execute": "guest-network-get-interfaces"}'; sleep 2; } | socat unix-connect:/tmp/qga.sock - | jq -r '.return[1]["ip-addresses"][] | select(."ip-address-type"=="ipv4") | .["ip-address"]')
-          if ! (echo > /dev/tcp/${VM_IP}/22)
+          if ! (echo > /dev/tcp/${VM_IP}/${VM_PORT})
           then
             echo "SSH must be installed and enabled inside the container"
           fi
           
-          echo "VM ready for tests at IP ${VM_IP}"
-          for check in $(ls tests/vm)
-          do
-            if [[ -f $check && $check != "README.md" ]]
-            then
-              chmod +x $check
-              ./${check}
-            fi
-          done
+          echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
+          echo "Creating Ansible inventory"
+          cat << EOF > ansible_inventory
+          ungrouped:
+            hosts:
+              vm:
+                ansible_host: ${VM_IP}
+                ansible_port: ${VM_PORT}
+                ansible_user: ${VM_USER}
+                ansible_password: ${VM_PASS}
+                ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+          EOF
+          
+          #make test-vm
+          kill $QEMU_PID

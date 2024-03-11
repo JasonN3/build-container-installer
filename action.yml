@@ -20,6 +20,18 @@ inputs:
   extra_boot_params:
     description: Extra params used by grub to boot the anaconda installer
     required: false
+  flatpak_remote_name:
+    description: Name of the Flatpak remote repo
+    required: false
+    default: "flathub"
+  flatpak_remote_refs:
+    description: Space delimited list of refs to the flatpak packages to install
+    required: false
+    default: ""
+  flatpak_remote_url:
+    description: The URL of the Flatpak remote flatpakrepo file
+    required: false
+    default: https://flathub.org/repo/flathub.flatpakrepo
   image_name:
     description: Name of the source container image
     required: true
@@ -69,17 +81,19 @@ runs:
         if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
         if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace ghcr.io/jasonn3/build-container-installer:${tag} \
+          ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH=${{ inputs.arch }} \
+          ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
+          FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
+          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
+          FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
           IMAGE_NAME=${{ inputs.image_name }} \
           IMAGE_REPO=${{ inputs.image_repo }} \
+          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
+          SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
           VARIANT=${{ inputs.variant }} \
           VERSION=${{ inputs.version }} \
-          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
-          WEB_UI=${{ inputs.web_ui }} \
-          ISO_NAME=${{ inputs.iso_name }} \
-          ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
-          SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
-          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}"
+          WEB_UI=${{ inputs.web_ui }}
 
     - name: Rename ISO file
       id: rename_iso
