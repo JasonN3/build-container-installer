@@ -1,48 +1,77 @@
 # Configuration vars
 ## Formatting = UPPERCASE
+# General
+ADDITIONAL_TEMPLATES =
 ARCH = x86_64
-VERSION = 39
-IMAGE_REPO = quay.io/fedora-ostree-desktops
+EXTRA_BOOT_PARAMS =
 IMAGE_NAME = base
+IMAGE_REPO = quay.io/fedora-ostree-desktops
 IMAGE_TAG = $(VERSION)
+REPOS = $(subst :,\:,$(shell ls /etc/yum.repos.d/*.repo))
+ROOTFS_SIZE = 4
 VARIANT = Server
+VERSION = 39
 WEB_UI = false
-REPOS = /etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo
-ADDITIONAL_TEMPLATES = 
+# Flatpak
 FLATPAK_REMOTE_NAME = flathub
 FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
 FLATPAK_REMOTE_REFS = 
+# Secure boot
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
-ADDITIONAL_TEMPLATES =
-EXTRA_BOOT_PARAMS =
-ROOTFS_SIZE = 4
+# Cache
+DNF_CACHE = 
 
-# Generated vars
+# Generated/internal vars
 ## Formatting = _UPPERCASE
 _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
-_LORAX_TEMPLATES = $(subst .in,,$(shell ls lorax_templates/*.tmpl.in)) $(foreach file,$(shell ls lorax_templates/scripts/post),lorax_templates/post_$(file).tmpl)
-_EXTERNAL_TEMPLATES = fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
+_LORAX_TEMPLATES            = $(shell ls lorax_templates/install_*.tmpl)    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/install_*)),lorax_templates/post_$(file).tmpl)
+_LORAX_TEMPLATES_FLATPAKS   = $(shell ls lorax_templates/flatpak_*.tmpl)    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/flatpak_*)),lorax_templates/post_$(file).tmpl) external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
+_LORAX_TEMPLATES_SECUREBOOT = $(shell ls lorax_templates/secureboot_*.tmpl) $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/secureboot_*)),lorax_templates/post_$(file).tmpl)
+_LORAX_TEMPLATES_CACHE      = $(shell ls lorax_templates/cache_*.tmpl)      $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/cache_*)),lorax_templates/post_$(file).tmpl)
+_LORAX_ARGS = 
 _FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-_TEMPLATE_VARS = ARCH VERSION IMAGE_REPO IMAGE_NAME IMAGE_TAG VARIANT WEB_UI REPOS _IMAGE_REPO_ESCAPED _IMAGE_REPO_DOUBLE_ESCAPED FLATPAK_REMOTE_NAME FLATPAK_REMOTE_URL FLATPAK_REMOTE_REFS _FLATPAK_REPO_URL _FLATPAK_REPO_GPG ENROLLMENT_PASSWORD
+_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
 
-ifeq ($(VARIANT),Server)
-_LORAX_ARGS = --macboot --noupgrade
+
+ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+_LORAX_ARGS += --nomacboot --noupgrade
+else ifeq ($(VARIANT),Server)
+_LORAX_ARGS += --macboot --noupgrade
 else
-_LORAX_ARGS = --nomacboot
+_LORAX_ARGS += --nomacboot
 endif
 
 ifeq ($(WEB_UI),true)
 _LORAX_ARGS += -i anaconda-webui
 endif
 
+ifneq ($(DNF_CACHE),)
+_LORAX_ARGS      += --cachedir $(DNF_CACHE)
+_LORAX_TEMPLATES += $(_LORAX_TEMPLATES_CACHE)
+_TEMPLATE_VARS   += DNF_CACHE
+endif
+
+ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+_PLATFORM_ID = platform:el$(VERSION)
+else
+_PLATFORM_ID = platform:f$(VERSION)
+endif
+
 ifneq ($(FLATPAK_REMOTE_REFS),)
-_LORAX_ARGS += -i flatpak-libs
+_LORAX_ARGS      += -i flatpak-libs
+_LORAX_TEMPLATES += $(_LORAX_TEMPLATES_FLATPAKS)
+_TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
+endif
+
+ifneq ($(SECURE_BOOT_KEY_URL),)
+_LORAX_TEMPLATES += $(_LORAX_TEMPLATES_SECUREBOOT)
+_TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
 # Step 7: Build end ISO
@@ -117,9 +146,8 @@ lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	done < lorax_templates/scripts/post/$*
 	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
 
-lorax_templates/%.tmpl: lorax_templates/%.tmpl.in
-	$(eval _VARS = IMAGE_NAME IMAGE_TAG _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED)
-	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/lorax_templates/$*.tmpl.in > $(_BASE_DIR)/lorax_templates/$*.tmpl
+
+repos: $(_REPO_FILES)
 
 # Step 2: Replace vars in repo files
 repos/%.repo: /etc/yum.repos.d/%.repo
@@ -132,9 +160,11 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 %.repo:
 
 # Step 3: Build boot.iso using Lorax
-boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
+boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
-	rm /etc/rpm/macros.image-language-conf || true
+	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
+	cp /etc/os-release /etc/os-release.orig || true
+	sed -i 's/PLATFORM_ID=.*/PLATFORM_ID="$(_PLATFORM_ID)"/' /etc/os-release
 
 	# Download the secure boot key
 	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
@@ -154,6 +184,8 @@ boot.iso: $(_LORAX_TEMPLATES) $(_REPO_FILES)
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
+	mv -f /etc/rpm/macros.image-language-conf.orig /etc/rpm/macros.image-language-conf || true
+	mv -f /etc/os-release.orig /etc/os-release || true
 
 # Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
@@ -188,7 +220,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext
 
 test: test-iso test-vm
 
@@ -218,4 +250,4 @@ test-vm:
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 	
-.PHONY: clean install-deps test test-iso test-vm
+.PHONY: clean install-deps test test-iso test-vm container/$(IMAGE_NAME)-$(IMAGE_TAG)

@@ -12,6 +12,16 @@ do
   export ${key}="${value}"
 done
 
+if [[ -d /cache/skopeo ]]
+then
+  ln -s /cache/skopeo /build-container-installer/container
+fi
+
+if [[ ! -d /cache/dnf ]]
+then
+  mkdir /cache/dnf
+fi
+
 # Pull container
 make container/${IMAGE_NAME}-${IMAGE_TAG} "$@"
 

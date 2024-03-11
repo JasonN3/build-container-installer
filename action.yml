@@ -13,6 +13,17 @@ inputs:
     description: Architecture for image to build
     required: true
     default: x86_64
+  dnf_cache_key:
+    description: Overrides the dnf cache key
+    required: false
+  enable_cache_dnf: 
+    description: Whether to enable caching for dnf
+    required: false
+    default: "true"
+  enable_cache_skopeo: 
+    description: Whether to enable caching for skopeo
+    required: false
+    default: "true"
   enrollment_password:
     description: Used for supporting secure boot (requires secure_boot_key_url to be defined)
     required: false
@@ -50,6 +61,9 @@ inputs:
   secure_boot_key_url:
     description: Secure boot key that is installed from URL location
     required: false
+  skopeo_cache_key:
+    description: Overrides the skopeo cache key
+    required: false
   variant:
     description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
     required: true
@@ -74,15 +88,69 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Make cache directory
+      shell: bash
+      run: |
+        sudo mkdir /cache
+        sudo chmod 777 /cache
+
+    - name: Load dnf cache
+      id: load_dnf_cache
+      env:
+        dnf_cache_key: dnf-${{ inputs.version }}
+      if: inputs.enable_cache_dnf == 'true'
+      uses: actions/cache/restore@v4
+      with:
+        path: /cache/dnf
+        key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
+
+    - name: Load skopeo cache
+      id: load_skopeo_cache
+      env:
+        skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.version || inputs.image_tag }}
+      if: inputs.enable_cache_skopeo == 'true'
+      uses: actions/cache/restore@v4
+      with:
+        path: /cache/skopeo
+        key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
+
+    - name: Ensure cache directories exist
+      shell: bash
+      run: |
+        mkdir /cache/dnf || true
+        mkdir /cache/dnf_new || true
+        mkdir /cache/skopeo || true
+
     - name: Run docker image
       shell: bash
       run: |
         # Check if running inside of the action repo
-        if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
-        if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
-        docker run --privileged --volume ${{ github.workspace }}:/github/workspace ghcr.io/jasonn3/build-container-installer:${tag} \
+        if [[ -z "${{ github.action_repository }}" ]]
+        then
+          if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]
+            then tag=pr-${BASH_REMATCH[1]}
+          else
+            tag=${{ github.ref_name }}
+          fi
+        else
+           tag=${{ github.action_ref }}
+        fi        
+        if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]
+        then
+          cache="${cache} -v /cache/dnf:/cache/dnf"
+        fi
+        if [[ "${{ inputs.enable_cache_skopeo }}" == "true" ]]
+        then
+          cache="${cache} -v /cache/skopeo:/cache/skopeo"
+        fi
+        if [[ "${{ steps.load_dnf_cache.outputs.cache-hit }}" != "true" ]]
+        then
+          cache="${cache} -v /cache/dnf_new:/cache/dnf_new"
+        fi
+        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH=${{ inputs.arch }} \
+          DNF_CACHE=/cache/dnf \
           ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
           FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
           FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
@@ -94,6 +162,25 @@ runs:
           VARIANT=${{ inputs.variant }} \
           VERSION=${{ inputs.version }} \
           WEB_UI=${{ inputs.web_ui }}
+
+    - name: Save dnf cache
+      env:
+        dnf_cache_key: dnf-${{ inputs.version }}
+      if: inputs.enable_cache_dnf == 'true' && steps.load_dnf_cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: /cache/dnf_new
+        key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
+
+    - name: Save skopeo cache
+      env:
+        skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.version || inputs.image_tag }}
+      if: inputs.enable_cache_skopeo == 'true' && steps.load_dnf_cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: /cache/skopeo
+        key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
+          
 
     - name: Rename ISO file
       id: rename_iso

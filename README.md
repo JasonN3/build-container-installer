@@ -7,7 +7,7 @@ This action is used to enerate an ISO for installing an OSTree stored in a conta
 This action is designed to be called from a GitHub workflow using the following format
 ```yaml
 - name: Build ISO
-  uses: jasonn3/build-container-installer/v1.0.0
+  uses: jasonn3/build-container-installer@main
   id: build
   with:
     arch: ${{ env.ARCH}}
