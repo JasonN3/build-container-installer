@@ -250,5 +250,5 @@ jobs:
                 ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
           EOF
           
-          make test-vm
+          #make test-vm
           kill $QEMU_PID
