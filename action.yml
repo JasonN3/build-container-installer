@@ -125,11 +125,28 @@ runs:
       shell: bash
       run: |
         # Check if running inside of the action repo
-        if [[ -z "${{ github.action_ref }}" ]]; then if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]; then tag=pr-${BASH_REMATCH[1]}; else tag=${{ github.ref_name }}; fi; fi
-        if [[ -z "${tag}" ]]; then tag=${{ github.action_ref }}; fi
-        if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]; then cache="${cache} -v /cache/dnf:/cache/dnf"; fi
-        if [[ "${{ inputs.enable_cache_skopeo }}" == "true" ]]; then cache="${cache} -v /cache/skopeo:/cache/skopeo"; fi
-        if [[ "${{ steps.load_dnf_cache.outputs.cache-hit}}" == "false" ]]; then cache="${cache} -v /cache/dnf_new:/cache/dnf_new"; fi
+        if [[ ${{ github.action_repository }} == ${{ github.repository }} ]]
+        then
+          if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]
+            then tag=pr-${BASH_REMATCH[1]}
+          else
+            tag=${{ github.ref_name }}
+          fi
+        else
+           tag=${{ github.action_ref }}
+        fi        
+        if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]
+        then
+          cache="${cache} -v /cache/dnf:/cache/dnf"
+        fi
+        if [[ "${{ inputs.enable_cache_skopeo }}" == "true" ]]
+        then
+          cache="${cache} -v /cache/skopeo:/cache/skopeo"
+        fi
+        if [[ "${{ steps.load_dnf_cache.outputs.cache-hit}}" == "false" ]]
+        then
+          cache="${cache} -v /cache/dnf_new:/cache/dnf_new"
+        fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH=${{ inputs.arch }} \
