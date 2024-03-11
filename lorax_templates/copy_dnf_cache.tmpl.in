@@ -1,1 +1,0 @@
-runcmd bash -c "if [[ -d /cache/dnf_new ]]; then cp -R /cache/dnf /cache/dnf_new; fi"

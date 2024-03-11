@@ -3,7 +3,6 @@
 /pkglists
 /repos
 /results
-/lorax_templates/*.tmpl
 /xorriso/input.txt
 /xorriso/*.sh
 /original-pkgsizes.txt
