@@ -160,7 +160,7 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 %.repo:
 
 # Step 3: Build boot.iso using Lorax
-boot.iso: $(findstring lorax_templates/,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
+boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
 	cp /etc/os-release /etc/os-release.orig || true
