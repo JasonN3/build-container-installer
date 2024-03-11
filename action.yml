@@ -149,7 +149,7 @@ runs:
     - name: Save dnf cache
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
-      if: inputs.enable_cache_dnf == 'true' && steps.load_dnf_cache.outputs.cache-hit == 'false'
+      if: inputs.enable_cache_dnf == 'true'
       uses: actions/cache/save@v4
       with:
         path: /cache/dnf_new
@@ -158,7 +158,7 @@ runs:
     - name: Save skopeo cache
       env:
         skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.version || inputs.image_tag }}
-      if: inputs.enable_cache_skopeo == 'true' && steps.load_skopeo_cache.outputs.cache-hit == 'false'
+      if: inputs.enable_cache_skopeo == 'true'
       uses: actions/cache/save@v4
       with:
         path: /cache/skopeo
