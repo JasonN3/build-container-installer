@@ -125,7 +125,7 @@ runs:
       shell: bash
       run: |
         # Check if running inside of the action repo
-        if [[ ${{ github.action_repository }} == ${{ github.repository }} ]]
+        if [[ -z "${{ github.action_repository }}" ]]
         then
           if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]
             then tag=pr-${BASH_REMATCH[1]}
