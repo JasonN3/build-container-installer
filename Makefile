@@ -84,6 +84,10 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 build/deploy.iso
 
+lorax_repo:
+	git config advice.detachedHead false
+	cd external/lorax && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* | tail -n 1)
+
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	# Support interactive-defaults.ks
@@ -163,7 +167,7 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 %.repo:
 
 # Step 3: Build boot.iso using Lorax
-boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
+boot.iso: lorax_repo $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
 
@@ -174,7 +178,7 @@ boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	fi
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) \
+		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(_BASE_DIR)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
 		$(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
@@ -220,7 +224,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
 
 test: test-iso test-vm
 
@@ -250,4 +254,4 @@ test-vm:
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 	
-.PHONY: clean install-deps test test-iso test-vm container/$(IMAGE_NAME)-$(IMAGE_TAG)
+.PHONY: clean install-deps test test-iso test-vm lorax_repo
