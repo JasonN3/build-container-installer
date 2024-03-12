@@ -176,15 +176,15 @@ jobs:
         run: |
           mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
           make test-iso \
-            ARCH: ${{ env.ARCH}} \
-            IMAGE_NAME: ${{ env.IMAGE_NAME}} \
-            IMAGE_REPO: ${{ env.IMAGE_REPO}} \
-            IMAGE_TAG: ${{ env.IMAGE_TAG }} \
-            VERSION: ${{ matrix.version }} \
-            VARIANT: ${{ env.VARIANT }} \
-            FLATPAK_REMOTE_REFS_DIR: ${{ env.FLATPAK_REMOTE_REFS_DIR }} \
-            SECURE_BOOT_KEY_URL: ${{ env.SECURE_BOOT_KEY_URL }} \
-            ENROLLMENT_PASSWORD: ${{ env.ENROLLMENT_PASSWORD }}
+            ARCH=${{ env.ARCH}} \
+            IMAGE_NAME=${{ env.IMAGE_NAME}} \
+            IMAGE_REPO=${{ env.IMAGE_REPO}} \
+            IMAGE_TAG=${{ env.IMAGE_TAG }} \
+            VERSION=${{ matrix.version }} \
+            VARIANT=${{ env.VARIANT }} \
+            FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
+            SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
+            ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
 
       - name: Add Kickstart and Grub options to ISO
         run: |

@@ -255,7 +255,7 @@ test-iso:
 	done
 
 	# flapak tests
-	if [[ -n "$(FLATPAK_REMOTE_REFS)" ]]; \
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
 	then \
 		chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test)); \
 		for test in $(_TESTS); \
