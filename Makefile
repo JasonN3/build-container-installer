@@ -86,7 +86,7 @@ build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.t
 
 lorax_repo:
 	git config advice.detachedHead false
-	cd external/lorax && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* | tail -n 1)
+	cd external/lorax && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | tail -n 1)
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
