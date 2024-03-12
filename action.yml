@@ -133,7 +133,7 @@ runs:
           if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]
             then tag=pr-${BASH_REMATCH[1]}
           else
-            tag=${ACTION_REF}
+            tag=${{ github.ref_name }}
           fi
         else
            tag=${ACTION_REF}
