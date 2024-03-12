@@ -37,6 +37,7 @@ _LORAX_ARGS =
 _FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
 _TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
+_TEMP_DIR = $(shell mktemp -d)
 
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
@@ -162,8 +163,8 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 # Step 3: Build boot.iso using Lorax
 boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
-	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
-	cp /etc/os-release /etc/os-release.orig || true
+	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
+	cp /etc/os-release $(_TEMP_DIR)/os-release || true
 	sed -i 's/PLATFORM_ID=.*/PLATFORM_ID="$(_PLATFORM_ID)"/' /etc/os-release
 
 	# Download the secure boot key
@@ -184,8 +185,8 @@ boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
-	mv -f /etc/rpm/macros.image-language-conf.orig /etc/rpm/macros.image-language-conf || true
-	mv -f /etc/os-release.orig /etc/os-release || true
+	mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf || true
+	mv -f $(_TEMP_DIR)/os-release /etc/os-release || true
 
 # Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
