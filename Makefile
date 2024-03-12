@@ -166,8 +166,6 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
-	cp /etc/os-release $(_TEMP_DIR)/os-release || true
-	sed -i 's/PLATFORM_ID=.*/PLATFORM_ID="$(_PLATFORM_ID)"/' /etc/os-release
 
 	# Download the secure boot key
 	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
@@ -188,7 +186,6 @@ boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 	mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf || true
-	mv -f $(_TEMP_DIR)/os-release /etc/os-release || true
 
 # Step 4: Download container image
 container/$(IMAGE_NAME)-$(IMAGE_TAG):
