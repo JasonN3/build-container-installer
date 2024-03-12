@@ -162,7 +162,7 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 # Step 3: Build boot.iso using Lorax
 boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
-	mv /etc/rpm/macros.image-language-conf /etc/rpm/macros.image-language-conf.orig || true
+	mv /etc/rpm/macros.image-language-conf /etc/rpm/image-language-conf.orig || true
 	cp /etc/os-release /etc/os-release.orig || true
 	sed -i 's/PLATFORM_ID=.*/PLATFORM_ID="$(_PLATFORM_ID)"/' /etc/os-release
 
@@ -184,7 +184,7 @@ boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
 	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
-	mv -f /etc/rpm/macros.image-language-conf.orig /etc/rpm/macros.image-language-conf || true
+	mv -f /etc/rpm/image-language-conf.orig /etc/rpm/macros.image-language-conf || true
 	mv -f /etc/os-release.orig /etc/os-release || true
 
 # Step 4: Download container image
