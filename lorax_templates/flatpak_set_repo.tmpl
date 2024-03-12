@@ -5,3 +5,7 @@ append etc/anaconda/conf.d/anaconda.conf "flatpak_remote = ${flatpak_remote_name
 replace "flatpak_manager\.add_remote\(\".*\", \".*\"\)" "flatpak_manager.add_remote(\"${flatpak_remote_name}\", \"${_flatpak_repo_url}\")" /usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
 replace "flatpak_manager\.replace_installed_refs_remote\(\".*\"\)" "flatpak_manager.replace_installed_refs_remote(\"${flatpak_remote_name}\")" /usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
 % endif
+
+%if flatpak_remote_name != 'fedora'
+systemctl disable flatpak-add-fedora-repos.service
+% endif

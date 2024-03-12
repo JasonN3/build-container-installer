@@ -15,7 +15,8 @@ WEB_UI = false
 # Flatpak
 FLATPAK_REMOTE_NAME = flathub
 FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
-FLATPAK_REMOTE_REFS = 
+FLATPAK_REMOTE_REFS =
+FLATPAK_REMOTE_REFS_DIR =
 # Secure boot
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
@@ -58,6 +59,11 @@ ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 _PLATFORM_ID = platform:el$(VERSION)
 else
 _PLATFORM_ID = platform:f$(VERSION)
+endif
+
+ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
+COLLECTED_REFS = $(foreach file,$(shell ls $(FLATPAK_REMOTE_REFS_DIR)/*),$(shell cat $(file)))
+FLATPAK_REMOTE_REFS += $(sort $(COLLECTED_REFS))
 endif
 
 ifneq ($(FLATPAK_REMOTE_REFS),)
@@ -166,6 +172,8 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 # Don't do anything for custom repos
 %.repo:
 
+flatpak_list: 
+
 # Step 3: Build boot.iso using Lorax
 boot.iso: lorax_repo $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
@@ -239,11 +247,22 @@ test-iso:
 	sudo mount -o loop deploy.iso /mnt/iso
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
-	chmod +x $(foreach test,$(_TESTS),tests/iso/$(test))
+	# install tests
+	chmod +x $(foreach test,$(filter install_%,$(_TESTS)),tests/iso/$(test))
 	for test in $(_TESTS); \
 	do \
 	  $(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
 	done
+
+	# flapak tests
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
+	then \
+		chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test)); \
+		for test in $(_TESTS); \
+		do \
+		$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
+		done; \
+	fi
 
 	# Cleanup
 	sudo umount /mnt/install
@@ -253,5 +272,5 @@ test-vm:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
-	
-.PHONY: clean install-deps test test-iso test-vm lorax_repo
+
+.PHONY: clean install-deps test test-iso test-vm lorax_repo flatpak_list
