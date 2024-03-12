@@ -23,7 +23,7 @@ inputs:
   enable_cache_skopeo: 
     description: Whether to enable caching for skopeo
     required: false
-    default: "true"
+    default: "false"
   enrollment_password:
     description: Used for supporting secure boot (requires secure_boot_key_url to be defined)
     required: false
