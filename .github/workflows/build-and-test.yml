@@ -30,6 +30,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
+          fetch-tags: 'true'
 
       - name: Docker meta
         id: meta
@@ -49,6 +51,7 @@ jobs:
         with:
           containerfiles: Containerfile
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
@@ -72,9 +75,11 @@ jobs:
         version:
           - 38
           - 39
+          - 40
     outputs:
       iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
       iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
+      iso_name-40: ${{ steps.save_output.outputs.iso_name-40 }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -141,6 +146,7 @@ jobs:
         version:
           - 38
           - 39
+          - 40
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
