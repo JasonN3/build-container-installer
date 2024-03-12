@@ -79,6 +79,7 @@ jobs:
     outputs:
       iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
       iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
+      iso_name-40: ${{ steps.save_output.outputs.iso_name-40 }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
