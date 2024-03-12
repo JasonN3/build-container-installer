@@ -27,18 +27,13 @@ DNF_CACHE =
 _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
-_VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
-_REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
-_LORAX_TEMPLATES            = $(shell ls lorax_templates/install_*.tmpl)    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/install_*)),lorax_templates/post_$(file).tmpl)
-_LORAX_TEMPLATES_FLATPAKS   = $(shell ls lorax_templates/flatpak_*.tmpl)    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/flatpak_*)),lorax_templates/post_$(file).tmpl) external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
-_LORAX_TEMPLATES_SECUREBOOT = $(shell ls lorax_templates/secureboot_*.tmpl) $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/secureboot_*)),lorax_templates/post_$(file).tmpl)
-_LORAX_TEMPLATES_CACHE      = $(shell ls lorax_templates/cache_*.tmpl)      $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/cache_*)),lorax_templates/post_$(file).tmpl)
 _LORAX_ARGS = 
-_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
-_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
+_LORAX_TEMPLATES = $(shell ls lorax_templates/install_*.tmpl) \
+                   $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/install_*)),lorax_templates/post_$(file).tmpl)
+_REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR = $(shell mktemp -d)
-
+_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
+_VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 _LORAX_ARGS += --nomacboot --noupgrade
@@ -54,7 +49,8 @@ endif
 
 ifneq ($(DNF_CACHE),)
 _LORAX_ARGS      += --cachedir $(DNF_CACHE)
-_LORAX_TEMPLATES += $(_LORAX_TEMPLATES_CACHE)
+_LORAX_TEMPLATES += $(shell ls lorax_templates/cache_*.tmpl) \
+                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/cache_*)),lorax_templates/post_$(file).tmpl)
 _TEMPLATE_VARS   += DNF_CACHE
 endif
 
@@ -65,13 +61,19 @@ _PLATFORM_ID = platform:f$(VERSION)
 endif
 
 ifneq ($(FLATPAK_REMOTE_REFS),)
+_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
+_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(_LORAX_TEMPLATES_FLATPAKS)
+_LORAX_TEMPLATES += $(shell ls lorax_templates/flatpak_*.tmpl) \
+                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/flatpak_*)),lorax_templates/post_$(file).tmpl) \
+					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 _TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
+
 endif
 
 ifneq ($(SECURE_BOOT_KEY_URL),)
-_LORAX_TEMPLATES += $(_LORAX_TEMPLATES_SECUREBOOT)
+_LORAX_TEMPLATES += $(shell ls lorax_templates/secureboot_*.tmpl) \
+                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/secureboot_*)),lorax_templates/post_$(file).tmpl)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
