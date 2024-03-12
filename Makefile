@@ -246,11 +246,22 @@ test-iso:
 	sudo mount -o loop deploy.iso /mnt/iso
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
-	chmod +x $(foreach test,$(_TESTS),tests/iso/$(test))
+	# install tests
+	chmod +x $(foreach test,$(filter install_%,$(_TESTS)),tests/iso/$(test))
 	for test in $(_TESTS); \
 	do \
 	  $(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
 	done
+
+	# flapak tests
+	if [[ -n "$(FLATPAK_REMOTE_REFS)" ]]; \
+	then \
+		chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test)); \
+		for test in $(_TESTS); \
+		do \
+		$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
+		done; \
+	fi
 
 	# Cleanup
 	sudo umount /mnt/install
