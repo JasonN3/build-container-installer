@@ -1,4 +1,7 @@
-<%page args="flatpak_remote_name, _flatpak_repo_url"/>
-
+<%page args="flatpak_remote_name, _flatpak_repo_url, version"/>
+% if int(version) >= 41:
+append etc/anaconda/conf.d/anaconda.conf "flatpak_remote = ${flatpak_remote_name} ${_flatpak_repo_url}"
+% else
 replace "flatpak_manager\.add_remote\(\".*\", \".*\"\)" "flatpak_manager.add_remote(\"${flatpak_remote_name}\", \"${_flatpak_repo_url}\")" /usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
 replace "flatpak_manager\.replace_installed_refs_remote\(\".*\"\)" "flatpak_manager.replace_installed_refs_remote(\"${flatpak_remote_name}\")" /usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
+% endif
