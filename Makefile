@@ -15,7 +15,8 @@ WEB_UI = false
 # Flatpak
 FLATPAK_REMOTE_NAME = flathub
 FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
-FLATPAK_REMOTE_REFS = 
+FLATPAK_REMOTE_REFS =
+FLATPAK_REMOTE_REFS_DIR =
 # Secure boot
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
@@ -58,6 +59,11 @@ ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 _PLATFORM_ID = platform:el$(VERSION)
 else
 _PLATFORM_ID = platform:f$(VERSION)
+endif
+
+ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
+COLLECTED_REFS = $(foreach file,$(shell ls $(FLATPAK_REMOTE_REFS_DIR)/*),$(shell cat $(file)))
+FLATPAK_REMOTE_REFS += $(sort $(COLLECTED_REFS))
 endif
 
 ifneq ($(FLATPAK_REMOTE_REFS),)
@@ -162,6 +168,8 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 # Don't do anything for custom repos
 %.repo:
 
+flatpak_list: 
+
 # Step 3: Build boot.iso using Lorax
 boot.iso: $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
@@ -253,4 +261,4 @@ test-vm:
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 	
-.PHONY: clean install-deps test test-iso test-vm container/$(IMAGE_NAME)-$(IMAGE_TAG)
+.PHONY: clean install-deps test test-iso test-vm container/$(IMAGE_NAME)-$(IMAGE_TAG) flatpak_list

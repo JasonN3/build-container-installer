@@ -39,6 +39,10 @@ inputs:
     description: Space delimited list of refs to the flatpak packages to install
     required: false
     default: ""
+  flatpak_remote_refs_dir:
+    description: Directory that contains files that list the flatpak refs to install
+    required: false
+    default: ""
   flatpak_remote_url:
     description: The URL of the Flatpak remote flatpakrepo file
     required: false
@@ -152,19 +156,20 @@ runs:
         fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
-          ARCH=${{ inputs.arch }} \
-          DNF_CACHE=/cache/dnf \
-          ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }} \
-          FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }} \
+          ARCH="${{ inputs.arch }}" \
+          DNF_CACHE="/cache/dnf" \
+          ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
+          FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
-          FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }} \
-          IMAGE_NAME=${{ inputs.image_name }} \
-          IMAGE_REPO=${{ inputs.image_repo }} \
-          IMAGE_TAG=${{ inputs.image_tag || inputs.version }} \
-          SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }} \
-          VARIANT=${{ inputs.variant }} \
-          VERSION=${{ inputs.version }} \
-          WEB_UI=${{ inputs.web_ui }}
+          FLATPAK_REMOTE_REFS_DIR="${{ inputs.flatpak_remote_refs_dir }}" \
+          FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
+          IMAGE_NAME="${{ inputs.image_name }}" \
+          IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
+          SECURE_BOOT_KEY_URL="${{ inputs.secure_boot_key_url }}" \
+          VARIANT="${{ inputs.variant }}" \
+          VERSION="${{ inputs.version }}" \
+          WEB_UI="${{ inputs.web_ui }}"
 
     - name: Save dnf cache
       env:
