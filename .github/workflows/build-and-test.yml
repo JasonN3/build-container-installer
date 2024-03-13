@@ -113,7 +113,7 @@ jobs:
           image_tag: ${{ env.IMAGE_TAG }}
           version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
-          flatpak_remote_refs: ${{ env.FLATPAK_REMOTE_REFS }}
+          flatpak_remote_refs_dir: ${{ env.FLATPAK_REMOTE_REFS_DIR }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
           iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
