@@ -276,22 +276,78 @@ jobs:
           #make test-vm
           kill $QEMU_PID
 
-  test-qemu-bootc:
-    name: Test ISO with Bootc
+  build-and-push-iso-bootc:
+    name: Build ISO with bootc image
     runs-on: ubuntu-latest
     needs:
-      - build-and-push-iso
+      - build-container
     permissions:
       contents: read
       packages: write
     continue-on-error: false
-    strategy:
-      fail-fast: false
-      matrix:
-        version:
-          - 38
-          - 39
-          - 40
+    outputs:
+      iso_name: ${{ steps.save_output.outputs.iso_name }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Lowercase Registry
+        id: registry_case
+        uses: ASzc/change-string-case-action@v6
+        with:
+          string: ${{ env.IMAGE_REPO }}
+
+      - name: Get image version
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+
+      - name: Build ISO with new container
+        uses: ./
+        id: build
+        with:
+          arch: ${{ env.ARCH}}
+          image_name: fedora-bootc
+          image_repo: quay.io/centos-bootc
+          image_tag: eln
+          version: 39
+          variant: ${{ env.VARIANT }}
+          flatpak_remote_refs_dir: ${{ env.FLATPAK_REMOTE_REFS_DIR }}
+          secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
+          enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
+          iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ matrix.version }}.iso
+
+      - name: Save output
+        id: save_output
+        shell: bash
+        run: |
+          echo "iso_name=${{ steps.build.outputs.iso_name}}" >> $GITHUB_OUTPUT
+
+      - name: Upload ISO as artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}-CHECKSUM
+          if-no-files-found: error
+          retention-days: 0
+          compression-level: 0
+          overwrite: true
+
+  test-qemu-bootc:
+    name: Test ISO with Bootc
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-iso-bootc
+    permissions:
+      contents: read
+      packages: write
+    continue-on-error: false
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -310,22 +366,22 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
+          name: ${{ needs.build-and-push-iso-bootc.outputs.iso_name }}
     
       - name: Verify ISO
         run: |
-          checkisomd5 ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
-          sha256sum -c ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}-CHECKSUM
+          checkisomd5 ${{ needs.build-and-push-iso-bootc.outputs.iso_name }}
+          sha256sum -c ${{ needs.build-and-push-iso-bootc.outputs.iso_name }}-CHECKSUM
 
       - name: Run ISO checks
         run: |
-          mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
+          mv ${{ needs.build-and-push-iso-bootc.outputs.iso_name }} deploy.iso
           make test-iso \
             ARCH=${{ env.ARCH}} \
-            IMAGE_NAME=${{ env.IMAGE_NAME}} \
-            IMAGE_REPO=${{ env.IMAGE_REPO}} \
-            IMAGE_TAG=${{ matrix.version }} \
-            VERSION=${{ matrix.version }} \
+            IMAGE_NAME=fedora-bootc \
+            IMAGE_REPO=quay.io/centos-bootc \
+            IMAGE_TAG=eln \
+            VERSION=39 \
             VARIANT=${{ env.VARIANT }} \
             FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
             SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
@@ -349,9 +405,6 @@ jobs:
           autopart
           poweroff
           user --name=core --groups=wheel --password=foobar
-          %post --erroronfail
-          rpm-ostree install bootc
-          %end
           %include /usr/share/anaconda/interactive-defaults.ks
           EOF
           xorriso -dialog on << EOF
