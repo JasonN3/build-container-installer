@@ -154,14 +154,26 @@ runs:
         then
           cache="${cache} -v /cache/dnf_new:/cache/dnf_new"
         fi
+        vars=""
+        if [[ -n "${{ inputs.flatpak_remote_refs }}" ]] && [[ -n "${{ inputs.flatpak_remote_refs_dir }}" ]]
+        then
+          echo "ERROR: flatpak_remote_refs is mutually exclusive to flatpak_remote_refs_dir"
+          exit 1
+        else
+          if [[ -n "${{ inputs.flatpak_remote_refs }}" ]]
+          then
+            vars="${vars} FLATPAK_REMOTE_REFS=\"${{ inputs.flatpak_remote_refs }}\""
+          else
+            vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
+          fi
+        fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \
           ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
-          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
-          FLATPAK_REMOTE_REFS_DIR="${{ inputs.flatpak_remote_refs_dir }}" \
+          ${vars} \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \

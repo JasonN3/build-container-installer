@@ -124,14 +124,15 @@ endif
 
 # Step 7: Build end ISO
 ## Default action
-build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+build/deploy.iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 build/deploy.iso
 
-lorax_repo:
+external/lorax/branch-$(VERSION):
 	git config advice.detachedHead false
-	cd external/lorax && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | tail -n 1)
+	cd external/lorax && git reset --hard HEAD && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | tail -n 1)
+	touch external/lorax/branch-$(VERSION)
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
@@ -150,13 +151,8 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/repos/$*.repo
 	sed -i "s/\$$basearch/${ARCH}/g"      $(_BASE_DIR)/repos/$*.repo
 
-# Don't do anything for custom repos
-%.repo:
-
-flatpak_list: 
-
 # Step 3: Build boot.iso using Lorax
-boot.iso: lorax_repo $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
+boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	rm -Rf $(_BASE_DIR)/results || true
 	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
 
@@ -254,4 +250,4 @@ test-vm:
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 
-.PHONY: clean install-deps test test-iso test-vm lorax_repo flatpak_list
+.PHONY: clean install-deps test test-iso test-vm
