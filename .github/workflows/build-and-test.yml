@@ -103,7 +103,7 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
 
-      - name: Build ISO with new container
+      - name: Build ISO
         uses: ./
         id: build
         with:
