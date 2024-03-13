@@ -161,7 +161,7 @@ boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_T
 	then \
     	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL); \
 	fi
-	find /github/workspace
+
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(_BASE_DIR)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
