@@ -124,7 +124,7 @@ endif
 
 # Step 7: Build end ISO
 ## Default action
-build/deploy.iso:  boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+build/deploy.iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 build/deploy.iso
@@ -149,11 +149,6 @@ repos/%.repo: /etc/yum.repos.d/%.repo
 	cp /etc/yum.repos.d/$*.repo           $(_BASE_DIR)/repos/$*.repo
 	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/repos/$*.repo
 	sed -i "s/\$$basearch/${ARCH}/g"      $(_BASE_DIR)/repos/$*.repo
-
-# Don't do anything for custom repos
-%.repo:
-
-flatpak_list: 
 
 # Step 3: Build boot.iso using Lorax
 boot.iso: lorax_repo $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
@@ -254,4 +249,4 @@ test-vm:
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 
-.PHONY: clean install-deps test test-iso test-vm lorax_repo flatpak_list
+.PHONY: clean install-deps test test-iso test-vm lorax_repo
