@@ -1,11 +1,11 @@
-577,578c577,579
-<             args = ["install", "to-filesystem", "--source-imgref=" + ref,
-<                     self._physroot]
+577,579c577,578
+<             args = ["container", "image", "deploy",
+<                     "--sysroot=" + self._physroot,
+<                     "--image=" + ref]
 ---
->             args = ["container", "image", "deploy",
->                     "--sysroot=" + self._physroot,
->                     "--image=" + ref]
-588c589
-<                 "bootc",
+>             args = ["install", "to-filesystem", "--source-imgref=" + ref,
+>                     self._physroot]
+589c588
+<                 "ostree",
 ---
->                 "ostree",
+>                 "bootc",
