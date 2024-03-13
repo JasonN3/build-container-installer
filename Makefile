@@ -124,7 +124,7 @@ _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
 ifeq ($(BOOTC),true)
-_LORAX_TEMPLATES += $(shell ls lorax_templates/bootc_*.tmpl)
+_LORAX_TEMPLATES += $(call get_templates,bootc)
 _LORAX_ARGS += -i bootc
 endif
 
