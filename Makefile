@@ -3,6 +3,7 @@
 # General
 ADDITIONAL_TEMPLATES =
 ARCH = x86_64
+BOOTC = true
 EXTRA_BOOT_PARAMS =
 IMAGE_NAME = base
 IMAGE_REPO = quay.io/fedora-ostree-desktops
@@ -33,7 +34,7 @@ _LORAX_TEMPLATES = $(shell ls lorax_templates/install_*.tmpl) \
                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/install_*)),lorax_templates/post_$(file).tmpl)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR = $(shell mktemp -d)
-_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
+_TEMPLATE_VARS = ARCH _BASE_DIR IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
@@ -81,6 +82,10 @@ ifneq ($(SECURE_BOOT_KEY_URL),)
 _LORAX_TEMPLATES += $(shell ls lorax_templates/secureboot_*.tmpl) \
                     $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/secureboot_*)),lorax_templates/post_$(file).tmpl)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
+endif
+
+ifeq ($(BOOTC),true)
+_LORAX_TEMPLATES += $(shell ls lorax_templates/bootc_*.tmpl)
 endif
 
 # Step 7: Build end ISO
@@ -232,7 +237,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git patch
 
 test: test-iso test-vm
 
