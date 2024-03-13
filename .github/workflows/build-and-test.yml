@@ -112,13 +112,13 @@ jobs:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
           image_repo: ${{ env.IMAGE_REPO}}
-          image_tag: ${{ env.IMAGE_TAG }}
+          image_tag: ${{ matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
           flatpak_remote_refs: ${{ env.FLATPAK_REMOTE_REFS }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
-          iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
+          iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ matrix.version }}.iso
 
       - name: Save output
         id: save_output
@@ -187,7 +187,7 @@ jobs:
             ARCH=${{ env.ARCH}} \
             IMAGE_NAME=${{ env.IMAGE_NAME}} \
             IMAGE_REPO=${{ env.IMAGE_REPO}} \
-            IMAGE_TAG=${{ env.IMAGE_TAG }} \
+            IMAGE_TAG=${{ matrix.version }} \
             VERSION=${{ matrix.version }} \
             VARIANT=${{ env.VARIANT }} \
             FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
@@ -324,7 +324,7 @@ jobs:
             ARCH=${{ env.ARCH}} \
             IMAGE_NAME=${{ env.IMAGE_NAME}} \
             IMAGE_REPO=${{ env.IMAGE_REPO}} \
-            IMAGE_TAG=${{ env.IMAGE_TAG }} \
+            IMAGE_TAG=${{ matrix.version }} \
             VERSION=${{ matrix.version }} \
             VARIANT=${{ env.VARIANT }} \
             FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \

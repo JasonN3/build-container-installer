@@ -38,24 +38,24 @@ See [Customizing](#customizing) for information about customizing the ISO that g
 The following variables can be used to customize the created ISO.
 
 ### Inputs
-| Variable               | Description                                                                  | Default Value                                |
-| ---------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- |
-| additional_templates   | Space delimited list of additional Lorax templates to include                | \[empty\]                                    |
-| arch                   | Architecture for image to build                                              | x86_64                                       |
-| enrollment_password    | Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined) | container-installer                          |
-| extra_boot_params      | Extra params used by grub to boot the anaconda installer                     | \[empty\]                                    |
-| flatpak_remote_name    | Name of the Flatpak repo on the destination OS                               | flathub                                      |
-| flatpak_remote_refs    | Space separated list of flatpak refs to install                              | \[empty\]                                    |
-| flatpak_remote_refs_dir | Directory that contains files that list the flatpak refs to install          | \[empty\]                                    |
-| flatpak_remote_url     | URL of the flatpakrepo file                                                  | https://flathub.org/repo/flathub.flatpakrepo |
-| image_name             | Name of the source container image                                           | base                                         |
-| image_repo             | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               |
-| image_tag              | Tag of the source container image                                            | *VERSION*                                    |
-| iso_name               | Name of the ISO you wish to output when completed                            | build/deploy.iso                             |
-| secure_boot_key_url    | Secure boot key that is installed from URL location\*\*                      | \[empty\]                                    |
-| variant                | Source container variant\*                                                   | Server                                       |
-| version                | Fedora version of installer to build                                         | 39                                           |
-| web_ui                 | Enable Anaconda WebUI (experimental)                                         | false                                        |
+| Variable                | Description                                                                  | Default Value                                | Action             | Container          | Makefile           |
+| ----------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- | ------------------ | ------------------ | ------------------ |
+| additional_templates    | Space delimited list of additional Lorax templates to include                | \[empty\]                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| arch                    | Architecture for image to build                                              | x86_64                                       | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| enrollment_password     | Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined) | container-installer                          | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| extra_boot_params       | Extra params used by grub to boot the anaconda installer                     | \[empty\]                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| flatpak_remote_name     | Name of the Flatpak repo on the destination OS                               | flathub                                      | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| flatpak_remote_refs     | Space separated list of flatpak refs to install                              | \[empty\]                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| flatpak_remote_refs_dir | Directory that contains files that list the flatpak refs to install          | \[empty\]                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| flatpak_remote_url      | URL of the flatpakrepo file                                                  | https://flathub.org/repo/flathub.flatpakrepo | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| image_name              | Name of the source container image                                           | base                                         | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| image_repo              | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| image_tag               | Tag of the source container image                                            | *VERSION*                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| iso_name                | Name of the ISO you wish to output when completed                            | build/deploy.iso                             | :white_check_mark: | :x:                | :x:                |
+| secure_boot_key_url     | Secure boot key that is installed from URL location\*\*                      | \[empty\]                                    | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| variant                 | Source container variant\*                                                   | Server                                       | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| version                 | Fedora version of installer to build                                         | 39                                           | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| web_ui                  | Enable Anaconda WebUI (experimental)                                         | false                                        | :white_check_mark: | :white_check_mark: | :white_check_mark: |
 
 \*Available options for VARIANT can be found by running `dnf provides system-release`.
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite

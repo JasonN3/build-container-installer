@@ -86,6 +86,7 @@ endif
 
 ifeq ($(BOOTC),true)
 _LORAX_TEMPLATES += $(shell ls lorax_templates/bootc_*.tmpl)
+_LORAX_ARGS += -i bootc
 endif
 
 # Step 7: Build end ISO
