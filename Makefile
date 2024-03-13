@@ -161,9 +161,10 @@ boot.iso: lorax_repo $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FIL
 	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
 
 	# Download the secure boot key
-ifneq ($(SECURE_BOOT_KEY_URL),)
-    	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL)
-endif
+	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
+	then \
+    	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL); \
+	fi
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(_BASE_DIR)/external/lorax/share/templates.d/99-generic \
@@ -235,13 +236,14 @@ test-iso:
 	done
 
 	# flapak tests
-ifneq ($(FLATPAK_REMOTE_REFS),)
-	chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test))
-	for test in $(_TESTS); \
-	do \
-	$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
-	done
-endif
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
+	then \
+		chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test)); \
+		for test in $(_TESTS); \
+		do \
+		$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
+		done; \
+	fi
 
 	# Cleanup
 	sudo umount /mnt/install
