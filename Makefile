@@ -75,10 +75,16 @@ _LORAX_ARGS =
 _LORAX_TEMPLATES = $(call get_templates,install)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR = $(shell mktemp -d)
-_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
+_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+_RHEL = true
+else
+_RHEL = false
+endif
+
+ifeq ($(_RHEL),true)
 _LORAX_ARGS += --nomacboot --noupgrade
 else ifeq ($(VARIANT),Server)
 _LORAX_ARGS += --macboot --noupgrade
@@ -94,12 +100,6 @@ ifneq ($(DNF_CACHE),)
 _LORAX_ARGS      += --cachedir $(DNF_CACHE)
 _LORAX_TEMPLATES += $(call get_templates,cache)
 _TEMPLATE_VARS   += DNF_CACHE
-endif
-
-ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
-_PLATFORM_ID = platform:el$(VERSION)
-else
-_PLATFORM_ID = platform:f$(VERSION)
 endif
 
 ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
@@ -136,10 +136,10 @@ lorax_repo:
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	# Support interactive-defaults.ks
-	[ $(VERSION) -le 38 ] && $(call convert_post_to_tmpl,$*,usr/share/anaconda/interactive-defaults.ks,true)
+	([ ${_RHEL} == false ] && [ $(VERSION) -le 38 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/interactive-defaults.ks,true)) || true
 
 	# Support new Anaconda method
-	[ $(VERSION) -ge 39 ] && $(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.sh)
+	([ ${_RHEL} == true ] || [ $(VERSION) -ge 39 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.sh,true)) || true
 
 repos: $(_REPO_FILES)
 
@@ -161,10 +161,9 @@ boot.iso: lorax_repo $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FIL
 	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
 
 	# Download the secure boot key
-	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
-	then \
-    	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL); \
-	fi
+ifneq ($(SECURE_BOOT_KEY_URL),)
+    	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL)
+endif
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(_BASE_DIR)/external/lorax/share/templates.d/99-generic \
@@ -236,14 +235,13 @@ test-iso:
 	done
 
 	# flapak tests
-	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
-	then \
-		chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test)); \
-		for test in $(_TESTS); \
-		do \
-		$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
-		done; \
-	fi
+ifneq ($(FLATPAK_REMOTE_REFS),)
+	chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test))
+	for test in $(_TESTS); \
+	do \
+	$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
+	done
+endif
 
 	# Cleanup
 	sudo umount /mnt/install
