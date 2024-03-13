@@ -1,5 +1,6 @@
 /debugdata
 /build
+/lorax_templates/post_*
 /pkglists
 /repos
 /results

@@ -23,20 +23,68 @@ SECURE_BOOT_KEY_URL =
 # Cache
 DNF_CACHE = 
 
+# Functions
+## Formatting = lowercase
+# Get a list of templates for the feature
+# $1 = feature
+get_templates = $(shell ls lorax_templates/$(1)_*.tmpl) \
+                $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/$(1)_*)),lorax_templates/post_$(file).tmpl)
+
+# Converts a post script to a template
+# $1 = script to convert
+# $2 = file on ISO to write
+# $3 = whether to copy the '<%' lines to the template
+convert_post_to_tmpl = header=0; \
+	skip=0; \
+	while read -r line; \
+	do \
+		if [[ $$line =~ ^\<\% ]]; \
+		then \
+			if [[ '$(3)' == 'true' ]]; \
+			then \
+				echo $$line >> lorax_templates/post_$(1).tmpl; \
+			fi; \
+			echo >> lorax_templates/post_$(1).tmpl; \
+		else \
+			if [[ $$header == 0 ]]; \
+			then \
+				if [[ $$line =~ ^\#\#\ (.*)$$ ]]; \
+				then \
+					echo "append $(2) \"%post --erroronfail $${BASH_REMATCH[1]}\"" >> lorax_templates/post_$(1).tmpl; \
+					skip=1; \
+				else \
+					echo "append $(2) \"%post --erroronfail\"" >> lorax_templates/post_$(1).tmpl; \
+				fi; \
+				header=1; \
+			fi; \
+			if [[ $$skip == 0 ]]; \
+			then \
+				echo "append $(2) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$(1).tmpl; \
+			fi; \
+			skip=0; \
+		fi; \
+	done < lorax_templates/scripts/post/$(1); \
+	echo "append $(2) \"%end\"" >> lorax_templates/post_$(1).tmpl
+
 # Generated/internal vars
 ## Formatting = _UPPERCASE
 _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _LORAX_ARGS = 
-_LORAX_TEMPLATES = $(shell ls lorax_templates/install_*.tmpl) \
-                   $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/install_*)),lorax_templates/post_$(file).tmpl)
+_LORAX_TEMPLATES = $(call get_templates,install)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR = $(shell mktemp -d)
-_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS VARIANT VERSION WEB_UI
+_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
+_RHEL = true
+else
+_RHEL = false
+endif
+
+ifeq ($(_RHEL),true)
 _LORAX_ARGS += --nomacboot --noupgrade
 else ifeq ($(VARIANT),Server)
 _LORAX_ARGS += --macboot --noupgrade
@@ -50,15 +98,8 @@ endif
 
 ifneq ($(DNF_CACHE),)
 _LORAX_ARGS      += --cachedir $(DNF_CACHE)
-_LORAX_TEMPLATES += $(shell ls lorax_templates/cache_*.tmpl) \
-                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/cache_*)),lorax_templates/post_$(file).tmpl)
+_LORAX_TEMPLATES += $(call get_templates,cache)
 _TEMPLATE_VARS   += DNF_CACHE
-endif
-
-ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
-_PLATFORM_ID = platform:el$(VERSION)
-else
-_PLATFORM_ID = platform:f$(VERSION)
 endif
 
 ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
@@ -70,16 +111,14 @@ ifneq ($(FLATPAK_REMOTE_REFS),)
 _FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
 _FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(shell ls lorax_templates/flatpak_*.tmpl) \
-                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/flatpak_*)),lorax_templates/post_$(file).tmpl) \
+_LORAX_TEMPLATES += $(call get_templates,flatpak) \
 					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 _TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
 
 endif
 
 ifneq ($(SECURE_BOOT_KEY_URL),)
-_LORAX_TEMPLATES += $(shell ls lorax_templates/secureboot_*.tmpl) \
-                    $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/secureboot_*)),lorax_templates/post_$(file).tmpl)
+_LORAX_TEMPLATES += $(call get_templates,secureboot)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
@@ -97,68 +136,10 @@ lorax_repo:
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
 	# Support interactive-defaults.ks
-	$(eval _ISO_FILE = usr/share/anaconda/interactive-defaults.ks)
-	
-	header=0; \
-	skip=0; \
-	while read -r line; \
-	do \
-		if [[ $$line =~ ^\<\% ]]; \
-		then \
-			echo $$line >> lorax_templates/post_$*.tmpl; \
-			echo >> lorax_templates/post_$*.tmpl; \
-		else \
-			if [[ $$header == 0 ]]; \
-			then \
-				if [[ $$line =~ ^##\ (.*)$$ ]]; \
-				then \
-					echo "append $(_ISO_FILE) \"%post --erroronfail $${BASH_REMATCH[1]}\"" >> lorax_templates/post_$*.tmpl; \
-					skip=1; \
-				else \
-					echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
-				fi; \
-				header=1; \
-			fi; \
-			if [[ $$skip == 0 ]]; \
-			then \
-				echo "append $(_ISO_FILE) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$*.tmpl; \
-			fi; \
-			skip=0; \
-		fi; \
-	done < lorax_templates/scripts/post/$*
-	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
+	([ ${_RHEL} == false ] && [ $(VERSION) -le 38 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/interactive-defaults.ks,true)) || true
 
 	# Support new Anaconda method
-	$(eval _ISO_FILE = usr/share/anaconda/post-scripts/configure_upgrades.ks)
-
-	header=0; \
-	skip=0; \
-	while read -r line; \
-	do \
-		if [[ $$line =~ ^\<\% ]]; \
-		then \
-			echo >> lorax_templates/post_$*.tmpl; \
-		else \
-			if [[ $$header == 0 ]]; \
-			then \
-				if [[ $$line =~ ^##\ (.*)$$ ]]; \
-				then \
-					echo "append $(_ISO_FILE) \"%post --erroronfail $${BASH_REMATCH[1]}\"" >> lorax_templates/post_$*.tmpl; \
-					skip=1; \
-				else \
-					echo "append $(_ISO_FILE) \"%post --erroronfail\"" >> lorax_templates/post_$*.tmpl; \
-				fi; \
-				header=1; \
-			fi; \
-			if [[ $$skip == 0 ]]; \
-			then \
-				echo "append $(_ISO_FILE) \"$${line//\"/\\\"}\"" >> lorax_templates/post_$*.tmpl; \
-			fi; \
-			skip=0; \
-		fi; \
-	done < lorax_templates/scripts/post/$*
-	echo "append $(_ISO_FILE) \"%end\"" >> lorax_templates/post_$*.tmpl
-
+	([ ${_RHEL} == true ] || [ $(VERSION) -ge 39 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.sh,true)) || true
 
 repos: $(_REPO_FILES)
 
