@@ -207,11 +207,11 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	if [[ "$(PACKAGE_MANAGER)" =~ apt.* ]]; then $(PACKAGE_MANAGER) update; fi
+	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
 	$(PACKAGE_MANAGER) install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
 
 install-test-deps:
-	if [[ "$(PACKAGE_MANAGER)" =~ apt.* ]]; then $(PACKAGE_MANAGER) update; fi
+	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
 	$(PACKAGE_MANAGER) install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils squashfs-tools
 
 
@@ -247,17 +247,15 @@ test-iso:
 	sudo umount /mnt/install
 	sudo umount /mnt/iso
 
-ansible_inventory:
-	cat << EOF > ansible_inventory
-	ungrouped:
-	hosts:
-		vm:
-		ansible_host: ${VM_IP}
-		ansible_port: ${VM_PORT}
-		ansible_user: ${VM_USER}
-		ansible_password: ${VM_PASS}
-		ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-	EOF
+ansible_inventory: 
+	echo "ungrouped:" > ansible_inventory
+	echo "  hosts:" >> ansible_inventory
+	echo "    vm:" >> ansible_inventory
+	echo "      ansible_host: ${VM_IP}" >> ansible_inventory
+	echo "      ansible_port: ${VM_PORT}" >> ansible_inventory
+	echo "      ansible_user: ${VM_USER}" >> ansible_inventory
+	echo "      ansible_password: ${VM_PASS}" >> ansible_inventory
+	echo "      ansible_ssh_common_args: '-o StrictHostKeyChecking=no'" >> ansible_inventory
 
 test-vm: ansible_inventory
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
