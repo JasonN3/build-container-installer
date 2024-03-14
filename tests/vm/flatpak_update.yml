@@ -5,6 +5,7 @@
   gather_facts: no
 
   tasks:
+  # Verifies that the GPG key is functional
   - name: Test updating flatpak packages
     ansible.builtin.command:
-      cmd: /usr/bin/flatpak update -y
+      cmd: /usr/bin/flatpak update -y --noninteractive
