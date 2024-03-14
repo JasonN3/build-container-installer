@@ -209,7 +209,7 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git patch
+	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
 
 test: test-iso test-vm
 
