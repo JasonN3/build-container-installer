@@ -23,6 +23,8 @@ SECURE_BOOT_KEY_URL =
 # Cache
 DNF_CACHE = 
 
+PACKAGE_MANAGER = dnf
+
 # Functions
 ## Formatting = lowercase
 # Get a list of templates for the feature
@@ -205,7 +207,13 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+	if [[ "$(PACKAGE_MANAGER)" =~ apt.* ]]; then $(PACKAGE_MANAGER) update; fi
+	$(PACKAGE_MANAGER) install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+
+install-test-deps:
+	if [[ "$(PACKAGE_MANAGER)" =~ apt.* ]]; then $(PACKAGE_MANAGER) update; fi
+	$(PACKAGE_MANAGER) install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils squashfs-tools
+
 
 test: test-iso test-vm
 
@@ -213,8 +221,6 @@ test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
 	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 
-	sudo apt-get update
-	sudo apt-get install -y squashfs-tools
 	sudo modprobe loop
 	sudo mkdir /mnt/iso /mnt/install
 	sudo mount -o loop deploy.iso /mnt/iso
@@ -241,9 +247,21 @@ test-iso:
 	sudo umount /mnt/install
 	sudo umount /mnt/iso
 
-test-vm:
+ansible_inventory:
+	cat << EOF > ansible_inventory
+	ungrouped:
+	hosts:
+		vm:
+		ansible_host: ${VM_IP}
+		ansible_port: ${VM_PORT}
+		ansible_user: ${VM_USER}
+		ansible_password: ${VM_PASS}
+		ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+	EOF
+
+test-vm: ansible_inventory
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
 	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
 
-.PHONY: clean install-deps test test-iso test-vm
+.PHONY: clean install-deps install-test-deps test test-iso test-vm
