@@ -136,11 +136,7 @@ external/lorax/branch-$(VERSION):
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
-	# Support interactive-defaults.ks
-	([ ${_RHEL} == false ] && [ $(VERSION) -le 38 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/interactive-defaults.ks,true)) || true
-
-	# Support new Anaconda method
-	([ ${_RHEL} == true ] || [ $(VERSION) -ge 39 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.sh,true)) || true
+	$(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.ks,true)
 
 repos: $(_REPO_FILES)
 
