@@ -7,5 +7,6 @@
   tasks:
   # Verifies that the GPG key is functional
   - name: Test updating flatpak packages
+    become: true
     ansible.builtin.command:
       cmd: /usr/bin/flatpak update -y --noninteractive
