@@ -262,6 +262,6 @@ test-vm: ansible_inventory
 	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
-	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
+	for test in $(_TESTS); do ./tests/vm/$${test}; done
 
 .PHONY: clean install-deps install-test-deps test test-iso test-vm
