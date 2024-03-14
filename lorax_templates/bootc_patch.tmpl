@@ -1,5 +1,0 @@
-<%page args="_base_dir, root, version"/>
-
-% if int(version) == 39:
-runcmd patch ${root}/usr/lib64/python3.12/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/installation.py ${_base_dir}/lorax_templates/bootc_patch/39.patch
-% endif

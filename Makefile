@@ -3,7 +3,6 @@
 # General
 ADDITIONAL_TEMPLATES =
 ARCH = x86_64
-BOOTC = true
 EXTRA_BOOT_PARAMS =
 IMAGE_NAME = base
 IMAGE_REPO = quay.io/fedora-ostree-desktops
@@ -121,11 +120,6 @@ endif
 ifneq ($(SECURE_BOOT_KEY_URL),)
 _LORAX_TEMPLATES += $(call get_templates,secureboot)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
-endif
-
-ifeq ($(BOOTC),true)
-_LORAX_TEMPLATES += $(call get_templates,bootc)
-_LORAX_ARGS += -i bootc
 endif
 
 # Step 7: Build end ISO
