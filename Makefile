@@ -255,6 +255,7 @@ ansible_inventory:
 	echo "      ansible_port: ${VM_PORT}" >> ansible_inventory
 	echo "      ansible_user: ${VM_USER}" >> ansible_inventory
 	echo "      ansible_password: ${VM_PASS}" >> ansible_inventory
+	echo "      ansible_become_pass: ${VM_PASS}" >> ansible_inventory
 	echo "      ansible_ssh_common_args: '-o StrictHostKeyChecking=no'" >> ansible_inventory
 
 test-vm: ansible_inventory
