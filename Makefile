@@ -23,6 +23,8 @@ SECURE_BOOT_KEY_URL =
 # Cache
 DNF_CACHE = 
 
+PACKAGE_MANAGER = dnf
+
 # Functions
 ## Formatting = lowercase
 # Get a list of templates for the feature
@@ -75,7 +77,7 @@ _LORAX_ARGS =
 _LORAX_TEMPLATES = $(call get_templates,install)
 _REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR = $(shell mktemp -d)
-_TEMPLATE_VARS = ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
+_TEMPLATE_VARS = ARCH _BASE_DIR IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
 _VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
@@ -136,11 +138,7 @@ external/lorax/branch-$(VERSION):
 
 # Step 1: Generate Lorax Templates
 lorax_templates/post_%.tmpl: lorax_templates/scripts/post/%
-	# Support interactive-defaults.ks
-	([ ${_RHEL} == false ] && [ $(VERSION) -le 38 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/interactive-defaults.ks,true)) || true
-
-	# Support new Anaconda method
-	([ ${_RHEL} == true ] || [ $(VERSION) -ge 39 ]) && ($(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.sh,true)) || true
+	$(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.ks,true)
 
 repos: $(_REPO_FILES)
 
@@ -209,7 +207,13 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	dnf install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
+	$(PACKAGE_MANAGER) install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+
+install-test-deps:
+	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
+	$(PACKAGE_MANAGER) install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils squashfs-tools
+
 
 test: test-iso test-vm
 
@@ -217,8 +221,6 @@ test-iso:
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
 	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 
-	sudo apt-get update
-	sudo apt-get install -y squashfs-tools
 	sudo modprobe loop
 	sudo mkdir /mnt/iso /mnt/install
 	sudo mount -o loop deploy.iso /mnt/iso
@@ -245,9 +247,21 @@ test-iso:
 	sudo umount /mnt/install
 	sudo umount /mnt/iso
 
-test-vm:
+ansible_inventory: 
+	echo "ungrouped:" > ansible_inventory
+	echo "  hosts:" >> ansible_inventory
+	echo "    vm:" >> ansible_inventory
+	echo "      ansible_host: ${VM_IP}" >> ansible_inventory
+	echo "      ansible_port: ${VM_PORT}" >> ansible_inventory
+	echo "      ansible_user: ${VM_USER}" >> ansible_inventory
+	echo "      ansible_password: ${VM_PASS}" >> ansible_inventory
+	echo "      ansible_become_pass: ${VM_PASS}" >> ansible_inventory
+	echo "      ansible_ssh_common_args: '-o StrictHostKeyChecking=no'" >> ansible_inventory
+
+test-vm: ansible_inventory
+	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
 	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
 	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
-	for test in $(_TESTS); do ./tests/vm/$${test} deploy.iso; done
+	for test in $(_TESTS); do ./tests/vm/$${test}; done
 
-.PHONY: clean install-deps test test-iso test-vm
+.PHONY: clean install-deps install-test-deps test test-iso test-vm

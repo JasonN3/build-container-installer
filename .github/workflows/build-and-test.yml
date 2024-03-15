@@ -1,4 +1,4 @@
-name: Create and publish an ISO
+name: Tests
 
 on:
   push:
@@ -26,6 +26,7 @@ env:
 
 jobs:
   build-container:
+    name: Build Container Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -67,6 +68,7 @@ jobs:
           password: ${{ github.token }}
 
   build-and-push-iso:
+    name: Build ISO
     runs-on: ubuntu-latest
     needs:
       - build-container
@@ -110,13 +112,13 @@ jobs:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
           image_repo: ${{ env.IMAGE_REPO}}
-          image_tag: ${{ env.IMAGE_TAG }}
+          image_tag: ${{ matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
           flatpak_remote_refs_dir: ${{ env.FLATPAK_REMOTE_REFS_DIR }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
-          iso_name: ${{ env.IMAGE_NAME }}-${{ env.IMAGE_TAG }}-${{ matrix.version }}.iso
+          iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ matrix.version }}.iso
 
       - name: Save output
         id: save_output
@@ -138,6 +140,7 @@ jobs:
           overwrite: true
 
   test-qemu:
+    name: Test ISO
     runs-on: ubuntu-latest
     needs:
       - build-and-push-iso
@@ -158,10 +161,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Ensure qemu is installed
+      - name: Install test tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils
+          sudo apt-get install -y make
+          sudo make install-test-deps PACKAGE_MANAGER=apt-get
 
       - name: Create disk
         run: |
@@ -184,7 +188,7 @@ jobs:
             ARCH=${{ env.ARCH}} \
             IMAGE_NAME=${{ env.IMAGE_NAME}} \
             IMAGE_REPO=${{ env.IMAGE_REPO}} \
-            IMAGE_TAG=${{ env.IMAGE_TAG }} \
+            IMAGE_TAG=${{ matrix.version }} \
             VERSION=${{ matrix.version }} \
             VARIANT=${{ env.VARIANT }} \
             FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
@@ -250,7 +254,7 @@ jobs:
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
           
-          timeout 30m bash -c "while ! (grep 'login:' vm.stdout); do sleep 1; done"
+          timeout 30m bash -c "while ! (echo > /dev/tcp/${VM_IP}/${VM_PORT}); do sleep 1; done"
 
           if ! (echo > /dev/tcp/${VM_IP}/${VM_PORT})
           then
@@ -258,17 +262,6 @@ jobs:
           fi
           
           echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
-          echo "Creating Ansible inventory"
-          cat << EOF > ansible_inventory
-          ungrouped:
-            hosts:
-              vm:
-                ansible_host: ${VM_IP}
-                ansible_port: ${VM_PORT}
-                ansible_user: ${VM_USER}
-                ansible_password: ${VM_PASS}
-                ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
-          EOF
           
-          #make test-vm
+          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS}
           kill $QEMU_PID
