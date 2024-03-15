@@ -20,7 +20,7 @@ env:
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
   IMAGE_TAG: '39'
   VARIANT: 'Server'
-  FLATPAK_REMOTE_REFS_DIR: /github/workspace/flatpak_refs
+  FLATPAK_REMOTE_REFS_DIR: flatpak_refs
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
@@ -115,7 +115,7 @@ jobs:
           image_tag: ${{ matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
-          flatpak_remote_refs_dir: ${{ env.FLATPAK_REMOTE_REFS_DIR }}
+          flatpak_remote_refs_dir: /github/workspace/${{ env.FLATPAK_REMOTE_REFS_DIR }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
           iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ matrix.version }}.iso
