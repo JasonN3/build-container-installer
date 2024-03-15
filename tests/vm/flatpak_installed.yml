@@ -18,7 +18,7 @@
         - "'VLC' in flatpaks.stdout"
       fail_msg: 'VLC is not installed'
 
-  - name: Check that VLC is installed
+  - name: Check that Firefox is installed
     ansible.builtin.assert:
       that:
         - "'Firefox' in flatpaks.stdout"

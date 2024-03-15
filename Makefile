@@ -42,6 +42,7 @@ run_tests = tests="$(shell ls tests/$(1)/$(2)_*)"; \
 	  		  for test in $$tests; \
 	  		  do \
 				$(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
+				RC=$$?; if [ $$RC != 0 ]; then exit $$RC; fi; \
 	  		  done; \
 			fi
 
