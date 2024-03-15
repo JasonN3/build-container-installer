@@ -242,7 +242,7 @@ test-iso:
 	$(call run_tests,iso,install)
 	
 	# flapak tests
-	[ -n "$(FLATPAK_REMOTE_REFS)" ] && ( $(call run_tests,iso,flatpak) )
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; then $(call run_tests,iso,flatpak); fi
 
 	# Cleanup
 	sudo umount /mnt/install
@@ -266,6 +266,6 @@ test-vm: ansible_inventory
 	$(call run_tests,vm,install)
 
 	# flapak tests
-	[ -n "$(FLATPAK_REMOTE_REFS)" ] && ( $(call run_tests,vm,flatpak) )
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; then $(call run_tests,vm,flatpak); fi
 
 .PHONY: clean install-deps install-test-deps test test-iso test-vm
