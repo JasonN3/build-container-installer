@@ -35,7 +35,7 @@ get_templates = $(shell ls lorax_templates/$(1)_*.tmpl) \
 # Get a list of tests for the feature
 # $1 = test type
 # $2 = feature
-run_tests = tests=$(shell ls tests/$(1)/$(2)_*); \
+run_tests = tests="$(shell ls tests/$(1)/$(2)_*)"; \
 			if [ -n "$$tests" ]; \
 			then \
 			  chmod +x $$tests; \
