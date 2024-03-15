@@ -35,7 +35,15 @@ get_templates = $(shell ls lorax_templates/$(1)_*.tmpl) \
 # Get a list of tests for the feature
 # $1 = test type
 # $2 = feature
-get_tests = $(shell ls tests/$(1)/$(2)_*)
+run_tests = tests=$(shell ls tests/$(1)/$(2)_*); \
+			if [ -n "$$tests" ]; \
+			then \
+			  chmod +x $$tests; \
+	  		  for test in $$tests; \
+	  		  do \
+				$(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
+	  		  done; \
+			fi
 
 # Converts a post script to a template
 # $1 = script to convert
@@ -231,21 +239,10 @@ test-iso:
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
 	# install tests
-	chmod +x $(call get_tests,iso,install)
-	for test in $(call get_tests,iso,install); \
-	do \
-	  $(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
-	done
-
+	$(call run_tests,iso,install)
+	
 	# flapak tests
-	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
-	then \
-	  chmod +x $(call get_tests,iso,flatpak); \
-	  for test in $(call get_tests,iso,flatpak); \
-	  do \
-	    $(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
-	  done; \
-	fi
+	[ -n "$(FLATPAK_REMOTE_REFS)" ] && ( $(call run_tests,iso,flatpak) )
 
 	# Cleanup
 	sudo umount /mnt/install
@@ -266,20 +263,9 @@ test-vm: ansible_inventory
 	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
 
 	# install tests
-	chmod +x $(call get_tests,vm,install)
-	for test in $(call get_tests,vm,install); \
-	do \
-	  ./$${test}; \
-	done
+	$(call run_tests,vm,install)
 
 	# flapak tests
-	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
-	then \
-	  chmod +x $(call get_tests,iso,flatpak); \
-	  for test in $(call get_tests,iso,flatpak); \
-	  do \
-	    $(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
-	  done; \
-	fi
+	[ -n "$(FLATPAK_REMOTE_REFS)" ] && ( $(call run_tests,vm,flatpak) )
 
 .PHONY: clean install-deps install-test-deps test test-iso test-vm
