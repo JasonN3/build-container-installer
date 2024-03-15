@@ -263,5 +263,14 @@ jobs:
           
           echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
           
-          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS}
+          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
+            ARCH=${{ env.ARCH}} \
+            IMAGE_NAME=${{ env.IMAGE_NAME}} \
+            IMAGE_REPO=${{ env.IMAGE_REPO}} \
+            IMAGE_TAG=${{ matrix.version }} \
+            VERSION=${{ matrix.version }} \
+            VARIANT=${{ env.VARIANT }} \
+            FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
+            SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
+            ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
           kill $QEMU_PID
