@@ -1,0 +1,25 @@
+#!/usr/bin/env -S ansible-playbook -i ./ansible_inventory
+---
+- name: Test for installed flatpaks
+  hosts: vm
+  gather_facts: no
+
+  tasks:
+  # Verifies that the flatpaks are installed
+  - name: Get list of installed Flatpaks
+    become: true
+    ansible.builtin.command:
+      cmd: /usr/bin/flatpak list
+    register: flatpaks
+
+  - name: Check that VLC is installed
+    ansible.builtin.assert:
+      that:
+        - "'VLC' in flatpaks.stdout"
+      fail_msg: 'VLC is not installed'
+
+  - name: Check that Firefox is installed
+    ansible.builtin.assert:
+      that:
+        - "'Firefox' in flatpaks.stdout"
+      fail_msg: 'Firefox is not installed'

@@ -20,7 +20,7 @@ env:
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
   IMAGE_TAG: '39'
   VARIANT: 'Server'
-  FLATPAK_REMOTE_REFS_DIR: /github/workspace/flatpak_refs
+  FLATPAK_REMOTE_REFS_DIR: flatpak_refs
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
@@ -115,7 +115,7 @@ jobs:
           image_tag: ${{ matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
-          flatpak_remote_refs_dir: ${{ env.FLATPAK_REMOTE_REFS_DIR }}
+          flatpak_remote_refs_dir: /github/workspace/${{ env.FLATPAK_REMOTE_REFS_DIR }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
           iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ matrix.version }}.iso
@@ -178,11 +178,13 @@ jobs:
     
       - name: Verify ISO
         run: |
+          set -e
           checkisomd5 ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
           sha256sum -c ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}-CHECKSUM
 
       - name: Run ISO checks
         run: |
+          set -e
           mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
           make test-iso \
             ARCH=${{ env.ARCH}} \
@@ -197,6 +199,7 @@ jobs:
 
       - name: Add Kickstart and Grub options to ISO
         run: |
+          set -e
           sudo mkdir /mnt/iso || true
           sudo mount -o loop deploy.iso /mnt/iso
           cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
@@ -227,7 +230,8 @@ jobs:
 
       - name: Install the test VM
         run: |
-          timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & QEMU_PID=$!
+          set -e
+          timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
           (nc localhost 4321 | tee vm.stdout) &
@@ -240,15 +244,16 @@ jobs:
           VM_IP: "127.0.0.1"
           VM_PORT: "5555"
         run: |
+          set -e
           mkfifo vm.stdin
           qemu-system-x86_64 -name "Anaconda" \
             -m 4096 -cpu qemu64 -display none -smp 2 \
-            -chardev socket,path=/tmp/qga.sock,server,nowait,id=qga0 \
+            -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
             -device e1000,netdev=net0 \
             -netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
             -device virtio-serial \
             -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-            -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server,nowait & export QEMU_PID=$!
+            -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$!
           echo "PID: $QEMU_PID"
 
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
@@ -263,5 +268,14 @@ jobs:
           
           echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
           
-          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS}
+          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
+            ARCH=${{ env.ARCH}} \
+            IMAGE_NAME=${{ env.IMAGE_NAME}} \
+            IMAGE_REPO=${{ env.IMAGE_REPO}} \
+            IMAGE_TAG=${{ matrix.version }} \
+            VERSION=${{ matrix.version }} \
+            VARIANT=${{ env.VARIANT }} \
+            FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
+            SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
+            ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
           kill $QEMU_PID

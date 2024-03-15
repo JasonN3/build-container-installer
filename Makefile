@@ -32,6 +32,20 @@ PACKAGE_MANAGER = dnf
 get_templates = $(shell ls lorax_templates/$(1)_*.tmpl) \
                 $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/$(1)_*)),lorax_templates/post_$(file).tmpl)
 
+# Get a list of tests for the feature
+# $1 = test type
+# $2 = feature
+run_tests = tests="$(shell ls tests/$(1)/$(2)_*)"; \
+			if [ -n "$$tests" ]; \
+			then \
+			  chmod +x $$tests; \
+	  		  for test in $$tests; \
+	  		  do \
+				$(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
+				RC=$$?; if [ $$RC != 0 ]; then exit $$RC; fi; \
+	  		  done; \
+			fi
+
 # Converts a post script to a template
 # $1 = script to convert
 # $2 = file on ISO to write
@@ -218,7 +232,6 @@ install-test-deps:
 test: test-iso test-vm
 
 test-iso:
-	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/iso)))
 	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 
 	sudo modprobe loop
@@ -227,21 +240,10 @@ test-iso:
 	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
 
 	# install tests
-	chmod +x $(foreach test,$(filter install_%,$(_TESTS)),tests/iso/$(test))
-	for test in $(_TESTS); \
-	do \
-	  $(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
-	done
-
+	$(call run_tests,iso,install)
+	
 	# flapak tests
-	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
-	then \
-		chmod +x $(foreach test,$(filter flatpak_%,$(_TESTS)),tests/iso/$(test)); \
-		for test in $(_TESTS); \
-		do \
-		$(foreach var,$(_VARS),$(var)=$($(var))) ./tests/iso/$${test}; \
-		done; \
-	fi
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; then $(call run_tests,iso,flatpak); fi
 
 	# Cleanup
 	sudo umount /mnt/install
@@ -260,8 +262,11 @@ ansible_inventory:
 
 test-vm: ansible_inventory
 	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
-	$(eval _TESTS = $(filter-out README.md,$(shell ls tests/vm)))
-	chmod +x $(foreach test,$(_TESTS),tests/vm/$(test))
-	for test in $(_TESTS); do ./tests/vm/$${test}; done
+
+	# install tests
+	$(call run_tests,vm,install)
+
+	# flapak tests
+	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; then $(call run_tests,vm,flatpak); fi
 
 .PHONY: clean install-deps install-test-deps test test-iso test-vm
