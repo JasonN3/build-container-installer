@@ -19,6 +19,9 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        
       - name: Run test
         run: |
           /bin/bash tests/repo/vars.sh
