@@ -21,4 +21,4 @@ jobs:
     steps:
       - name: Run test
         run: |
-          /bin/bash bash tests/repo/vars.sh
+          /bin/bash tests/repo/vars.sh
