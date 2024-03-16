@@ -1,0 +1,24 @@
+name: Repo Tests
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  variables:
+    name: Check variables are listed
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Run test
+        run: |
+          /bin/bash bash tests/repo/vars.sh

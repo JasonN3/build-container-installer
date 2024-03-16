@@ -20,9 +20,12 @@ FLATPAK_REMOTE_REFS_DIR =
 # Secure boot
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
+
+###################
+# Hidden vars
+
 # Cache
 DNF_CACHE = 
-
 PACKAGE_MANAGER = dnf
 
 # Functions

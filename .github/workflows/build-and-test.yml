@@ -139,14 +139,13 @@ jobs:
           compression-level: 0
           overwrite: true
 
-  test-qemu:
+  test-iso:
     name: Test ISO
     runs-on: ubuntu-latest
     needs:
       - build-and-push-iso
     permissions:
       contents: read
-      packages: write
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -166,10 +165,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y make
           sudo make install-test-deps PACKAGE_MANAGER=apt-get
-
-      - name: Create disk
-        run: |
-          qemu-img create -f qcow2 disk.qcow2 50G
 
       - name: Download generated ISO
         uses: actions/download-artifact@v4
@@ -196,6 +191,38 @@ jobs:
             FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
             SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
+
+  test-deployment:
+    name: Test deployment
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-iso
+    permissions:
+      contents: read
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 38
+          - 39
+          - 40
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make
+          sudo make install-test-deps PACKAGE_MANAGER=apt-get
+      
+      - name: Download generated ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
 
       - name: Add Kickstart and Grub options to ISO
         run: |
@@ -227,6 +254,10 @@ jobs:
           -map grub.cfg boot/grub2/grub.cfg
           -end
           EOF
+
+      - name: Create VM disk
+        run: |
+          qemu-img create -f qcow2 disk.qcow2 50G
 
       - name: Install the test VM
         run: |
