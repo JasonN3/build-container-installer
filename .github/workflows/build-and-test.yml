@@ -142,7 +142,7 @@ jobs:
           flatpak_remote_refs_dir: /github/workspace/${{ env.FLATPAK_REMOTE_REFS_DIR }}
           secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
-          iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ matrix.version }}.iso
+          iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ github.event.pull_request.number || github.ref }}.iso
 
       - name: Save output
         id: save_output
@@ -197,13 +197,11 @@ jobs:
     
       - name: Verify ISO
         run: |
-          set -e
           checkisomd5 ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
           sha256sum -c ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}-CHECKSUM
 
       - name: Run ISO checks
         run: |
-          set -e
           mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
           make test-iso \
             ARCH=${{ env.ARCH}} \
@@ -250,7 +248,7 @@ jobs:
 
       - name: Add Kickstart and Grub options to ISO
         run: |
-          set -e
+          mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
           sudo mkdir /mnt/iso || true
           sudo mount -o loop deploy.iso /mnt/iso
           cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
@@ -285,7 +283,6 @@ jobs:
 
       - name: Install the test VM
         run: |
-          set -e
           timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
           echo "PID: $QEMU_PID"
           timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
@@ -299,7 +296,6 @@ jobs:
           VM_IP: "127.0.0.1"
           VM_PORT: "5555"
         run: |
-          set -e
           mkfifo vm.stdin
           qemu-system-x86_64 -name "Anaconda" \
             -m 4096 -cpu qemu64 -display none -smp 2 \
