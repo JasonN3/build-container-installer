@@ -1,0 +1,25 @@
+#!/usr/bin/env -S ansible-playbook -i ./ansible_inventory
+---
+- name: Test Container Image source updates
+  hosts: vm
+  gather_facts: no
+
+  tasks:
+  # Get list of origins
+  - name: Get origin
+    become: true
+    ansible.builtin.command:
+      cmd: cat /ostree/deploy/default/deploy/*.origin
+    register: origin
+
+  - name: Get vars
+    ansible.builtin.set_facts:
+      image_repo: "{{ lookup('ansible.builtin.env', 'IMAGE_REPO') }}"
+      image_name: "{{ lookup('ansible.builtin.env', 'IMAGE_NAME') }}"
+      image_tag: "{{ lookup('ansible.builtin.env', 'IMAGE_TAG') }}"
+
+  - name: Tests
+    ansible.builtin.assert:
+      that:
+        - (image_repo + '/' + image_name + ':' + image_tag) in origin.stdout
+      fail_msg: 'Origin not configured'

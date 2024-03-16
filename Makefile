@@ -261,6 +261,8 @@ ansible_inventory:
 	echo "      ansible_ssh_common_args: '-o StrictHostKeyChecking=no'" >> ansible_inventory
 
 test-vm: ansible_inventory
+	$(eval _VARS = IMAGE_REPO IMAGE_NAME IMAGE_TAG)
+
 	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
 
 	# install tests
