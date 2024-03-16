@@ -234,6 +234,9 @@ install-test-deps:
 
 test: test-iso test-vm
 
+test-repo:
+	bash tests/repo/vars.sh
+
 test-iso:
 	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 

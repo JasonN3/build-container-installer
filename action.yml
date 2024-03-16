@@ -62,6 +62,11 @@ inputs:
     description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
     required: false
     default: build/deploy.iso
+  repos:
+    description: List of repo files for Lorax to use
+    required: false
+  rootfs_size:
+    description: The size (in GiB) for the squashfs runtime volume
   secure_boot_key_url:
     description: Secure boot key that is installed from URL location
     required: false
