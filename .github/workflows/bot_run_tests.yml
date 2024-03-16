@@ -1,0 +1,22 @@
+name: Run tests on PR
+on: issue_comment
+
+jobs:
+  pr_commented:
+    name: Run Tests for PR
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.issue.bodyText, '/run tests')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check association
+        run: |
+          allowed=("OWNER" "COLLABORATOR")
+          value="\<${{ github.event.issue.author_association }}\>"
+        
+          if [[ ${array[@]} =~ $value ]]
+          then
+            exit 0
+          else
+            exit 1
+          fi

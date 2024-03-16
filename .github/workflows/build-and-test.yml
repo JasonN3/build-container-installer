@@ -6,7 +6,12 @@ on:
       - 'main'
     tags:
       - 'v*'
-  pull_request:
+  
+  workflow_run:
+    workflows: [Run Tests on PR]
+    types:
+      - completed
+      
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -26,6 +31,10 @@ env:
 
 jobs:
   build-container:
+    if: >
+      github.event_name == 'push' ||
+      ( github.event.workflow_run.event == 'pull_request' &&
+        github.event.workflow_run.conclusion == 'success' )
     name: Build Container Image
     runs-on: ubuntu-latest
     permissions:
@@ -39,26 +48,12 @@ jobs:
           fetch-depth: 0
           fetch-tags: 'true'
 
-      - name: Docker meta for GHCR
-        if: github.event_name != 'pull_request'
-        id: meta_ghcr
+      - name: Docker meta
+        id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
             ghcr.io/${{ github.repository }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Docker meta for Docker Hub
-        if: github.event_name == 'pull_request'
-        id: meta_docker
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            docker.io/${{ github.repository }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -70,26 +65,16 @@ jobs:
         uses: redhat-actions/buildah-build@v2
         with:
           containerfiles: Containerfile
-          tags: ${{ steps.meta_ghcr.outputs.tags || steps.meta_docker.outputs.tags }}
-          labels: ${{ steps.meta_ghcr.outputs.labels || steps.meta_docker.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Push image to GHCR
-        if: github.event_name != 'pull_request'
+      - name: Push image
         uses: redhat-actions/push-to-registry@v2
         with:
           image: ${{ steps.build-image.outputs.image }}
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
-
-      - name: Push image to Docker
-        if: github.event_name == 'pull_request'
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          username: ${{ secrets.DOCKER_LOGIN }}
-          password: ${{ secrets.DOCKER_TOKEN }}
 
   build-and-push-iso:
     name: Build ISO
