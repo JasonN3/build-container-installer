@@ -13,7 +13,7 @@
     register: origin
 
   - name: Get vars
-    ansible.builtin.set_facts:
+    ansible.builtin.set_fact:
       image_repo: "{{ lookup('ansible.builtin.env', 'IMAGE_REPO') }}"
       image_name: "{{ lookup('ansible.builtin.env', 'IMAGE_NAME') }}"
       image_tag: "{{ lookup('ansible.builtin.env', 'IMAGE_TAG') }}"
