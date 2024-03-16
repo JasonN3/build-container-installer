@@ -9,7 +9,7 @@
   - name: Get origin
     become: true
     ansible.builtin.command:
-      cmd: cat /ostree/deploy/default/deploy/*.origin
+      cmd: /bin/bash -c "cat /ostree/deploy/default/deploy/*.origin"
     register: origin
 
   - name: Get vars
