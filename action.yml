@@ -131,16 +131,19 @@ runs:
         ACTION_REF: ${{ github.action_ref }}
       shell: bash
       run: |
+        image="ghcr.io/jasonn3/build-container-installer"
         # Check if running inside of the action repo
         if [[ -z "${ACTION_REPO}" || "${ACTION_REPO}" == "${{ github.repository }}" ]]
         then
           if [[ "${{ github.ref_name }}" =~ (.*)/merge ]]
-            then tag=pr-${BASH_REMATCH[1]}
+          then
+            tag="pr-${BASH_REMATCH[1]}"
+            image="docker.io/jasonn3/build-container-installer"
           else
-            tag=${{ github.ref_name }}
+            tag="${{ github.ref_name }}"
           fi
         else
-           tag=${ACTION_REF}
+           tag="${ACTION_REF}"
         fi        
         if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]
         then
@@ -167,7 +170,7 @@ runs:
             vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
           fi
         fi
-        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ghcr.io/jasonn3/build-container-installer:${tag} \
+        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \

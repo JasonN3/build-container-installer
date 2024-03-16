@@ -35,3 +35,5 @@ do
         result=1
     fi
 done
+
+exit ${result}
