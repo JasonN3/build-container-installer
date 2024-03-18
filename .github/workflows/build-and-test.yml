@@ -6,11 +6,14 @@ on:
       - 'main'
     tags:
       - 'v*'
-  
-  workflow_run:
-    workflows: [Run Tests on PR]
-    types:
-      - completed
+
+  pull_request:
+
+  workflow_call:
+    inputs:
+      pr:
+        required: true
+        type: string
       
 
 concurrency:
@@ -33,20 +36,53 @@ jobs:
   build-container:
     if: >
       github.event_name == 'push' ||
-      ( github.event.workflow_run.event == 'pull_request' &&
-        github.event.workflow_run.conclusion == 'success' )
+      github.event_name == 'issue_comment' ||
+      ( github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'auto-test') )
     name: Build Container Image
+    env:
+      JOB_NAME: Build Container Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+      statuses: write
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
           fetch-tags: 'true'
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Docker meta
         id: meta
@@ -75,15 +111,28 @@ jobs:
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
+      
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
   build-and-push-iso:
     name: Build ISO
+    env:
+      JOB_NAME: Build ISO
     runs-on: ubuntu-latest
     needs:
       - build-container
     permissions:
       contents: read
       packages: write
+      statuses: write
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -97,8 +146,39 @@ jobs:
       iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
       iso_name-40: ${{ steps.save_output.outputs.iso_name-40 }}
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Lowercase Registry
         id: registry_case
@@ -148,13 +228,26 @@ jobs:
           compression-level: 0
           overwrite: true
 
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
   test-iso:
     name: Test ISO
+    env:
+      JOB_NAME: Test ISO
     runs-on: ubuntu-latest
     needs:
       - build-and-push-iso
     permissions:
       contents: read
+      statuses: write
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -164,10 +257,39 @@ jobs:
           - 39
           - 40
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Install test tools
         run: |
@@ -199,13 +321,26 @@ jobs:
             SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
 
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
   test-deployment:
     name: Test deployment
+    env:
+      JOB_NAME: Test deployment
     runs-on: ubuntu-latest
     needs:
       - build-and-push-iso
     permissions:
       contents: read
+      statuses: write
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -215,10 +350,39 @@ jobs:
           - 39
           - 40
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Install test tools
         run: |
@@ -315,3 +479,13 @@ jobs:
             SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
           kill $QEMU_PID
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
