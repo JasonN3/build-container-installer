@@ -1,0 +1,12 @@
+#!/usr/bin/env -S ansible-playbook -i ./ansible_inventory
+---
+- name: Test for flatpaks
+  hosts: vm
+  gather_facts: no
+
+  tasks:
+  # Verifies that the GPG key is functional
+  - name: Test updating flatpak packages
+    become: true
+    ansible.builtin.command:
+      cmd: /usr/bin/flatpak update -y --noninteractive

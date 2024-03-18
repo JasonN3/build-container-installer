@@ -1,0 +1,1 @@
+Place scripts that will test the VM. The VM will be available at ${VM_IP} using username ${VM_USER} and password ${VM_PASS}

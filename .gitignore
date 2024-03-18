@@ -1,9 +1,9 @@
 /debugdata
 /build
+/lorax_templates/post_*
 /pkglists
 /repos
 /results
-/lorax_templates/*.tmpl
 /xorriso/input.txt
 /xorriso/*.sh
 /original-pkgsizes.txt

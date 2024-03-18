@@ -1,4 +1,4 @@
-name: Create and publish an ISO
+name: Tests
 
 on:
   push:
@@ -6,26 +6,83 @@ on:
       - 'main'
     tags:
       - 'v*'
+
   pull_request:
+
+  workflow_call:
+    inputs:
+      pr:
+        required: true
+        type: string
+      
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+    
 
 # Test Values
 env:
   ARCH: 'x86_64'
   IMAGE_NAME: 'base'
   IMAGE_REPO: 'quay.io/fedora-ostree-desktops'
-  VERSION: '39'
+  IMAGE_TAG: '39'
   VARIANT: 'Server'
+  FLATPAK_REMOTE_REFS_DIR: flatpak_refs
   SECURE_BOOT_KEY_URL: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
   ENROLLMENT_PASSWORD: 'container-installer'
 
-
 jobs:
   build-container:
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'issue_comment' ||
+      ( github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'auto-test') )
+    name: Build Container Image
+    env:
+      JOB_NAME: Build Container Image
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          fetch-tags: 'true'
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Docker meta
         id: meta
@@ -46,7 +103,7 @@ jobs:
           containerfiles: Containerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          
+
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
         with:
@@ -54,18 +111,74 @@ jobs:
           tags: ${{ steps.build-image.outputs.tags }}
           username: ${{ github.actor }}
           password: ${{ github.token }}
-
+      
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
   build-and-push-iso:
+    name: Build ISO
+    env:
+      JOB_NAME: Build ISO
     runs-on: ubuntu-latest
     needs:
       - build-container
     permissions:
       contents: read
       packages: write
+      statuses: write
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 38
+          - 39
+          - 40
+    outputs:
+      iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
+      iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
+      iso_name-40: ${{ steps.save_output.outputs.iso_name-40 }}
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Lowercase Registry
         id: registry_case
@@ -83,23 +196,296 @@ jobs:
 
       - name: Build ISO
         uses: ./
+        id: build
         with:
           arch: ${{ env.ARCH}}
           image_name: ${{ env.IMAGE_NAME}}
           image_repo: ${{ env.IMAGE_REPO}}
-          version: ${{ env.VERSION }}
+          image_tag: ${{ matrix.version }}
+          version: ${{ matrix.version }}
           variant: ${{ env.VARIANT }}
+          flatpak_remote_refs_dir: /github/workspace/${{ env.FLATPAK_REMOTE_REFS_DIR }}
+          secure_boot_key_url: ${{ env.SECURE_BOOT_KEY_URL }}
+          enrollment_password: ${{ env.ENROLLMENT_PASSWORD }}
+          iso_name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}-${{ github.event.pull_request.number || github.ref }}.iso
 
-      - name: Rename ISO
+      - name: Save output
+        id: save_output
+        shell: bash
         run: |
-          mv build/deploy.iso build/${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
+          echo "iso_name-${{ matrix.version }}=${{ steps.build.outputs.iso_name}}" >> $GITHUB_OUTPUT
 
       - name: Upload ISO as artifact
+        id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ env.VERSION }}.iso
-          path: build/*.iso
+          name: ${{ steps.build.outputs.iso_name }}
+          path: |
+            ${{ steps.build.outputs.iso_path }}
+            ${{ steps.build.outputs.iso_path }}-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
           overwrite: true
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
+  test-iso:
+    name: Test ISO
+    env:
+      JOB_NAME: Test ISO
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-iso
+    permissions:
+      contents: read
+      statuses: write
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 38
+          - 39
+          - 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
+      - name: Install test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make
+          sudo make install-test-deps PACKAGE_MANAGER=apt-get
+
+      - name: Download generated ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
+    
+      - name: Verify ISO
+        run: |
+          checkisomd5 ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
+          sha256sum -c ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}-CHECKSUM
+
+      - name: Run ISO checks
+        run: |
+          mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
+          make test-iso \
+            ARCH=${{ env.ARCH}} \
+            IMAGE_NAME=${{ env.IMAGE_NAME}} \
+            IMAGE_REPO=${{ env.IMAGE_REPO}} \
+            IMAGE_TAG=${{ matrix.version }} \
+            VERSION=${{ matrix.version }} \
+            VARIANT=${{ env.VARIANT }} \
+            FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
+            SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
+            ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
+  test-deployment:
+    name: Test deployment
+    env:
+      JOB_NAME: Test deployment
+    runs-on: ubuntu-latest
+    needs:
+      - build-and-push-iso
+    permissions:
+      contents: read
+      statuses: write
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 38
+          - 39
+          - 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "Run Tests / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
+      - name: Install test tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y make
+          sudo make install-test-deps PACKAGE_MANAGER=apt-get
+      
+      - name: Download generated ISO
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }}
+
+      - name: Add Kickstart and Grub options to ISO
+        run: |
+          mv ${{ needs['build-and-push-iso']['outputs'][format('iso_name-{0}', matrix.version)] }} deploy.iso
+          sudo mkdir /mnt/iso || true
+          sudo mount -o loop deploy.iso /mnt/iso
+          cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
+          sudo umount /mnt/iso
+          sed -i 's/quiet/console=ttyS0,115200n8 inst.ks=cdrom:\/ks.cfg/' grub.cfg
+          sed -i 's/set default="1"/set default="0"/' grub.cfg
+          sed -i 's/set timeout=60/set timeout=1/' grub.cfg
+          cat << EOF > ks.cfg
+          lang en_US.UTF-8
+          keyboard us
+          timezone Americas/New_York
+          zerombr
+          clearpart --all --initlabel
+          autopart
+          poweroff
+          user --name=core --groups=wheel --password=foobar
+          %include /usr/share/anaconda/interactive-defaults.ks
+          EOF
+          xorriso -dialog on << EOF
+          -indev deploy.iso
+          -outdev test.iso
+          -boot_image any replay
+          -map ks.cfg ks.cfg
+          -chmod 0444 ks.cfg
+          -map grub.cfg boot/grub2/grub.cfg
+          -end
+          EOF
+
+      - name: Create VM disk
+        run: |
+          qemu-img create -f qcow2 disk.qcow2 50G
+
+      - name: Install the test VM
+        run: |
+          timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
+          echo "PID: $QEMU_PID"
+          timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
+          (nc localhost 4321 | tee vm.stdout) &
+          wait $QEMU_PID
+
+      - name: Start the test VM
+        env:
+          VM_USER: core
+          VM_PASS: foobar
+          VM_IP: "127.0.0.1"
+          VM_PORT: "5555"
+        run: |
+          mkfifo vm.stdin
+          qemu-system-x86_64 -name "Anaconda" \
+            -m 4096 -cpu qemu64 -display none -smp 2 \
+            -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
+            -device e1000,netdev=net0 \
+            -netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
+            -device virtio-serial \
+            -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
+            -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$!
+          echo "PID: $QEMU_PID"
+
+          timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
+          (tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
+          
+          timeout 30m bash -c "while ! (echo > /dev/tcp/${VM_IP}/${VM_PORT}); do sleep 1; done"
+
+          if ! (echo > /dev/tcp/${VM_IP}/${VM_PORT})
+          then
+            echo "SSH must be installed and enabled inside the container"
+          fi
+          
+          echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
+          
+          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
+            ARCH=${{ env.ARCH}} \
+            IMAGE_NAME=${{ env.IMAGE_NAME}} \
+            IMAGE_REPO=${{ env.IMAGE_REPO}} \
+            IMAGE_TAG=${{ matrix.version }} \
+            VERSION=${{ matrix.version }} \
+            VARIANT=${{ env.VARIANT }} \
+            FLATPAK_REMOTE_REFS_DIR=${{ env.FLATPAK_REMOTE_REFS_DIR }} \
+            SECURE_BOOT_KEY_URL=${{ env.SECURE_BOOT_KEY_URL }} \
+            ENROLLMENT_PASSWORD=${{ env.ENROLLMENT_PASSWORD }}
+          kill $QEMU_PID
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}

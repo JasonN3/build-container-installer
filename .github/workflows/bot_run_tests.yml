@@ -1,0 +1,34 @@
+name: Run tests on PR
+on: issue_comment
+
+jobs:
+  pr_commented:
+    name: Check Permissions
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run tests')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check association
+        run: |
+          allowed=("OWNER" "COLLABORATOR")
+          value="\<${{ github.event.issue.author_association }}\>"
+        
+          if [[ ${allowed[@]} =~ $value ]]
+          then
+            exit 0
+          else
+            exit 1
+          fi
+
+  run-tests:
+    name: Run Tests
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - pr_commented
+    uses: ./.github/workflows/build-and-test.yml
+    with:
+      pr: ${{ github.event.issue.number }}
