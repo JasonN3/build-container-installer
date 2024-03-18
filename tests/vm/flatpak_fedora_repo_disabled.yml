@@ -1,0 +1,16 @@
+#!/usr/bin/env -S ansible-playbook -i ./ansible_inventory
+---
+- name: Test for installed flatpaks
+  hosts: vm
+  gather_facts: no
+
+  tasks:
+  - name: Collect facts about system services
+    service_facts:
+    register: services_state
+
+  - name: Check that flatpak-add-fedora-repos is disabled
+    ansible.builtin.assert:
+      that:
+        - services_state['ansible_facts']['services']['flatpak-add-fedora-repos.service']['status'] == 'disabled'
+      fail_msg: 'flatpak-add-fedora-repos.service is not disabled'
