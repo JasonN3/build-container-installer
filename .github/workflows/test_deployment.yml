@@ -73,7 +73,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
-          context: ${{ env.JOB_NAME }}
+          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 

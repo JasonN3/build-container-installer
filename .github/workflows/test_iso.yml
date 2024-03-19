@@ -64,7 +64,7 @@ jobs:
         id: jobs
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }}"
+          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }})"
 
       - name: Set status
         if: inputs.pr && always()
@@ -72,7 +72,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
-          context: ${{ env.JOB_NAME }}
+          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
@@ -112,6 +112,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
-          context: ${{ env.JOB_NAME }}
+          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
