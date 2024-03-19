@@ -21,7 +21,7 @@ VOLUME /build-container-installer/build
 VOLUME /build-container-installer/repos
 VOLUME /cache
 
-RUN echo | openssl s_client -showcerts -servername cdn.redhat.com -connect cdn.redhat.com:443 2>/dev/null | openssl x509 -inform pem -noout -text
+RUN dnf repolist
 
 RUN dnf install -y make && make install-deps
 
