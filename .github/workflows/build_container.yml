@@ -100,7 +100,7 @@ jobs:
         if: matrix.append == 'ubi'
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.RH_REPO }}
+          repository: JasonN3/rhel_ent
           persist-credentials: false
           path: ubi
 
