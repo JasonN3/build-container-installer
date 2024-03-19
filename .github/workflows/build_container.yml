@@ -61,7 +61,7 @@ jobs:
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Docker meta
-        if: ! inputs.pr
+        if: inputs.pr == ''
         id: meta
         uses: docker/metadata-action@v5
         with:
