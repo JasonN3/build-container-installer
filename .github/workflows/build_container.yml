@@ -1,0 +1,110 @@
+on:
+  workflow_call:
+    inputs:
+      pr:
+        required: false
+        type: string
+      parent_job_name:
+        required: true
+        type: string
+
+jobs:
+  build-container:
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'issue_comment' ||
+      ( github.event_name == 'pull_request' &&
+        contains(github.event.pull_request.labels.*.name, 'auto-test') )
+    name: Build Container Image
+    env:
+      JOB_NAME: Build Container Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          fetch-tags: 'true'
+
+      - name: Switch branch
+        if: inputs.pr
+        env:
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y hub
+          hub pr checkout ${{ inputs.pr }}
+          echo "sha=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Get Current Job Log URL
+        if: inputs.pr && always()
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }}"
+
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: pending
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
+
+      - name: Docker meta
+        if: inputs.pr == ''
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Docker meta for PR
+        if: inputs.pr
+        id: meta_pr
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            pr-${{ inputs.pr }}
+
+      - name: Buildah Build
+        id: build-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          containerfiles: Containerfile
+          tags: ${{ steps.meta.outputs.tags || steps.meta_pr.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels || steps.meta_pr.outputs.labels }}
+
+      - name: Push image
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build-image.outputs.image }}
+          tags: ${{ steps.build-image.outputs.tags }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      
+      - name: Set status
+        if: inputs.pr && always()
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          context: ${{ env.JOB_NAME }}
+          sha: ${{ env.sha }}
+          targetUrl: ${{ steps.jobs.outputs.html_url }}
