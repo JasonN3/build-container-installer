@@ -136,10 +136,11 @@ runs:
         ACTION_REF: ${{ github.action_ref }}
       shell: bash
       run: |
-        image=$(echo "ghcr.io/${{ github.repository }}" | tr [:upper:] [:lower:])
+        image=$(echo "ghcr.io/${ACTION_REPO}" | tr [:upper:] [:lower:])
         # Check if running inside01 of the action repo
         if [[ -z "${ACTION_REPO}" ]]
         then
+          image=$(echo "ghcr.io/${{ github.repository }}" | tr [:upper:] [:lower:])
           if [[ -n "${{ github.event.issue.number }}" ]]
           then
             tag="pr-${{ github.event.issue.number }}"
