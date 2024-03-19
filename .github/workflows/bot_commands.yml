@@ -35,7 +35,7 @@ jobs:
     uses: ./.github/workflows/tests.yml
     with:
       pr: ${{ github.event.issue.number }}
-      parent_job_name: Run ISO Tests /
+      parent_job_name: Run All Tests
 
   run_build_container:
     name: Run Build Container
@@ -51,7 +51,7 @@ jobs:
     uses: ./.github/workflows/build_container.yml
     with:
       pr: ${{ github.event.issue.number }}
-      parent_job_name: Run ISO Tests /
+      parent_job_name: Run Build Container
 
   run_test_iso:
     name: Run ISO Tests
@@ -68,7 +68,7 @@ jobs:
     uses: ./.github/workflows/test_iso.yml
     with:
       pr: ${{ github.event.issue.number }}
-      parent_job_name: Run ISO Tests /
+      parent_job_name: Run ISO Tests
       iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
       iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
       iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
@@ -89,7 +89,7 @@ jobs:
     uses: ./.github/workflows/test_deployment.yml
     with:
       pr: ${{ github.event.issue.number }}
-      parent_job_name: Run ISO Tests /
+      parent_job_name: Run ISO Deployment Tests
       iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
       iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
       iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
