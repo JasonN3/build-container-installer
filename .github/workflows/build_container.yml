@@ -22,7 +22,9 @@ jobs:
       contents: read
       packages: write
       statuses: write
+    continue-on-error: false
     strategy:
+      fail-fast: false
       matrix:
         os:
           - registry.fedoraproject.org/fedora
@@ -113,7 +115,7 @@ jobs:
             BASE_IMAGE=${{ matrix.os }}
             IMAGE_VERSION=${{ matrix.tag }}
           extra-args: |
-            ${{ matrix.append == 'ubi' && '--volume=${{ github.workspace }}/ubi:/etc/pki/entitlement-host' || ''}}
+            ${{ matrix.append == 'ubi' && format('--volume={0}/ubi:/etc/pki/entitlement-host', github.workspace) || ''}}
 
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
