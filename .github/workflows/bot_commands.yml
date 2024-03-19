@@ -1,0 +1,95 @@
+name: Bot commands
+on: issue_comment
+
+jobs:
+  permissions:
+    name: Check Permissions
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check association
+        run: |
+          allowed=("OWNER" "COLLABORATOR")
+          value="\<${{ github.event.issue.author_association }}\>"
+        
+          if [[ ${allowed[@]} =~ $value ]]
+          then
+            exit 0
+          else
+            exit 1
+          fi
+
+  load_vars:
+    uses: ./.github/workflows/build_vars.yml
+
+  run-all_tests:
+    name: Run All Tests
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run tests')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+    uses: ./.github/workflows/tests.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run ISO Tests /
+
+  run_build_container:
+    name: Run Build Container
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run build container')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+    uses: ./.github/workflows/build_container.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run ISO Tests /
+
+  run_test_iso:
+    name: Run ISO Tests
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run test iso')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+      - load_vars
+    uses: ./.github/workflows/test_iso.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run ISO Tests /
+      iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
+      iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
+      iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
+
+  run_test_deployment:
+    name: Run ISO Deployment Tests
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run test iso')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+      - load_vars
+      - run_test_iso
+    uses: ./.github/workflows/test_deployment.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run ISO Tests /
+      iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
+      iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
+      iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
