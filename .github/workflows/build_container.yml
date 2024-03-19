@@ -61,25 +61,35 @@ jobs:
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
       - name: Docker meta
+        if: ! inputs.pr
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: |
             ghcr.io/${{ github.repository }}
-          context: git
           tags: |
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
 
+      - name: Docker meta for PR
+        if: inputs.pr
+        id: meta_pr
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            pr-${{ inputs.pr }}
+
       - name: Buildah Build
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
           containerfiles: Containerfile
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags || steps.meta_pr.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels || steps.meta_pr.outputs.labels }}
 
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
