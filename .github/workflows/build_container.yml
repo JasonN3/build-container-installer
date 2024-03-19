@@ -113,7 +113,7 @@ jobs:
             BASE_IMAGE=${{ matrix.os }}
             IMAGE_VERSION=${{ matrix.tag }}
           extra-args: |
-            ${{ matrix.append == 'ubi' && '--volume=./ubi:/etc/pki/entitlement-host' }}
+            ${{ matrix.append == 'ubi' && '--volume=${{ github.workspace }}/ubi:/etc/pki/entitlement-host' || ''}}
 
       - name: Push image
         uses: redhat-actions/push-to-registry@v2
