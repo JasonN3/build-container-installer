@@ -20,7 +20,8 @@ on:
       
 
 jobs:
-  job1:
+  load-vars:
+    name: Load Variables
     runs-on: ubuntu-latest
     steps:
       - name: Sucess
