@@ -7,6 +7,8 @@ on:
     tags:
       - 'v*'
 
+  workflow_dispatch:
+
   workflow_call:
     inputs:
       pr:
