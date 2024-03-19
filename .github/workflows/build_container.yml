@@ -7,6 +7,12 @@ on:
       parent_job_name:
         required: true
         type: string
+    secrets:
+      RH_REPO: 
+        required: true
+      RH_ENT:
+        required: true
+    
 
 jobs:
   build-container:
@@ -100,7 +106,8 @@ jobs:
         if: matrix.append == 'ubi'
         uses: actions/checkout@v4
         with:
-          repository: JasonN3/rhel_ent
+          repository: ${{ secrets.RH_REPO }}
+          token: ${{ secrets.RH_ENT }}
           persist-credentials: false
           path: ubi
 
