@@ -99,7 +99,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ secrets.RH_REPO }}
-          token: ${{ secrets.RH_ENT }}
           persist-credentials: false
           path: ubi
 
