@@ -21,8 +21,7 @@ VOLUME /build-container-installer/build
 VOLUME /build-container-installer/repos
 VOLUME /cache
 
-RUN cat /etc/rhsm/rhsm.conf
-RUN find /etc/rhsm
+RUN curl -vvvvv https://cdn.redhat.com
 
 RUN dnf install -y make && make install-deps
 
