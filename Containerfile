@@ -21,6 +21,8 @@ VOLUME /build-container-installer/build
 VOLUME /build-container-installer/repos
 VOLUME /cache
 
+RUN find /run/secrets
+
 RUN dnf install -y make && make install-deps
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
