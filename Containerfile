@@ -21,6 +21,9 @@ VOLUME /build-container-installer/build
 VOLUME /build-container-installer/repos
 VOLUME /cache
 
+RUN cat /etc/rhsm/rhsm.conf
+RUN find /etc/rhsm
+
 RUN dnf install -y make && make install-deps
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
