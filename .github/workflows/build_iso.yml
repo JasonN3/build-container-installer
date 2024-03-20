@@ -52,10 +52,13 @@ jobs:
           - 40
         include:
           - version: 7
+            image_tag: 38
             rhel: true
           - version: 8
+            image_tag: 39
             rhel: true
           - version: 9
+            image_tag: 40
             rhel: true
     outputs:
       iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
@@ -130,7 +133,7 @@ jobs:
           arch: ${{ needs.load_vars.outputs.ARCH }}
           image_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}
           image_repo: ${{ needs.load_vars.outputs.IMAGE_REPO }}
-          image_tag: ${{ matrix.version }}
+          image_tag: ${{ matrix.image_tag || matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
           flatpak_remote_refs_dir: /github/workspace/${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }}
