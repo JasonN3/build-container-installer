@@ -67,6 +67,9 @@ inputs:
     required: false
   rootfs_size:
     description: The size (in GiB) for the squashfs runtime volume
+  secrets_dir:
+    description: The location that will be mounted to /run/secrets
+    required: false
   secure_boot_key_url:
     description: Secure boot key that is installed from URL location
     required: false
@@ -175,7 +178,11 @@ runs:
             vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
           fi
         fi
-        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
+        if [[ -n "${{ inputs.secrets }}" ]]
+        then
+          volumes="--volume ${{ inputs.secrets }}:/run/secrets"
+        fi
+        docker run --privileged ${volumes} --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \

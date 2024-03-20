@@ -56,11 +56,27 @@ jobs:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run Build Container
 
-  run_test_iso:
-    name: Run ISO Tests
+  run_build_iso:
+    name: Run Build Container
     if: >
       github.event.issue.pull_request && 
-      contains(github.event.comment.body, '/run test iso')
+      contains(github.event.comment.body, '/run build iso')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+    uses: ./.github/workflows/build_iso.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run Build Container
+    secrets:
+      RH_REPO: ${{ secrets.RH_REPO }}
+      RH_ENT: ${{ secrets.RH_ENT }}
+
+  run_test_iso:
+    name: Run ISO Tests
     permissions:
       contents: read
       packages: write
@@ -68,6 +84,7 @@ jobs:
     needs:
       - permissions
       - load_vars
+      - run_build_iso
     uses: ./.github/workflows/test_iso.yml
     with:
       pr: ${{ github.event.issue.number }}
@@ -78,9 +95,6 @@ jobs:
 
   run_test_deployment:
     name: Run ISO Deployment Tests
-    if: >
-      github.event.issue.pull_request && 
-      contains(github.event.comment.body, '/run test iso')
     permissions:
       contents: read
       packages: write
@@ -88,7 +102,7 @@ jobs:
     needs:
       - permissions
       - load_vars
-      - run_test_iso
+      - run_build_iso
     uses: ./.github/workflows/test_deployment.yml
     with:
       pr: ${{ github.event.issue.number }}

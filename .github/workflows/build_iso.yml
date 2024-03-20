@@ -7,6 +7,11 @@ on:
       parent_job_name:
         required: true
         type: string
+    secrets:
+      RH_REPO: 
+        required: true
+      RH_ENT:
+        required: true
     outputs:
       iso_name-38:
         description: "Version 38 ISO Name"
@@ -39,9 +44,19 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - 7
+          - 8
+          - 9
           - 38
           - 39
           - 40
+        include:
+          - version: 7
+            rhel: true
+          - version: 8
+            rhel: true
+          - version: 9
+            rhel: true
     outputs:
       iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
       iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
@@ -99,6 +114,15 @@ jobs:
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - name: Get UBI Subs
+        if: matrix.rhel == true
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.RH_REPO }}
+          ssh-key: ${{ secrets.RH_ENT }}
+          persist-credentials: false
+          path: ubi
+
       - name: Build ISO
         uses: ./
         id: build
@@ -113,6 +137,7 @@ jobs:
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
+          secrets_dir: ${{ matrix.rhel && '/github/workspace/ubi' || '' }}
 
       - name: Save output
         id: save_output

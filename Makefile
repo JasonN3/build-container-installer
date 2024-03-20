@@ -224,11 +224,9 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	if [ "$(PACKAGE_MANAGER)" == "dnf" ]; then disable="--disablerepo='ubi-*'"; fi; \
-	$(PACKAGE_MANAGER) install -y ${disable} lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+	$(PACKAGE_MANAGER) install -y ${disable} lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git subscription-manager
 
 install-test-deps:
-	if [ "$(PACKAGE_MANAGER)" == "dnf" ]; then disable="--disablerepo='ubi-*'"; fi; \
 	$(PACKAGE_MANAGER) install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils squashfs-tools
 
 
