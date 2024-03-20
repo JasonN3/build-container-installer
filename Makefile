@@ -150,7 +150,11 @@ build/deploy.iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.tx
 
 external/lorax/branch-$(VERSION):
 	git config advice.detachedHead false
+ifeq ($(_RHEL),true)
+	cd external/lorax && git reset --hard HEAD && git checkout origin/rhel$(VERSION)-branch
+else
 	cd external/lorax && git reset --hard HEAD && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | tail -n 1)
+endif
 	touch external/lorax/branch-$(VERSION)
 
 # Step 1: Generate Lorax Templates

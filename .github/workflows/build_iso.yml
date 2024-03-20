@@ -141,6 +141,7 @@ jobs:
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
           secrets_dir: ${{ matrix.rhel && '/github/workspace/ubi' || '' }}
+          repos: ${{ matrix.rhel && '/etc/yum.repos.d/redhat.repo' || '/etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo' }}
 
       - name: Save output
         id: save_output
