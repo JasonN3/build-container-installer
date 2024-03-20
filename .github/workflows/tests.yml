@@ -35,6 +35,9 @@ jobs:
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build Container
+    secrets:
+      RH_REPO: ${{ secrets.RH_REPO }}
+      RH_ENT: ${{ secrets.RH_ENT }}
   
   build_iso:
     name: Build ISO

@@ -55,6 +55,9 @@ jobs:
     with:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run Build Container
+    secrets:
+      RH_REPO: ${{ secrets.RH_REPO }}
+      RH_ENT: ${{ secrets.RH_ENT }}
 
   run_build_iso:
     name: Run Build Container

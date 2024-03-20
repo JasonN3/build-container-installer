@@ -7,6 +7,12 @@ on:
       parent_job_name:
         required: true
         type: string
+    secrets:
+      RH_REPO: 
+        required: true
+      RH_ENT:
+        required: true
+    
     
 
 jobs:
@@ -23,7 +29,19 @@ jobs:
       contents: read
       packages: write
       statuses: write
-
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - registry.fedoraproject.org/fedora
+          - registry.access.redhat.com/ubi8/ubi
+        include:
+          - os: registry.fedoraproject.org/fedora
+            tag: 39
+          - os: registry.access.redhat.com/ubi8/ubi
+            tag: latest
+            append: ubi
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -67,7 +85,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ github.repository }}
+            ghcr.io/${{ github.repository }}${{ matrix.append && format('-{0}', matrix.append) }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -80,9 +98,18 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ github.repository }}
+            ghcr.io/${{ github.repository }}${{ matrix.append && format('-{0}', matrix.append) }}
           tags: |
             pr-${{ inputs.pr }}
+
+      - name: Get UBI Subs
+        if: matrix.append == 'ubi'
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.RH_REPO }}
+          ssh-key: ${{ secrets.RH_ENT }}
+          persist-credentials: false
+          path: ubi
 
       - name: Buildah Build
         id: build-image
@@ -91,6 +118,11 @@ jobs:
           containerfiles: Containerfile
           tags: ${{ steps.meta.outputs.tags || steps.meta_pr.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels || steps.meta_pr.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ matrix.os }}
+            IMAGE_VERSION=${{ matrix.tag }}
+          extra-args: |
+            ${{ matrix.append == 'ubi' && format('--volume={0}/ubi:/run/secrets', github.workspace) || ''}}
 
       - name: Push image
         uses: redhat-actions/push-to-registry@v2

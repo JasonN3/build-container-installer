@@ -140,7 +140,7 @@ runs:
       shell: bash
       run: |
         image=$(echo "ghcr.io/${ACTION_REPO}" | tr [:upper:] [:lower:])
-        # Check if running inside01 of the action repo
+        # Check if running inside of the action repo
         if [[ -z "${ACTION_REPO}" ]]
         then
           image=$(echo "ghcr.io/${{ github.repository }}" | tr [:upper:] [:lower:])
@@ -182,6 +182,11 @@ runs:
         if [[ -n "${{ inputs.secrets_dir }}" ]]
         then
           volumes="--volume ${{ inputs.secrets_dir }}:/run/secrets"
+        fi
+        # RHEL
+        if [[ ${{ inputs.version }} -lt 30 ]]
+        then
+          image=${image}-ubi
         fi
         docker run --privileged ${volumes} --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
