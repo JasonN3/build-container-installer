@@ -5,8 +5,11 @@ echo "-outdev $(pwd)/build/deploy.iso"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
+if [ -f $(pwd)/results/boot/grub2/grub.cfg ]
+then
 echo "-map $(pwd)/results/boot/grub2/grub.cfg boot/grub2/grub.cfg"
 echo "-chmod 0444 boot/grub2/grub.cfg"
+fi
 echo "-map $(pwd)/results/EFI/BOOT/grub.cfg EFI/BOOT/grub.cfg"
 echo "-chmod 0444 EFI/BOOT/grub.cfg"
 
