@@ -51,9 +51,6 @@ jobs:
           - 39
           - 40
         include:
-          - version: 7
-            image_tag: 38
-            rhel: true
           - version: 8
             image_tag: 39
             rhel: true
@@ -136,7 +133,7 @@ jobs:
           image_tag: ${{ matrix.image_tag || matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
-          flatpak_remote_refs_dir: /github/workspace/${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }}
+          flatpak_remote_refs_dir: ${{ matrix.rhel && format('/github/workspace/{0}', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR ) || '' }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
