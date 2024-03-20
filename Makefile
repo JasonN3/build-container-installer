@@ -207,7 +207,7 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 # Step 5: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
 	find $(_BASE_DIR)/results
-	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/boot/grub2/grub.cfg
+	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/boot/grub2/grub.cfg || true
 	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/EFI/BOOT/grub.cfg
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG ARCH VERSION)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh 
