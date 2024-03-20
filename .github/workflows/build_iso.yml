@@ -132,12 +132,12 @@ jobs:
           image_tag: ${{ matrix.image_tag || matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
-          flatpak_remote_refs_dir: ${{ matrix.rhel && '' || format('/github/workspace/{0}', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR ) }}
+          flatpak_remote_refs_dir: ${{ matrix.rhel == true && '' || format('/github/workspace/{0}', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR ) }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
-          secrets_dir: ${{ matrix.rhel && format('{0}/ubi', github.workspace) || '' }}
-          repos: ${{ matrix.rhel && '/etc/yum.repos.d/redhat.repo' || '/etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo' }}
+          secrets_dir: ${{ matrix.rhel == true && format('{0}/ubi', github.workspace) || '' }}
+          repos: ${{ matrix.rhel == true && '/etc/yum.repos.d/redhat.repo' || '/etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo' }}
 
       - name: Save output
         id: save_output

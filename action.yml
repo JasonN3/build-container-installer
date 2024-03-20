@@ -174,8 +174,10 @@ runs:
           if [[ -n "${{ inputs.flatpak_remote_refs }}" ]]
           then
             vars="${vars} FLATPAK_REMOTE_REFS=\"${{ inputs.flatpak_remote_refs }}\""
-          else
+          elif [[ -n "${{ inputs.flatpak_remote_refs_dir }}" ]]
+          then
             vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
+          else
           fi
         fi
         if [[ -n "${{ inputs.secrets_dir }}" ]]
