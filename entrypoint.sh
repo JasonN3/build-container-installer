@@ -6,6 +6,7 @@ set -ex
 mknod -m 0660 /dev/loop0 b 7 0 2>/dev/null || true
 
 subscription-manager refresh || true
+ls /run/secrets
 
 for i
 do
