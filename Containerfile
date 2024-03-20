@@ -1,6 +1,4 @@
-ARG BASE_IMAGE
-ARG IMAGE_VERSION
-FROM ${BASE_IMAGE}:${IMAGE_VERSION}
+FROM registry.fedoraproject.org/fedora:39
 
 ARG VERSION=39
 
