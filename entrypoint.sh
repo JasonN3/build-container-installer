@@ -5,7 +5,7 @@ set -ex
 # Create /dev/loop0 if it doesn't already exist. `losetup` has an issue creating it during the first run
 mknod -m 0660 /dev/loop0 b 7 0 2>/dev/null || true
 
-dnf check-update > /dev/null
+dnf check-update > /dev/null || true
 
 for i
 do
