@@ -45,16 +45,12 @@ jobs:
       matrix:
         version:
           - 8
-          - 9
           - 38
           - 39
           - 40
         include:
           - version: 8
             image_tag: 39
-            rhel: true
-          - version: 9
-            image_tag: 40
             rhel: true
     outputs:
       iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
