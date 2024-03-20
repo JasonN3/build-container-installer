@@ -167,8 +167,12 @@ repos: $(_REPO_FILES)
 repos/%.repo: /etc/yum.repos.d/%.repo
 	mkdir repos || true
 	cp /etc/yum.repos.d/$*.repo           $(_BASE_DIR)/repos/$*.repo
-	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/repos/$*.repo
-	sed -i "s/\$$basearch/${ARCH}/g"      $(_BASE_DIR)/repos/$*.repo
+ifeq ($(_RHEL),true)
+	sed -i "s/\/rhel[0-9]+\//\/rhel$(VERSION)\//g" $(_BASE_DIR)/repos/$*.repo
+else
+	sed -i "s/\$$releasever/$(VERSION)/g" $(_BASE_DIR)/repos/$*.repo
+	sed -i "s/\$$basearch/$(ARCH)/g"      $(_BASE_DIR)/repos/$*.repo
+endif
 
 # Step 3: Build boot.iso using Lorax
 boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
@@ -202,6 +206,7 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 
 # Step 5: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
+	find results
 	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/boot/grub2/grub.cfg
 	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/EFI/BOOT/grub.cfg
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG ARCH VERSION)

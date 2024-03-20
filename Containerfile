@@ -22,7 +22,6 @@ VOLUME /build-container-installer/repos
 VOLUME /cache
 
 RUN if [[ "$(grep '^ID=' /etc/os-release)" == 'ID="rhel"' ]]; then dnf install -y coreutils --allowerasing; fi; dnf install -y make && make install-deps
-RUN ln -s /run/secrets/etc-pki-entitlement /etc/pki/entitlement-host && ln -s /run/secrets/rhsm /etc/rhsm-host
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 
