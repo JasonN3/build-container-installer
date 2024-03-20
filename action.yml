@@ -178,9 +178,9 @@ runs:
             vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
           fi
         fi
-        if [[ -n "${{ inputs.secrets }}" ]]
+        if [[ -n "${{ inputs.secrets_dir }}" ]]
         then
-          volumes="--volume ${{ inputs.secrets }}:/run/secrets"
+          volumes="--volume ${{ inputs.secrets_dir }}:/run/secrets"
         fi
         docker run --privileged ${volumes} --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
