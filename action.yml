@@ -130,6 +130,20 @@ runs:
         mkdir /cache/dnf_new || true
         mkdir /cache/skopeo || true
 
+    - name: Determine Flatpak dependencies
+      shell: bash
+      run: |
+        image="${{ inputs.image_repo }}/${{ inputs.image_name }}:${{ inputs.image_tag }}"
+        FLAPAK_DIR=$(mktemp -d)
+        mkdir ${FLATPAK_DIR}/repo
+        mkdir ${FLATPAK_DIR}/triggers
+        cat << EOF | docker run -it --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image}
+        flatpak config --user --set languages "*"
+        flatpak remote-add --user ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
+        flatpak install --user -y ${{ inputs.flatpak_remote_refs }}
+        ostree refs --repo=${FLATPAK_USER_DIR}/repo
+        EOF
+
     - name: Run docker image
       env:
         ACTION_REPO: ${{ github.action_repository }}
