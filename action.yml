@@ -148,7 +148,7 @@ runs:
         flatpak install --user -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox org.videolan.VLC
         ostree refs --repo=/flatpak_dir/repo/repo
         EOF
-        docker run --privileged -i --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
+        docker run --privileged --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
 
     - name: Run docker image
       env:
