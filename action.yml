@@ -147,6 +147,7 @@ runs:
         flatpak config --system --set languages "*"
         flatpak remote-add --system ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
         flatpak install --system -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox org.videolan.VLC
+        cp -Rv /flatpak/repo/repo /flatpak_dir/repo/
         ostree refs --repo=/flatpak_dir/repo/repo
         EOF
         docker run --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/repo -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
