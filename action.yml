@@ -140,15 +140,15 @@ runs:
         sudo mkdir /github || true
         sudo ln -s ${{ github.workspace }} /github/workspace
         DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* )
-        cat << EOF | docker run --privileged -i --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image}
-        set -ex
+        cat << EOF > ${FLATPAK_DIR}/script.sh
         mkdir /var/tmp || true
         chmod -R 1777 /var/tmp
-        flatpak config --system --set languages "*"
-        flatpak remote-add --system ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
-        flatpak install --system -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox org.videolan.VLC
+        flatpak config --user --set languages "*"
+        flatpak remote-add --user ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
+        flatpak install --user -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox org.videolan.VLC
         ostree refs --repo=/flatpak_dir/repo/repo
         EOF
+        docker run --privileged -i --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
 
     - name: Run docker image
       env:
