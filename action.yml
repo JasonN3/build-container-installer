@@ -146,7 +146,7 @@ runs:
         chmod -R 1777 /var/tmp
         flatpak config --system --set languages "*"
         flatpak remote-add --system ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
-        flatpak install --system -y ${{ inputs.flatpak_remote_name }} ${DIR_REFS}
+        flatpak install --system -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox org.videolan.VLC
         ostree refs --repo=/flatpak_dir/repo/repo
         EOF
 
