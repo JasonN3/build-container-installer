@@ -7,6 +7,11 @@ on:
       parent_job_name:
         required: true
         type: string
+    secrets:
+      RH_REPO: 
+        required: true
+      RH_ENT:
+        required: true
     outputs:
       iso_name-38:
         description: "Version 38 ISO Name"
@@ -39,9 +44,14 @@ jobs:
       fail-fast: false
       matrix:
         version:
+          - 8
           - 38
           - 39
           - 40
+        include:
+          - version: 8
+            image_tag: 39
+            rhel: true
     outputs:
       iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
       iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
@@ -99,6 +109,15 @@ jobs:
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - name: Get UBI Subs
+        if: matrix.rhel == true
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.RH_REPO }}
+          ssh-key: ${{ secrets.RH_ENT }}
+          persist-credentials: false
+          path: ubi
+
       - name: Build ISO
         uses: ./
         id: build
@@ -106,13 +125,15 @@ jobs:
           arch: ${{ needs.load_vars.outputs.ARCH }}
           image_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}
           image_repo: ${{ needs.load_vars.outputs.IMAGE_REPO }}
-          image_tag: ${{ matrix.version }}
+          image_tag: ${{ matrix.image_tag || matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
-          flatpak_remote_refs_dir: /github/workspace/${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }}
+          flatpak_remote_refs_dir: ${{ ( ! matrix.rhel ) && format('/github/workspace/{0}', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR ) || '' }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
+          secrets_dir: ${{ matrix.rhel && format('{0}/ubi', github.workspace) || '' }}
+          repos: ${{ matrix.rhel && '/etc/yum.repos.d/redhat.repo' || '/etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo' }}
 
       - name: Save output
         id: save_output

@@ -1,6 +1,8 @@
-FROM fedora:40
+ARG BASE_IMAGE
+ARG IMAGE_VERSION
+FROM ${BASE_IMAGE}:${IMAGE_VERSION}
 
-ARG VERSION=40
+ARG VERSION=39
 
 ENV ARCH="x86_64"
 ENV IMAGE_NAME="base"
@@ -19,7 +21,7 @@ VOLUME /build-container-installer/build
 VOLUME /build-container-installer/repos
 VOLUME /cache
 
-RUN dnf install -y make && make install-deps
+RUN if [[ "$(grep '^ID=' /etc/os-release)" == 'ID="rhel"' ]]; then dnf install -y coreutils --allowerasing; fi; dnf install -y make && make install-deps
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 

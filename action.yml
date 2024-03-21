@@ -67,6 +67,9 @@ inputs:
     required: false
   rootfs_size:
     description: The size (in GiB) for the squashfs runtime volume
+  secrets_dir:
+    description: The location that will be mounted to /run/secrets
+    required: false
   secure_boot_key_url:
     description: Secure boot key that is installed from URL location
     required: false
@@ -137,7 +140,7 @@ runs:
       shell: bash
       run: |
         image=$(echo "ghcr.io/${ACTION_REPO}" | tr [:upper:] [:lower:])
-        # Check if running inside01 of the action repo
+        # Check if running inside of the action repo
         if [[ -z "${ACTION_REPO}" ]]
         then
           image=$(echo "ghcr.io/${{ github.repository }}" | tr [:upper:] [:lower:])
@@ -171,11 +174,21 @@ runs:
           if [[ -n "${{ inputs.flatpak_remote_refs }}" ]]
           then
             vars="${vars} FLATPAK_REMOTE_REFS=\"${{ inputs.flatpak_remote_refs }}\""
-          else
+          elif [[ -n "${{ inputs.flatpak_remote_refs_dir }}" ]]
+          then
             vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
           fi
         fi
-        docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
+        if [[ -n "${{ inputs.secrets_dir }}" ]]
+        then
+          volumes="--volume ${{ inputs.secrets_dir }}:/run/secrets"
+        fi
+        # RHEL
+        if [[ ${{ inputs.version }} -lt 30 ]]
+        then
+          image=${image}-ubi
+        fi
+        docker run --privileged ${volumes} --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \
@@ -186,6 +199,7 @@ runs:
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
+          REPOS="${{ inputs.repos }}" \
           SECURE_BOOT_KEY_URL="${{ inputs.secure_boot_key_url }}" \
           VARIANT="${{ inputs.variant }}" \
           VERSION="${{ inputs.version }}" \

@@ -104,7 +104,7 @@ _RHEL = false
 endif
 
 ifeq ($(_RHEL),true)
-_LORAX_ARGS += --nomacboot --noupgrade
+_LORAX_ARGS += --nomacboot
 else ifeq ($(VARIANT),Server)
 _LORAX_ARGS += --macboot --noupgrade
 else
@@ -150,7 +150,11 @@ build/deploy.iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.tx
 
 external/lorax/branch-$(VERSION):
 	git config advice.detachedHead false
+ifeq ($(_RHEL),true)
+	cd external/lorax && git reset --hard HEAD && git checkout origin/rhel$(VERSION)-branch
+else
 	cd external/lorax && git reset --hard HEAD && git checkout tags/$(shell cd external/lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | tail -n 1)
+endif
 	touch external/lorax/branch-$(VERSION)
 
 # Step 1: Generate Lorax Templates
@@ -163,8 +167,12 @@ repos: $(_REPO_FILES)
 repos/%.repo: /etc/yum.repos.d/%.repo
 	mkdir repos || true
 	cp /etc/yum.repos.d/$*.repo           $(_BASE_DIR)/repos/$*.repo
-	sed -i "s/\$$releasever/${VERSION}/g" $(_BASE_DIR)/repos/$*.repo
-	sed -i "s/\$$basearch/${ARCH}/g"      $(_BASE_DIR)/repos/$*.repo
+ifeq ($(_RHEL),true)
+	sed -i "s/\/rhel[0-9]+\//\/rhel$(VERSION)\//g" $(_BASE_DIR)/repos/$*.repo
+else
+	sed -i "s/\$$releasever/$(VERSION)/g" $(_BASE_DIR)/repos/$*.repo
+	sed -i "s/\$$basearch/$(ARCH)/g"      $(_BASE_DIR)/repos/$*.repo
+endif
 
 # Step 3: Build boot.iso using Lorax
 boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
@@ -198,7 +206,8 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 
 # Step 5: Generate xorriso script
 xorriso/%.sh: xorriso/%.sh.in
-	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/boot/grub2/grub.cfg
+	find $(_BASE_DIR)/results
+	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/boot/grub2/grub.cfg || true
 	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/EFI/BOOT/grub.cfg
 	$(eval _VARS = IMAGE_NAME IMAGE_TAG ARCH VERSION)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh 
@@ -224,11 +233,9 @@ clean:
 	rm -f $(_BASE_DIR)/*.log || true
 
 install-deps:
-	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
-	$(PACKAGE_MANAGER) install -y lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git
+	$(PACKAGE_MANAGER) install -y ${disable} lorax xorriso skopeo flatpak dbus-daemon ostree coreutils gettext git subscription-manager
 
 install-test-deps:
-	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
 	$(PACKAGE_MANAGER) install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils squashfs-tools
 
 
