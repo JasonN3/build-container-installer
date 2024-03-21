@@ -141,6 +141,7 @@ runs:
         # sudo ln -s ${{ github.workspace }} /github/workspace
         # DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* )
         cat << EOF | docker run -i --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image}
+        set -exu
         flatpak config --user --set languages "*"
         flatpak remote-add --user ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
         flatpak install --user -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox
