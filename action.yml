@@ -137,7 +137,7 @@ runs:
         FLATPAK_DIR=$(mktemp -d)
         mkdir ${FLATPAK_DIR}/repo
         mkdir ${FLATPAK_DIR}/triggers
-        cat << EOF | docker run -it --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image}
+        cat << EOF | docker run -i --entrypoint bash -e FLATPAK_USER_DIR=/flatpak_dir/repo -e FLATPAK_TRIGGERSDIR=/flatpak_dir/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image}
         flatpak config --user --set languages "*"
         flatpak remote-add --user ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
         flatpak install --user -y ${{ inputs.flatpak_remote_refs }}
