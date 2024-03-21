@@ -53,6 +53,22 @@ jobs:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run Build Container
 
+  run_build_iso:
+    name: Run Build ISO
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run build iso')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+    uses: ./.github/workflows/build_iso.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run Build ISO
+
   run_test_iso:
     name: Run ISO Tests
     if: >
