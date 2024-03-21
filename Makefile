@@ -104,7 +104,7 @@ _RHEL = false
 endif
 
 ifeq ($(_RHEL),true)
-_LORAX_ARGS += --nomacboot --noupgrade
+_LORAX_ARGS += --nomacboot
 else ifeq ($(VARIANT),Server)
 _LORAX_ARGS += --macboot --noupgrade
 else
