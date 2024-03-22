@@ -161,6 +161,7 @@ runs:
         EOF
         docker run --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
         echo "flatpak_dir=${FLATPAK_DIR}" >> $GITHUB_OUTPUT
+        docker rmi ${image}
 
     - name: Run docker image
       env:
