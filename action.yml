@@ -134,23 +134,28 @@ runs:
       shell: bash
       run: |
         image="${{ inputs.image_repo }}/${{ inputs.image_name }}:${{ inputs.image_tag }}"
+        # Make temp space
         FLATPAK_DIR=$(mktemp -d)
-        mkdir ${FLATPAK_DIR}/repo
-        mkdir ${FLATPAK_DIR}/triggers
+        # Get list of refs from directory
         sudo mkdir /github || true
         sudo ln -s ${{ github.workspace }} /github/workspace
-        DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* )
+        DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* | tr '\n' ' ' )
+        # Generate install script
         cat << EOF > ${FLATPAK_DIR}/script.sh
-        mkdir -p /flatpak/repo /flatpak/triggers
+        mkdir -p /flatpak/flatpak /flatpak/triggers
         mkdir /var/tmp || true
         chmod -R 1777 /var/tmp
         flatpak config --system --set languages "*"
         flatpak remote-add --system ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
-        flatpak install --system -y ${{ inputs.flatpak_remote_name }} org.mozilla.firefox org.videolan.VLC
-        cp -Rv /flatpak/repo/repo /flatpak_dir/repo/
-        ostree refs --repo=/flatpak_dir/repo/repo
+        flatpak install --system -y ${{ inputs.flatpak_remote_refs }} ${DIR_REFS}
+        cp -Rv /flatpak/flatpak /flatpak_dir/
         EOF
         docker run --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/repo -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
+        refs=$(ostree refs --repo=${FLATPAK_DIR}/flatpak/repo | grep '^deploy' | sed -i 's/^deploy\///g' | tr '\n' ' ')
+        for ref in ${refs}
+        do
+          echo "$ref"
+        done
 
     - name: Run docker image
       env:
