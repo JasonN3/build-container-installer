@@ -122,6 +122,13 @@ _LORAX_TEMPLATES += $(call get_templates,cache)
 _TEMPLATE_VARS   += DNF_CACHE
 endif
 
+ifneq ($(FLATPAK_DIR),)
+_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
+_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
+_LORAX_ARGS      += -i flatpak-libs
+_LORAX_TEMPLATES += $(call get_templates,flatpak)
+_TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
+else
 ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
 COLLECTED_REFS = $(foreach file,$(shell ls $(FLATPAK_REMOTE_REFS_DIR)/*),$(shell cat $(file)))
 FLATPAK_REMOTE_REFS += $(sort $(COLLECTED_REFS))
@@ -135,13 +142,6 @@ _LORAX_TEMPLATES += $(call get_templates,flatpak) \
 					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 _TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
 endif
-
-ifneq ($(FLATPAK_DIR),)
-_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
-_LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(call get_templates,flatpak)
-_TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
 endif
 
 
