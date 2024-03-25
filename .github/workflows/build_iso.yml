@@ -81,6 +81,22 @@ jobs:
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
       - name: Lowercase Registry
         id: registry_case
         uses: ASzc/change-string-case-action@v6
