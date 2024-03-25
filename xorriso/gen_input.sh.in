@@ -12,8 +12,8 @@ echo "-chmod 0444 EFI/BOOT/grub.cfg"
 
 if [[ -n "${FLATPAK_DIR}" ]]
 then
-    pushd ${FLATPAK_DIR} > /dev/null
-    for file in $(find)
+    pushd ${FLATPAK_DIR}/flatpak > /dev/null
+    for file in $(find *)
     do
         echo "-map $(pwd)/${file} flatpak/${file}"
         echo "-chmod 0444 flatpak/${file}"
