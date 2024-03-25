@@ -17,6 +17,7 @@ FLATPAK_REMOTE_NAME = flathub
 FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
 FLATPAK_REMOTE_REFS =
 FLATPAK_REMOTE_REFS_DIR =
+FLATPAK_DIR =
 # Secure boot
 ENROLLMENT_PASSWORD =
 SECURE_BOOT_KEY_URL =
@@ -133,8 +134,16 @@ _LORAX_ARGS      += -i flatpak-libs
 _LORAX_TEMPLATES += $(call get_templates,flatpak) \
 					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 _TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
-
 endif
+
+ifneq ($(FLATPAK_DIR),)
+_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
+_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
+_LORAX_ARGS      += -i flatpak-libs
+_LORAX_TEMPLATES += $(call get_templates,flatpak)
+_TEMPLATE_VARS   += FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
+endif
+
 
 ifneq ($(SECURE_BOOT_KEY_URL),)
 _LORAX_TEMPLATES += $(call get_templates,secureboot)
@@ -200,7 +209,7 @@ container/$(IMAGE_NAME)-$(IMAGE_TAG):
 xorriso/%.sh: xorriso/%.sh.in
 	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/boot/grub2/grub.cfg
 	sed -i 's/quiet/quiet $(EXTRA_BOOT_PARAMS)/g' results/EFI/BOOT/grub.cfg
-	$(eval _VARS = IMAGE_NAME IMAGE_TAG ARCH VERSION)
+	$(eval _VARS = FLATPAK_DIR IMAGE_NAME IMAGE_TAG ARCH VERSION)
 	$(foreach var,$(_VARS),$(var)=$($(var))) envsubst '$(foreach var,$(_VARS),$$$(var))' < $(_BASE_DIR)/xorriso/$*.sh.in > $(_BASE_DIR)/xorriso/$*.sh 
 
 # Step 6: Generate xorriso input

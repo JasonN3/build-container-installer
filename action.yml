@@ -141,13 +141,13 @@ runs:
       run: |
         image="${{ inputs.image_repo }}/${{ inputs.image_name }}:${{ inputs.image_tag }}"
         # Make temp space
-        FLATPAK_DIR=$(mktemp -d -p ${{ github.workspace }} flatpak.XXX)
+        FLATPAK_DIR=$(basename $(mktemp -d -p ${{ github.workspace }} flatpak.XXX))
         # Get list of refs from directory
         sudo mkdir /github || true
         sudo ln -s ${{ github.workspace }} /github/workspace
         DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* | tr '\n' ' ' )
         # Generate install script
-        cat << EOF > ${FLATPAK_DIR}/script.sh
+        cat << EOF > ${{ github.workspace }}/${FLATPAK_DIR}/script.sh
         mkdir -p /flatpak/flatpak /flatpak/triggers
         mkdir /var/tmp || true
         chmod -R 1777 /var/tmp
@@ -159,7 +159,7 @@ runs:
         cp -R /flatpak/flatpak /flatpak_dir/
         ostree refs --repo=/flatpak_dir/flatpak/repo
         EOF
-        docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
+        docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${{ github.workspace }}/${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
         echo "flatpak_dir=${FLATPAK_DIR}" >> $GITHUB_OUTPUT
         docker rmi ${image}
 
@@ -216,7 +216,7 @@ runs:
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           ${vars} \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
-          FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir }}" \
+          FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
