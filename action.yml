@@ -159,7 +159,7 @@ runs:
         cp -R /flatpak/flatpak /flatpak_dir/
         ostree refs --repo=/flatpak_dir/flatpak/repo
         EOF
-        docker run --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
+        docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
         echo "flatpak_dir=${FLATPAK_DIR}" >> $GITHUB_OUTPUT
         docker rmi ${image}
 
