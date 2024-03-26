@@ -155,6 +155,7 @@ runs:
         flatpak remote-add --system ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
         flatpak install --system -y ${{ inputs.flatpak_remote_refs }} ${DIR_REFS}
         ostree init --repo=/flatpak_dir/repo --mode=archive-z2
+        ostree refs --repo=/flatpak/flatpak/repo
         for i in $(ostree refs --repo=/flatpak/flatpak/repo | grep '^deploy/' | sed 's/^deploy\///g')
         do
         echo "Copying ${i}..."
