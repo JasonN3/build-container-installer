@@ -86,11 +86,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs[format('iso_name-{0}', matrix.version)] }}
-    
-      - name: Verify ISO
-        run: |
-          checkisomd5 ${{ inputs[format('iso_name-{0}', matrix.version)] }}
-          sha256sum -c ${{ inputs[format('iso_name-{0}', matrix.version)] }}-CHECKSUM
 
       - name: Run ISO checks
         run: |

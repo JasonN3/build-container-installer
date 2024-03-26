@@ -1,5 +1,6 @@
 #!/bin/bash
 
+echo "-report_about WARNING"
 echo "-indev $(pwd)/boot.iso"
 echo "-outdev $(pwd)/build/deploy.iso"
 echo "-boot_image any replay"
