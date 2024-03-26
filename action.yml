@@ -210,27 +210,27 @@ runs:
         else
           if [[ -n "${{ inputs.flatpak_remote_refs }}" ]]
           then
-            vars="${vars} FLATPAK_REMOTE_REFS=\"${{ inputs.flatpak_remote_refs }}\""
+            vars="${vars} \"FLATPAK_REMOTE_REFS=${{ inputs.flatpak_remote_refs }}\""
           else
-            vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
+            vars="${vars} \"FLATPAK_REMOTE_REFS_DIR=${{ inputs.flatpak_remote_refs_dir }}\""
           fi
         fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
-          ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
-          ARCH="${{ inputs.arch }}" \
-          DNF_CACHE="/cache/dnf" \
-          ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
-          FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
+          "ADDITIONAL_TEMPLATES=${{ inputs.additional_templates }}" \
+          "ARCH=${{ inputs.arch }}" \
+          "DNF_CACHE=/cache/dnf" \
+          "ENROLLMENT_PASSWORD=${{ inputs.enrollment_password }}" \
+          "FLATPAK_REMOTE_NAME=${{ inputs.flatpak_remote_name }}" \
           ${vars} \
-          FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
-          FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
-          IMAGE_NAME="${{ inputs.image_name }}" \
-          IMAGE_REPO="${{ inputs.image_repo }}" \
-          IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
-          SECURE_BOOT_KEY_URL="${{ inputs.secure_boot_key_url }}" \
-          VARIANT="${{ inputs.variant }}" \
-          VERSION="${{ inputs.version }}" \
-          WEB_UI="${{ inputs.web_ui }}"
+          "FLATPAK_REMOTE_URL=${{ inputs.flatpak_remote_url }}" \
+          "FLATPAK_DIR=${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
+          "IMAGE_NAME=${{ inputs.image_name }}" \
+          "IMAGE_REPO=${{ inputs.image_repo }}" \
+          "IMAGE_TAG=${{ inputs.image_tag || inputs.version }}" \
+          "SECURE_BOOT_KEY_URL=${{ inputs.secure_boot_key_url }}" \
+          "VARIANT=${{ inputs.variant }}" \
+          "VERSION=${{ inputs.version }}" \
+          "WEB_UI=${{ inputs.web_ui }}"
 
     - name: Save dnf cache
       env:
