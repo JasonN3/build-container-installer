@@ -162,7 +162,7 @@ runs:
         echo ostree --repo=/flatpak_dir/repo pull-local \${FLATPAK_SYSTEM_DIR}/repo \$(ostree --repo=\${FLATPAK_SYSTEM_DIR}/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i})
         ostree --repo=/flatpak_dir/repo pull-local \${FLATPAK_SYSTEM_DIR}/repo \$(ostree --repo=\${FLATPAK_SYSTEM_DIR}/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i})
         mkdir -p \$(dirname /flatpak_dir/repo/refs/heads/\${i})
-        ostree --repo=\${FLATPAK_SYSTEM_DIR}/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i} > /flatpak_dir/repo/refs/heads/\${i}"
+        ostree --repo=\${FLATPAK_SYSTEM_DIR}/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i} > /flatpak_dir/repo/refs/heads/\${i}
         done
         flatpak build-update-repo /flatpak_dir/repo
         ostree refs --repo=/flatpak_dir/repo
