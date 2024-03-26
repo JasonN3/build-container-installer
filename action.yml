@@ -164,10 +164,10 @@ runs:
         ostree refs --repo=/flatpak/flatpak/repo | grep '^deploy/' | sed 's/^deploy\///g'
         for i in \$(ostree refs --repo=/flatpak/flatpak/repo | grep '^deploy/' | sed 's/^deploy\///g')
         do
-        echo "Copying ${i}..."
-        ostree --repo=/flatpak_dir/repo pull-local /flatpak/flatpak/repo \$(ostree --repo=/flatpak/flatpak/repo rev-parse ${{ inputs.flatpak_remote_name }}/${i})"
-        mkdir -p \$(dirname /flatpak_dir/repo/refs/heads/${i})
-        ostree --repo=/flatpak/flatpak/repo rev-parse ${{ inputs.flatpak_remote_name }}/${i} > /flatpak_dir/repo/refs/heads/${i}"
+        echo "Copying \${i}..."
+        ostree --repo=/flatpak_dir/repo pull-local /flatpak/flatpak/repo \$(ostree --repo=/flatpak/flatpak/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i})"
+        mkdir -p \$(dirname /flatpak_dir/repo/refs/heads/\${i})
+        ostree --repo=/flatpak/flatpak/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i} > /flatpak_dir/repo/refs/heads/\${i}"
         done
         flatpak build-update-repo /flatpak_dir/repo
         ostree refs --repo=/flatpak_dir/repo
