@@ -161,6 +161,7 @@ runs:
         mkdir -p $(dirname /flatpak_dir/repo/refs/heads/${i})
         ostree --repo=/flatpak/flatpak/repo rev-parse ${{ inputs.flatpak_remote_name }}/${i} > /flatpak_dir/repo/refs/heads/${i}"
         done
+        flatpak build-update-repo /flatpak_dir/repo
         ostree refs --repo=/flatpak_dir/repo
         EOF
         docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${{ github.workspace }}/${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
