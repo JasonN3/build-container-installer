@@ -156,8 +156,8 @@ runs:
         flatpak install --system -y ${{ inputs.flatpak_remote_refs }} ${DIR_REFS}
         mv /flatpak/flatpak/repo/refs/heads/deploy/* /flatpak/flatpak/repo/refs/heads/
         rmdir /flatpak/flatpak/repo/refs/heads/deploy
-        cp -R /flatpak/flatpak/repo/* /flatpak_dir/
-        ostree refs --repo=/flatpak_dir
+        cp -R /flatpak/flatpak/repo /flatpak_dir/
+        ostree refs --repo=/flatpak_dir/repo
         EOF
         docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${{ github.workspace }}/${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
         echo "flatpak_dir=${FLATPAK_DIR}" >> $GITHUB_OUTPUT
