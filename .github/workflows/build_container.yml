@@ -12,9 +12,8 @@ jobs:
   build-container:
     if: >
       github.event_name == 'push' ||
-      github.event_name == 'issue_comment' ||
-      ( github.event_name == 'pull_request' &&
-        contains(github.event.pull_request.labels.*.name, 'auto-test') )
+      github.event_name == 'issue_comment'  ||
+      github.event_name == 'workflow_dispatch'
     name: Build Container Image
     env:
       JOB_NAME: Build Container Image

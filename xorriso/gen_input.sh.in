@@ -10,6 +10,17 @@ echo "-chmod 0444 boot/grub2/grub.cfg"
 echo "-map $(pwd)/results/EFI/BOOT/grub.cfg EFI/BOOT/grub.cfg"
 echo "-chmod 0444 EFI/BOOT/grub.cfg"
 
+if [[ -n "${FLATPAK_DIR}" ]]
+then
+    pushd ${FLATPAK_DIR} > /dev/null
+    for file in $(find *)
+    do
+        echo "-map $(pwd)/${file} flatpak/${file}"
+        echo "-chmod 0444 flatpak/${file}"
+    done
+    popd > /dev/null
+fi
+
 if [ -f $(pwd)/sb_pubkey.der ]
 then
 	echo "-map $(pwd)/sb_pubkey.der sb_pubkey.der"
