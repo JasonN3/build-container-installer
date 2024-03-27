@@ -10,7 +10,6 @@ $(filter-out README.md Makefile,$(wildcard */*)):
 	$(MAKE) -w -C $(DIR) $(TARGET)
 
 install-deps:
-	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
-	$(PACKAGE_MANAGER) install -y qemu qemu-utils xorriso unzip qemu-system-x86 netcat socat jq isomd5sum ansible make coreutils squashfs-tools
+	$(foreach DIR,$(filter-out README.md Makefile,$(wildcard *)),$(MAKE) -w -C $(DIR) install-deps;)
 
 .PHONY: all $(filter-out README.md Makefile,$(wildcard *)) $(filter-out README.md Makefile,$(wildcard */*))

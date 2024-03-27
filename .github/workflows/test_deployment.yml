@@ -80,8 +80,8 @@ jobs:
       - name: Install test tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y make
-          sudo make install-test-deps PACKAGE_MANAGER=apt-get
+          sudo apt-get install -y unzip make
+          sudo make test/vm/install-deps PACKAGE_MANAGER=apt-get
       
       - name: Download generated ISO
         uses: actions/download-artifact@v4
@@ -90,46 +90,15 @@ jobs:
 
       - name: Add Kickstart and Grub options to ISO
         run: |
-          mv ${{ inputs[format('iso_name-{0}', matrix.version)] }} deploy.iso
-          sudo mkdir /mnt/iso || true
-          sudo mount -o loop deploy.iso /mnt/iso
-          cp /mnt/iso/boot/grub2/grub.cfg grub.cfg
-          sudo umount /mnt/iso
-          sed -i 's/quiet/console=ttyS0,115200n8 inst.ks=cdrom:\/ks.cfg/' grub.cfg
-          sed -i 's/set default="1"/set default="0"/' grub.cfg
-          sed -i 's/set timeout=60/set timeout=1/' grub.cfg
-          cat << EOF > ks.cfg
-          lang en_US.UTF-8
-          keyboard us
-          timezone Americas/New_York
-          zerombr
-          clearpart --all --initlabel
-          autopart
-          poweroff
-          user --name=core --groups=wheel --password=foobar
-          %include /usr/share/anaconda/interactive-defaults.ks
-          EOF
-          xorriso -dialog on << EOF
-          -indev deploy.iso
-          -outdev test.iso
-          -boot_image any replay
-          -map ks.cfg ks.cfg
-          -chmod 0444 ks.cfg
-          -map grub.cfg boot/grub2/grub.cfg
-          -end
-          EOF
+          make test/vm/files/install.iso
 
       - name: Create VM disk
         run: |
-          qemu-img create -f qcow2 disk.qcow2 50G
+          make test/vm/files/disk.qcow2
 
       - name: Install the test VM
         run: |
-          timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
-          echo "PID: $QEMU_PID"
-          timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
-          (nc localhost 4321 | tee vm.stdout) &
-          wait $QEMU_PID
+          make test/vm/install_os
 
       - name: Start the test VM
         env:
@@ -138,30 +107,9 @@ jobs:
           VM_IP: "127.0.0.1"
           VM_PORT: "5555"
         run: |
-          mkfifo vm.stdin
-          qemu-system-x86_64 -name "Anaconda" \
-            -m 4096 -cpu qemu64 -display none -smp 2 \
-            -chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
-            -device e1000,netdev=net0 \
-            -netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
-            -device virtio-serial \
-            -device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-            -boot c -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$!
-          echo "PID: $QEMU_PID"
-
-          timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
-          (tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
+          make test/vm/start_vm
           
-          timeout 30m bash -c "while ! (echo > /dev/tcp/${VM_IP}/${VM_PORT}); do sleep 1; done"
-
-          if ! (echo > /dev/tcp/${VM_IP}/${VM_PORT})
-          then
-            echo "SSH must be installed and enabled inside the container"
-          fi
-          
-          echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
-          
-          make test-vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
+          make test/vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
             IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
             IMAGE_REPO=${{ needs.load_vars.outputs.IMAGE_REPO}} \

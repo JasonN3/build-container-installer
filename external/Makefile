@@ -4,10 +4,9 @@ lorax/branch-$(VERSION):
 	touch lorax/branch-$(VERSION)
 
 install-deps:
-	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
-	# Used by external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
-	$(PACKAGE_MANAGER) install -y flatpak dbus-daemon ostree
-	# Used to clone proper lorax branch
-	$(PACKAGE_MANAGER) install -y git
+# Used by external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
+	$(install_pkg) flatpak dbus-daemon ostree
+# Used to clone proper lorax branch
+	$(install_pkg) install -y git
 
 clean:

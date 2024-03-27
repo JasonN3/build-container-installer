@@ -25,4 +25,7 @@ prep:
 	sudo umount /mnt/install
 	sudo umount /mnt/iso
 
+install-deps:
+	$(install_pkg) isomd5sum coreutils squashfs-tools
+
 .PHONY: all $(ISO_TESTS)

@@ -26,7 +26,7 @@ export ISO_NAME = $(_BASE_DIR)/build/deploy.iso
 ###################
 # Hidden vars
 
-SHELL = /bin/sh
+export SHELL = /bin/sh
 # Cache
 export DNF_CACHE = 
 export PACKAGE_MANAGER = dnf
@@ -39,6 +39,11 @@ define get_templates
 	$(wildcard lorax_templates/$(1)_*.tmpl)
     $(foreach file,$(notdir $(wildcard lorax_templates/scripts/post/$(1)_*)),lorax_templates/post_$(file).tmpl)
 endef
+
+define install_pkg
+	$(PACKAGE_MANAGER) install -y
+endef
+export install_pkg
 
 # Generated/internal vars
 ## Formatting = _UPPERCASE
@@ -109,14 +114,14 @@ _SUBDIRS = container external flatpak_refs lorax_templates repos xorriso
 # Step 7: Build end ISO
 ## Default action
 build/deploy.iso: results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
-	mkdir $(_BASE_DIR)/build || true
+	$(if $(wildcard build),,mkdir build)
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 $(ISO_NAME)
 
 # Step 3: Build boot.iso using Lorax
 results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	$(if $(wildcard results), rm -Rf results)
-	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
+	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)
 
 # Download the secure boot key
 	$(if $(SECURE_BOOT_KEY_URL), curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL))
@@ -132,7 +137,7 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 		--rootfs-size $(ROOTFS_SIZE) \
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
-	mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf || true
+	$(if $(wildcard $(_TEMP_DIR)/macros.image-language-conf),mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf)
 
 
 FILES_TO_CLEAN = $(wildcard build debugdata pkglists results original-pkgsizes.txt final-pkgsizes.txt lorax.conf *.iso *log)
@@ -143,9 +148,8 @@ clean:
 
 .PHONY: install-deps
 install-deps:
-	$(if $(findstring apt,$(PACKAGE_MANAGER)),$(PACKAGE_MANAGER) update)
-	$(PACKAGE_MANAGER) install -y lorax xorriso coreutils gettext 
-	$(foreach DIR,$(_SUBDIRS),$(MAKE) -w -C $(DIR) install-deps;)	
+	$(install_pkg) lorax xorriso coreutils gettext)
+	$(foreach DIR,$(_SUBDIRS),$(MAKE) -w -C $(DIR) install-deps;)
 
 
 .PHONY: $(_SUBDIRS) test $(wildcard test/*) $(wildcard test/*/*)

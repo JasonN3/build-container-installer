@@ -7,7 +7,7 @@ echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
 pushd ${_BASE_DIR}/results > /dev/null
-for file in $(find *)
+for file in $(find -type f *)
 do
     if [[ "$file" == "images/boot.iso" ]]
     then
@@ -21,7 +21,7 @@ popd > /dev/null
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd ${FLATPAK_DIR} > /dev/null
-    for file in $(find *)
+    for file in $(find -type f *)
     do
         echo "-map $(pwd)/${file} flatpak/${file}"
         echo "-chmod 0444 flatpak/${file}"
@@ -36,7 +36,7 @@ then
 fi
 
 pushd container > /dev/null
-for file in $(find ${IMAGE_NAME}-${IMAGE_TAG})
+for file in $(find -type f ${IMAGE_NAME}-${IMAGE_TAG})
 do
     echo "-map $(pwd)/${file} ${file}"
     echo "-chmod 0444 ${file}"
