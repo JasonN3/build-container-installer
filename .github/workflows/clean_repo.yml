@@ -27,46 +27,55 @@ jobs:
       - name: Get list of packages
         id: all_tags
         run: |
-          all_tags=$(curl -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ github.token }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              "https://api.github.com/user/packages/container/build-container-installer/versions" | \
-            jq -r '.[] | .metadata.container.tags | .[]' | \
-            tr '\n' ' ')
-          echo "tag_list=${all_tags}" >> $GITHUB_OUTPUT
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/user/packages/container/build-container-installer/versions" > all_packages.json
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/pulls | \
+          jq -r '.[] | select(.state == "open") | .number' | \
+          sed 's/^/pr-/g' > open_prs
+          cat << EOF | python
+          import json
+          import re
 
-      - name: Find Open PRs
-        id: open_prs
-        run: |
-          open_prs=$(curl -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ github.token }}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              https://api.github.com/repos/${{ github.repository }}/pulls | \
-            jq -r '.[] | select(.state == "open") | .number' | \
-            sed 's/^/pr-/g' | \
-            tr '\n' ' ')
-          echo "open_prs=${open_prs}" >> $GITHUB_OUTPUT
+          prs = open("open_prs", "r")
+          open_prs = prs.readlines()
+          open_prs = [x.strip() for x in open_prs]
 
-      - name: Delete old PR packages
-        run: |
-          echo "${{ steps.open_prs.outputs.open_prs }}" | tr ' ' '\n' > open_prs
-          for tag in ${{ steps.all_tags.outputs.tag_list }}
+          all_packages = open('all_packages.json')
+          data = json.load(all_packages)
+
+          delete_versions = open("delete_versions", "w")
+
+          for i in data:
+            delete = True
+            for tag in i['metadata']['container']['tags']:
+              if not re.match('pr-.*', tag):
+                delete = False
+                continue
+              if tag in open_prs:
+                delete = False
+            if delete:
+              print("delete", i['id'])
+              delete_versions.write(str(i['id']))
+              delete_versions.write("\n")
+              print(i['metadata']['container']['tags'])
+          EOF
+          
+          for id in $(cat delete_versions)
           do
-            if [[ ${tag} =~ pr-.* ]]
-            then
-              if (grep -w ${tag} open_prs > /dev/null)
-              then
-                echo "PR is still open"
-              else
-                echo "${tag}" >> delete_tags
-              fi
-            fi
+            curl -L \
+            -X DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PACKAGE_DELETER }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/user/packages/container/${{ github.repository }}/versions/${id}
           done
-
-          echo "Tags to delete:"
-          cat delete_tags
 
 
   #delete_old_branches:
