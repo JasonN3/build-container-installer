@@ -1,7 +1,7 @@
 name: Clean Container Registry
 on:
-  #schedule:
-  #  - cron: '39 21 * * *'
+  schedule:
+    - cron: '0 21 * * 0'
 
   workflow_dispatch:
   
@@ -18,13 +18,14 @@ jobs:
           repository: ${{ github.repository }}
           untagged_only: true
           owner_type: user
+  
   delete_old_pr:
     name: Delete Old PR Packages
     runs-on: ubuntu-latest
     permissions:
       packages: read
     steps:
-      - name: Get list of packages
+      - name: Delete Old PR Packages
         id: all_tags
         run: |
           curl -L \
@@ -78,4 +79,65 @@ jobs:
           done
 
 
-  #delete_old_branches:
+  delete_old_branches:
+    name: Delete Old Branch Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Delete Old Branch Packages
+        run: |
+          curl -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/user/packages/container/build-container-installer/versions" > all_packages.json
+          curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ github.token }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ github.repository }}/branches | jq -r '.[].name' > branches
+
+          cat << EOF | python
+          import json
+          import re
+
+          branches_f = open("branches", "r")
+          branches = branches_f.readlines()
+          branches = [x.strip() for x in branches]
+
+          all_packages_f = open('all_packages.json')
+          data = json.load(all_packages_f)
+
+          delete_versions = open("delete_versions", "w")
+
+          for i in data:
+            delete = True
+            for tag in i['metadata']['container']['tags']:
+              if re.match('v[0-9]+\\\.[0-9]+\\\.[0-9]+', tag):
+                delete = False
+                continue
+              if re.match('pr-.*', tag):
+                delete = False
+                continue
+              if tag in branches:
+                delete = False
+                continue
+              if tag == "latest":
+                delete = False
+            if delete:
+              print("delete", i['id'])
+              delete_versions.write(str(i['id']))
+              delete_versions.write("\n")
+              print(i['metadata']['container']['tags'])
+          EOF
+
+          for id in $(cat delete_versions)
+          do
+            curl -L \
+            -X DELETE \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PACKAGE_DELETER }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/user/packages/container/build-container-installer/versions/${id}
+          done
