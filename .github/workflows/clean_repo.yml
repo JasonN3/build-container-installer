@@ -1,0 +1,19 @@
+on:
+  #schedule:
+  #  - cron: '39 21 * * *'
+
+  workflow_dispatch:
+  
+jobs:
+  build-container:
+    name: Delete untagged packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dlete Untagged packages
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v3
+        with:
+            token: ${{ secrets.PACKAGE_DELETER }}
+            repository_owner: ${{ github.repository_owner }}
+            repository: ${{ github.repository }}
+            untagged_only: true
+            owner_type: user
