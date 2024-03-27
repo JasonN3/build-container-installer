@@ -54,7 +54,7 @@ jobs:
           echo "${{ steps.open_prs.outputs.open_prs }}" | tr ' ' '\n' > open_prs
           for tag in ${{ steps.all_tags.outputs.tag_list }}
           do
-            if [[ ${tag} =~ pr-.*]]
+            if [[ ${tag} =~ pr-.* ]]
             then
               if (grep -w ${tag} open_prs > /dev/null)
               then
