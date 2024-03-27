@@ -89,8 +89,7 @@ jobs:
 
       - name: Run ISO checks
         run: |
-          mv ${{ inputs[format('iso_name-{0}', matrix.version)] }} deploy.iso
-          make test-iso \
+          make test/iso \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
             IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
             IMAGE_REPO=${{ needs.load_vars.outputs.IMAGE_REPO}} \
@@ -99,7 +98,8 @@ jobs:
             VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
             FLATPAK_REMOTE_REFS_DIR=${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
-            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
+            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
+            ISO_NAME=${{ inputs[format('iso_name-{0}', matrix.version)] }}
 
       - name: Set status
         if: inputs.pr && always()

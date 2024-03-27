@@ -2,7 +2,8 @@
 # $1 = script to convert
 # $2 = file on ISO to write
 # $3 = whether to copy the '<%' lines to the template
-convert_post_to_tmpl = header=0; \
+define convert_post_to_tmpl
+	header=0; \
 	skip=0; \
 	while read -r line; \
 	do \
@@ -33,7 +34,7 @@ convert_post_to_tmpl = header=0; \
 		fi; \
 	done < scripts/post/$(1); \
 	echo "append $(2) \"%end\"" >> post_$(1).tmpl
-
+endef
 
 post_%.tmpl: scripts/post/%
 	$(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.ks,true)

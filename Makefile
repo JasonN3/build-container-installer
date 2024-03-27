@@ -7,7 +7,7 @@ export EXTRA_BOOT_PARAMS =
 export IMAGE_NAME = base
 export IMAGE_REPO = quay.io/fedora-ostree-desktops
 export IMAGE_TAG = $(VERSION)
-REPOS = $(subst :,\:,$(shell ls /etc/yum.repos.d/*.repo))
+REPOS = $(subst :,\:,$(wildcard /etc/yum.repos.d/*.repo))
 export ROOTFS_SIZE = 4
 export VARIANT = Server
 export VERSION = 39
@@ -21,10 +21,12 @@ export FLATPAK_DIR =
 # Secure boot
 export ENROLLMENT_PASSWORD =
 export SECURE_BOOT_KEY_URL =
+export ISO_NAME = $(_BASE_DIR)/build/deploy.iso
 
 ###################
 # Hidden vars
 
+SHELL = /bin/sh
 # Cache
 export DNF_CACHE = 
 export PACKAGE_MANAGER = dnf
@@ -33,12 +35,14 @@ export PACKAGE_MANAGER = dnf
 ## Formatting = lowercase
 # Get a list of templates for the feature
 # $1 = feature
-get_templates = $(shell ls lorax_templates/$(1)_*.tmpl) \
-                $(foreach file,$(notdir $(shell ls lorax_templates/scripts/post/$(1)_*)),lorax_templates/post_$(file).tmpl)
+define get_templates
+	$(wildcard lorax_templates/$(1)_*.tmpl)
+    $(foreach file,$(notdir $(wildcard lorax_templates/scripts/post/$(1)_*)),lorax_templates/post_$(file).tmpl)
+endef
 
 # Generated/internal vars
 ## Formatting = _UPPERCASE
-_BASE_DIR = $(shell pwd)
+export _BASE_DIR = $(shell pwd)
 _IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _LORAX_ARGS = 
@@ -104,21 +108,18 @@ _SUBDIRS = container external flatpak_refs lorax_templates repos xorriso
 
 # Step 7: Build end ISO
 ## Default action
-build/deploy.iso: boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+build/deploy.iso: results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	mkdir $(_BASE_DIR)/build || true
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
-	implantisomd5 build/deploy.iso
+	implantisomd5 $(ISO_NAME)
 
 # Step 3: Build boot.iso using Lorax
-boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
-	rm -Rf $(_BASE_DIR)/results || true
+results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
+	$(if $(wildcard results), rm -Rf results)
 	mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf || true
 
-	# Download the secure boot key
-	if [ -n "$(SECURE_BOOT_KEY_URL)" ]; \
-	then \
-    	curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL); \
-	fi
+# Download the secure boot key
+	$(if $(SECURE_BOOT_KEY_URL), curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL))
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(_BASE_DIR)/external/lorax/share/templates.d/99-generic \
@@ -131,32 +132,29 @@ boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_T
 		--rootfs-size $(ROOTFS_SIZE) \
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
 		$(_BASE_DIR)/results/
-	mv $(_BASE_DIR)/results/images/boot.iso $(_BASE_DIR)/
 	mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf || true
 
 
 FILES_TO_CLEAN = $(wildcard build debugdata pkglists results original-pkgsizes.txt final-pkgsizes.txt lorax.conf *.iso *log)
+.PHONY: clean
 clean:
 	rm -Rf $(FILES_TO_CLEAN)
-	$(foreach DIR,$(_SUBDIRS),$(MAKE) -C $(DIR) clean;)
+	$(foreach DIR,$(_SUBDIRS),$(MAKE) -w -C $(DIR) clean;)
 
+.PHONY: install-deps
 install-deps:
-	if [ "$(PACKAGE_MANAGER)" =~ apt.* ]; then $(PACKAGE_MANAGER) update; fi
+	$(if $(findstring apt,$(PACKAGE_MANAGER)),$(PACKAGE_MANAGER) update)
 	$(PACKAGE_MANAGER) install -y lorax xorriso coreutils gettext 
-	$(foreach DIR,$(_SUBDIRS),$(MAKE) -C $(DIR) install-deps;)
+	$(foreach DIR,$(_SUBDIRS),$(MAKE) -w -C $(DIR) install-deps;)	
 
-test-vm: ansible_inventory
-	
 
-_SUBMAKES = $(_SUBDIRS) test $(filter-out README.md Makefile,$(wildcard test/*)) $(filter-out README.md Makefile,$(wildcard test/*/*))
-$(_SUBMAKES):
+.PHONY: $(_SUBDIRS) test $(wildcard test/*) $(wildcard test/*/*)
+test $(addsuffix /*,$(_SUBDIRS) test):
 	$(eval DIR=$(firstword $(subst /, ,$@)))
-	$(eval TARGET=$(subst $(DIR)/,,$@))
+	$(if $(filter-out $(DIR),$@), $(eval TARGET=$(subst $(DIR)/,,$@)),$(eval TARGET=))
 	$(MAKE) -w -C $(DIR) $(TARGET)
 
-$(addsuffix /%,$(_SUBMAKES)):
+.DEFAULT:
 	$(eval DIR=$(firstword $(subst /, ,$@)))
-	$(eval TARGET=$(subst $(DIR)/,,$@))
+	$(if $(filter-out $(DIR),$@), $(eval TARGET=$(subst $(DIR)/,,$@)),$(eval TARGET=))
 	$(MAKE) -w -C $(DIR) $(TARGET)
-
-.PHONY: clean install-deps $(_SUBMAKES) test

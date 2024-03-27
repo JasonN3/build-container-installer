@@ -7,9 +7,12 @@ mknod -m 0660 /dev/loop0 b 7 0 2>/dev/null || true
 
 for i
 do
-  key=$(echo ${i} | cut -d= -f1)
-  value=$(echo ${i} | cut -d= -f2-)
-  export ${key}="${value}"
+  if [[ ${i} =~ = ]]
+  then
+    key=$(echo ${i} | cut -d= -f1)
+    value=$(echo ${i} | cut -d= -f2-)
+    export ${key}="${value}"
+  fi
 done
 
 if [[ -d /cache/skopeo ]]
@@ -22,14 +25,8 @@ then
   mkdir /cache/dnf
 fi
 
-# Pull container
-make container/${IMAGE_NAME}-${IMAGE_TAG} "$@"
-
-# Build base ISO
-make boot.iso "$@"
-
-# Add container to ISO
-make build/deploy.iso "$@"
+# Run make command
+make "$@"
 
 # Make output dir in github workspace
 mkdir /github/workspace/build || true
