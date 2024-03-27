@@ -1,3 +1,4 @@
+name: Clean Container Registry
 on:
   #schedule:
   #  - cron: '39 21 * * *'
@@ -5,15 +6,64 @@ on:
   workflow_dispatch:
   
 jobs:
-  build-container:
+  delete_untagged:
     name: Delete untagged packages
     runs-on: ubuntu-latest
     steps:
       - name: Dlete Untagged packages
         uses: Chizkiyahu/delete-untagged-ghcr-action@v3
         with:
-            token: ${{ secrets.PACKAGE_DELETER }}
-            repository_owner: ${{ github.repository_owner }}
-            repository: ${{ github.repository }}
-            untagged_only: true
-            owner_type: user
+          token: ${{ secrets.PACKAGE_DELETER }}
+          repository_owner: ${{ github.repository_owner }}
+          repository: ${{ github.repository }}
+          untagged_only: true
+          owner_type: user
+  delete_old_pr:
+    name: Delete untagged packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    steps:
+      - name: Get list of packages
+        id: all_tags
+        run: |
+          all_tags=$(curl -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/user/packages/container/build-container-installer/versions" | \
+            jq -r '.[] | .metadata.container.tags | .[]' | \
+            tr '\n' ' ')
+          echo "tag_list=${all_tags}" >> $GITHUB_OUTPUT
+
+      - name: Find Open PRs
+        id: open_prs
+        run: |
+          open_prs=$(curl -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/${{ github.repository }}/pulls | \
+            jq -r '.[] | select(.state == "open") | .number' | \
+            sed 's/^/pr-/g' | \
+            tr '\n' ' ')
+          echo "open_prs=${open_prs}" >> $GITHUB_OUTPUT
+
+      - name: Delete old PR packages
+        run: |
+          echo "${{ steps.open_prs.outputs.open_prs }}" | tr ' ' '\n' > open_prs
+          for tag in ${{ steps.all_tags.outputs.tag_list }}
+          do
+            if (grep -w ${tag} open_prs > /dev/null)
+            then
+              echo "PR is still open"
+            else
+              echo "${tag}" >> delete_tags
+            fi
+          done
+
+          echo "Tags to delete:"
+          cat delete_tags
+
+
+  #delete_old_branches:
