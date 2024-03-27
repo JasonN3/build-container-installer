@@ -148,7 +148,6 @@ runs:
         DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* | tr '\n' ' ' )
         # Generate install script
         cat << EOF > ${{ github.workspace }}/${FLATPAK_DIR}/script.sh
-        cat /flatpak_dir/script.sh
         mkdir -p /flatpak/flatpak /flatpak/triggers
         mkdir /var/tmp || true
         chmod -R 1777 /var/tmp

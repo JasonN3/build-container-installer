@@ -2,10 +2,9 @@
 /build
 /lorax_templates/post_*
 /pkglists
-/repos
+/repos/*.repo
 /results
 /xorriso/input.txt
-/xorriso/*.sh
 /original-pkgsizes.txt
 /final-pkgsizes.txt
 /lorax.conf

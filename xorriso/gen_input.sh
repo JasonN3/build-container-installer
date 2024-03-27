@@ -1,19 +1,27 @@
 #!/bin/bash
 
-echo "-indev $(pwd)/boot.iso"
-echo "-outdev $(pwd)/build/deploy.iso"
+echo "-report_about WARNING"
+echo "-indev ${_BASE_DIR}/results/images/boot.iso"
+echo "-outdev ${ISO_NAME}"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-echo "-map $(pwd)/results/boot/grub2/grub.cfg boot/grub2/grub.cfg"
-echo "-chmod 0444 boot/grub2/grub.cfg"
-echo "-map $(pwd)/results/EFI/BOOT/grub.cfg EFI/BOOT/grub.cfg"
-echo "-chmod 0444 EFI/BOOT/grub.cfg"
+pushd ${_BASE_DIR}/results > /dev/null
+for file in $(find -type f *)
+do
+    if [[ "$file" == "images/boot.iso" ]]
+    then
+        continue
+    fi
+    echo "-map ${_BASE_DIR}/results/${file} ${file}"
+    echo "-chmod 0444 ${file}"
+done
+popd > /dev/null
 
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd ${FLATPAK_DIR} > /dev/null
-    for file in $(find *)
+    for file in $(find -type f *)
     do
         echo "-map $(pwd)/${file} flatpak/${file}"
         echo "-chmod 0444 flatpak/${file}"
@@ -28,7 +36,7 @@ then
 fi
 
 pushd container > /dev/null
-for file in $(find ${IMAGE_NAME}-${IMAGE_TAG})
+for file in $(find -type f ${IMAGE_NAME}-${IMAGE_TAG})
 do
     echo "-map $(pwd)/${file} ${file}"
     echo "-chmod 0444 ${file}"

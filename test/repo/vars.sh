@@ -12,7 +12,7 @@ do
     then
         break
     fi
-done < Makefile
+done < ../../Makefile
 
 result=0
 
