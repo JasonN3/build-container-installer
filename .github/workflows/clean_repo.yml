@@ -7,10 +7,10 @@ on:
   
 jobs:
   delete_untagged:
-    name: Delete untagged packages
+    name: Delete Untagged Packages
     runs-on: ubuntu-latest
     steps:
-      - name: Dlete Untagged packages
+      - name: Delete Untagged Packages
         uses: Chizkiyahu/delete-untagged-ghcr-action@v3
         with:
           token: ${{ secrets.PACKAGE_DELETER }}
@@ -19,7 +19,7 @@ jobs:
           untagged_only: true
           owner_type: user
   delete_old_pr:
-    name: Delete untagged packages
+    name: Delete Old PR Packages
     runs-on: ubuntu-latest
     permissions:
       packages: read
@@ -54,11 +54,14 @@ jobs:
           echo "${{ steps.open_prs.outputs.open_prs }}" | tr ' ' '\n' > open_prs
           for tag in ${{ steps.all_tags.outputs.tag_list }}
           do
-            if (grep -w ${tag} open_prs > /dev/null)
+            if [[ ${tag} =~ pr-.*]]
             then
-              echo "PR is still open"
-            else
-              echo "${tag}" >> delete_tags
+              if (grep -w ${tag} open_prs > /dev/null)
+              then
+                echo "PR is still open"
+              else
+                echo "${tag}" >> delete_tags
+              fi
             fi
           done
 
