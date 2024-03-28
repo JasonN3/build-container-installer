@@ -7,6 +7,6 @@ install-deps:
 # Used by external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
 	$(install_pkg) flatpak dbus-daemon ostree
 # Used to clone proper lorax branch
-	$(install_pkg) install -y git
+	$(install_pkg) git
 
 clean:
