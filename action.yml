@@ -135,7 +135,7 @@ runs:
         mkdir /cache/skopeo || true
 
     - name: Determine Flatpak dependencies
-      if: inputs.enable_flatpak_dependencies == 'true' and (flatpak_remote_refs != '' or flatpak_remote_refs_dir != '')
+      if: inputs.enable_flatpak_dependencies == 'true' && (flatpak_remote_refs != '' || flatpak_remote_refs_dir != '')
       id: flatpak_dependencies
       shell: bash
       run: |
