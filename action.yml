@@ -135,7 +135,7 @@ runs:
         mkdir /cache/skopeo || true
 
     - name: Determine Flatpak dependencies
-      if: inputs.enable_flatpak_dependencies == 'true'
+      if: inputs.enable_flatpak_dependencies == 'true' && (inputs.flatpak_remote_refs != '' || inputs.flatpak_remote_refs_dir != '')
       id: flatpak_dependencies
       shell: bash
       run: |
@@ -207,13 +207,6 @@ runs:
         then
           echo "ERROR: flatpak_remote_refs is mutually exclusive to flatpak_remote_refs_dir"
           exit 1
-        else
-          if [[ -n "${{ inputs.flatpak_remote_refs }}" ]]
-          then
-            vars="${vars} FLATPAK_REMOTE_REFS=\"${{ inputs.flatpak_remote_refs }}\""
-          else
-            vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
-          fi
         fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
@@ -221,7 +214,8 @@ runs:
           DNF_CACHE="/cache/dnf" \
           ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
-          ${vars} \
+          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
+          FLATPAK_REMOTE_REFS_DIR="${{ inputs.flatpak_remote_refs_dir }}" \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
