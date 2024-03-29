@@ -1,4 +1,4 @@
-![Build status](https://github.com/jasonn3/build-container-installer/actions/workflows/build-and-test.yml/badge.svg?event=push)
+![Build status](https://github.com/jasonn3/build-container-installer/actions/workflows/tests.yml/badge.svg?event=push)
 
 # Build Container Installer Action
 This action is used to enerate an ISO for installing an OSTree stored in a container image. This utilizes the anaconda command `ostreecontainer`
