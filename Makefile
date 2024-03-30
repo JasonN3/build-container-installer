@@ -109,7 +109,7 @@ _LORAX_TEMPLATES += $(call get_templates,secureboot)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
-_SUBDIRS = container external flatpak_refs lorax_templates repos xorriso
+_SUBDIRS = container external flatpak_refs lorax_templates repos xorriso test
 
 # Step 7: Build end ISO
 ## Default action
@@ -149,11 +149,11 @@ clean:
 .PHONY: install-deps
 install-deps:
 	$(install_pkg) lorax xorriso coreutils gettext
-	$(foreach DIR,$(_SUBDIRS),$(MAKE) -w -C $(DIR) install-deps;)
+	$(foreach DIR,$(filter-out test,$(_SUBDIRS)),$(MAKE) -w -C $(DIR) install-deps;)
 
 
-.PHONY: $(_SUBDIRS) test $(wildcard test/*) $(wildcard test/*/*)
-test $(addsuffix /*,$(_SUBDIRS) test):
+.PHONY: $(_SUBDIRS) $(wildcard test/*) $(wildcard test/*/*)
+test $(addsuffix /*,$(_SUBDIRS)):
 	$(eval DIR=$(firstword $(subst /, ,$@)))
 	$(if $(filter-out $(DIR),$@), $(eval TARGET=$(subst $(DIR)/,,$@)),$(eval TARGET=))
 	$(MAKE) -w -C $(DIR) $(TARGET)

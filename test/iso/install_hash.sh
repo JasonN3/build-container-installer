@@ -2,5 +2,5 @@
 
 set -ex
 
-checkisomd5 ${ISO}
-cd $(dirname ${ISO}) && sha256sum -c $(basename ${ISO})-CHECKSUM
+checkisomd5 ../../${ISO_NAME}
+cd $(dirname ../../${ISO_NAME}) && sha256sum -c $(basename ${ISO_NAME})-CHECKSUM

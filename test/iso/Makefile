@@ -1,31 +1,25 @@
 ISO_NAME=deploy.iso
-ISO_TESTS=$(filter-out README.md Makefile,$(wildcard *)))
+ISO_TESTS=$(wildcard install_*) $(if $(FLATPAK_REMOTE_REFS) $(FLATPAK_DIR),$(wildcard flatpak_*))
 
-all: $(ISO_TESTS)
+all: $(ISO_TESTS) clean
 
-$(ISO_TESTS):
+$(ISO_TESTS): /mnt/iso
+	$(eval _VARS = ISO_NAME VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 	chmod +x $@
-	ISO=../../$(ISO_NAME) ./$@
+	$(foreach var,$(_VARS),$(var)=$($(var))) ./$@
 
-prep:
-	$(eval _VARS = VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
-
+mnt/iso:
 	sudo modprobe loop
-	sudo mkdir /mnt/iso /mnt/install
-	sudo mount -o loop deploy.iso /mnt/iso
-	sudo mount -t squashfs -o loop /mnt/iso/images/install.img /mnt/install
+	sudo mkdir mnt/iso mnt/install
+	sudo mount -o loop ../../$(ISO_NAME) mnt/iso
+	sudo mount -t squashfs -o loop mnt/iso/images/install.img mnt/install
 
-	# install tests
-	$(call run_tests,iso,install)
-	
-	# flapak tests
-	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; then $(call run_tests,iso,flatpak); fi
-
-	# Cleanup
-	sudo umount /mnt/install
-	sudo umount /mnt/iso
+clean:
+	sudo umount /mnt/install || true
+	sudo umount /mnt/iso || true
+	sudo rmdir /mnt/install /mnt/iso
 
 install-deps:
 	$(install_pkg) isomd5sum coreutils squashfs-tools
 
-.PHONY: all $(ISO_TESTS)
+.PHONY: all $(ISO_TESTS) clean
