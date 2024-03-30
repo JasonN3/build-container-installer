@@ -10,7 +10,7 @@ $(ISO_TESTS): mnt/iso
 
 mnt/iso:
 	sudo modprobe loop
-	sudo mkdir mnt/iso mnt/install
+	sudo mkdir -p mnt/iso mnt/install
 	sudo mount -o loop ../../$(ISO_NAME) mnt/iso
 	sudo mount -t squashfs -o loop mnt/iso/images/install.img mnt/install
 
