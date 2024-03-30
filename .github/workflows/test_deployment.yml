@@ -90,7 +90,7 @@ jobs:
 
       - name: Add Kickstart and Grub options to ISO
         run: |
-          make test/vm/files/install.iso
+          make test/vm/files/install.iso ISO_NAME=${{ inputs[format('iso_name-{0}', matrix.version)] }}
 
       - name: Create VM disk
         run: |

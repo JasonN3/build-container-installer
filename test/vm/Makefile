@@ -53,7 +53,7 @@ install-deps:
 files/mnt/iso:
 	$(if $(wildcard files/mnt),,mkdir files/mnt)
 	$(if $(wildcard files/mnt/iso),,mkdir files/mnt/iso)
-	sudo mount -o loop $(ISO_NAME) files/mnt/iso
+	sudo mount -o loop ../../$(ISO_NAME) files/mnt/iso
 
 files/grub.cfg: files/mnt/iso
 	cp files/mnt/iso/boot/grub2/grub.cfg files/grub.cfg
@@ -61,13 +61,13 @@ files/grub.cfg: files/mnt/iso
 	sed -i 's/set default="1"/set default="0"/'                     files/grub.cfg
 	sed -i 's/set timeout=60/set timeout=1/'                        files/grub.cfg
 
-.PHONY: remove_files/mnt/iso
-remove_files/mnt/iso: files/mnt/iso
+.PHONY: clean
+clean: files/mnt/iso
 	sudo umount files/mnt/iso
 	rmdir files/mnt/iso
 
 
-files/install.iso: files/grub.cfg remove_files/mnt/iso
+files/install.iso: files/grub.cfg
 	xorriso -dialog on << EOF
 	-indev $(ISO_NAME)
 	-outdev files/install.iso
