@@ -3,7 +3,7 @@ ISO_TESTS=$(wildcard install_*) $(if $(FLATPAK_REMOTE_REFS) $(FLATPAK_DIR),$(wil
 
 all: $(ISO_TESTS) clean
 
-$(ISO_TESTS): /mnt/iso
+$(ISO_TESTS): mnt/iso
 	$(eval _VARS = ISO_NAME VERSION FLATPAK_REMOTE_NAME _FLATPAK_REPO_URL)
 	chmod +x $@
 	$(foreach var,$(_VARS),$(var)=$($(var))) ./$@
