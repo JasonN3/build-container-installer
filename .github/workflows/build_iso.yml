@@ -143,7 +143,7 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.build.outputs.iso_name }}
+          name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}
           path: |
             build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
             build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso-CHECKSUM

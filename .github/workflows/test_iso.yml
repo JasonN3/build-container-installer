@@ -85,7 +85,7 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs[format('iso_name-{0}', matrix.version)] }}
+          name: ${{ inputs[format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version)] }}
 
       - name: Run ISO checks
         run: |
@@ -99,7 +99,7 @@ jobs:
             FLATPAK_REMOTE_REFS_DIR=${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
-            ISO_NAME=${{ inputs[format('iso_name-{0}', matrix.version)] }}
+            ISO_NAME=${{ inputs[format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version)] }}.iso
 
       - name: Set status
         if: inputs.pr && always()

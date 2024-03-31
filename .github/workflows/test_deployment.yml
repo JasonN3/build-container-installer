@@ -86,11 +86,11 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs[format('iso_name-{0}', matrix.version)] }}
+          name: ${{ inputs[format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version)] }}
 
       - name: Add Kickstart and Grub options to ISO
         run: |
-          make test/vm/files/install.iso ISO_NAME=${{ inputs[format('iso_name-{0}', matrix.version)] }}
+          make test/vm/files/install.iso ISO_NAME=${{ inputs[format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version)] }}.iso
 
       - name: Create VM disk
         run: |
