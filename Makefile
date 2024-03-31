@@ -75,9 +75,10 @@ $(ISO_NAME)-CHECKSUM: $(ISO_NAME)
 
 # Build end ISO
 $(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
-	$(if $(wildcard $(dir $(ISO_NAME))),,mkdir -p $(dir $(ISO_NAME)))
+	$(if $(wildcard $(dir $(ISO_NAME))),,mkdir -p $(dir $(ISO_NAME)); chmod ugo=rwX $(dir $(ISO_NAME)))
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 $(ISO_NAME)
+	chmod ugo=r $(ISO_NAME)
 
 # Build boot.iso using Lorax
 results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
