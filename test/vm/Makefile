@@ -83,11 +83,11 @@ files/disk.qcow2:
 
 .PHONY: install_os
 install_os: files/install.iso files/disk.qcow2
-	timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom files/install.iso -smp 2 -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
-	echo "PID: $QEMU_PID"
+	timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom files/install.iso -smp 2 -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$$!
+	echo "PID: $$QEMU_PID"
 	timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
 	(nc localhost 4321 | tee vm.stdout) &
-	wait $QEMU_PID
+	wait $$QEMU_PID
 
 .ONESHELL:
 
@@ -98,21 +98,21 @@ start_vm: install_os
 	-m 4096 -cpu qemu64 -display none -smp 2 \
 	-chardev socket,path=/tmp/qga.sock,server=on,wait=off,id=qga0 \
 	-device e1000,netdev=net0 \
-	-netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
+	-netdev user,id=net0,hostfwd=tcp::$(VM_PORT)-:22 \
 	-device virtio-serial \
 	-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-	-boot c -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$!
-	echo "PID: $QEMU_PID"
+	-boot c -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$$!
+	echo "PID: $$QEMU_PID"
 
 	timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
 	(tail -f vm.stdin | nc localhost 4321 | tee vm.stdout) &
 	
-	timeout 30m bash -c "while ! (echo > /dev/tcp/${VM_IP}/${VM_PORT}); do sleep 1; done"
+	timeout 30m bash -c "while ! (echo > /dev/tcp/$(VM_IP)/$(VM_PORT)); do sleep 1; done"
 
-	if ! (echo > /dev/tcp/${VM_IP}/${VM_PORT})
+	if ! (echo > /dev/tcp/$(VM_IP)/$(VM_PORT))
 	then
 	echo "SSH must be installed and enabled inside the container"
 	fi
 	
-	echo "VM ready for tests at IP ${VM_IP}:${VM_PORT}"
-	$(MAKE) ansible_inventory VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=core VM_PASS=foobar
+	echo "VM ready for tests at IP $(VM_IP):$(VM_PORT)"
+	$(MAKE) ansible_inventory VM_IP=$(VM_IP) VM_PORT=$(VM_PORT) VM_USER=core VM_PASS=foobar
