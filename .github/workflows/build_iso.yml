@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version: ${{ needs.load_vars.outputs.BUILD_VERSIONS }}
+        version: ${{ fromJson(needs.load_vars.outputs.BUILD_VERSIONS) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
