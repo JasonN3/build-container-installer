@@ -10,16 +10,6 @@ on:
       flatpaks_refs_dir:
         required: false
         type: string
-    outputs:
-      iso_name-38:
-        description: "Version 38 ISO Name"
-        value: ${{ jobs.build_iso.outputs.iso_name-38 }}
-      iso_name-39:
-        description: "Version 39 ISO Name"
-        value: ${{ jobs.build_iso.outputs.iso_name-39 }}
-      iso_name-40:
-        description: "Version 40 ISO Name"
-        value: ${{ jobs.build_iso.outputs.iso_name-40 }}
 
 jobs:
   load_vars:
@@ -41,14 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - 38
-          - 39
-          - 40
-    outputs:
-      iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
-      iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
-      iso_name-40: ${{ steps.save_output.outputs.iso_name-40 }}
+        version: ${{ needs.load_vars.outputs.BUILD_VERSIONS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

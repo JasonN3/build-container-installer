@@ -7,17 +7,6 @@ on:
       parent_job_name:
         required: true
         type: string
-      iso_name-38:
-        required: true
-        type: string
-      iso_name-39:
-        required: true
-        type: string
-      iso_name-40:
-        required: true
-        type: string
-
-
 
 jobs:
   load_vars:
@@ -38,10 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - 38
-          - 39
-          - 40
+        version: ${{ needs.load_vars.outputs.BUILD_VERSIONS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,11 +72,11 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs[format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version)] }}
+          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}
 
       - name: Add Kickstart and Grub options to ISO
         run: |
-          make test/vm/files/install.iso ISO_NAME=${{ inputs[format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version)] }}.iso
+          make test/vm/files/install.iso ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}.iso
 
       - name: Create VM disk
         run: |
