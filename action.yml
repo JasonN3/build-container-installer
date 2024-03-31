@@ -243,27 +243,3 @@ runs:
       with:
         path: /cache/skopeo
         key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
-          
-
-    - name: Rename ISO file
-      id: rename_iso
-      shell: bash
-      run: |
-        if [[ ! ( "${{ inputs.iso_name }}" =~ \.iso$ ) ]]
-        then
-          iso_name="${{ inputs.iso_name }}.iso"
-        else
-          iso_name="${{ inputs.iso_name }}"
-        fi
-        if [[ "${{ inputs.iso_name }}" =~ ^/ ]]
-        then
-          full_path="${iso_name}"
-        else
-          full_path="${{ github.workspace }}/${iso_name}"
-        fi
-        mv ${{ github.workspace }}/build/deploy.iso ${full_path} || true
-        cd $(dirname ${full_path})
-        iso_fn=$(basename ${iso_name})
-        sha256sum ${iso_fn} > ${iso_fn}-CHECKSUM
-        echo "iso_path=${full_path}" >> $GITHUB_OUTPUT
-        echo "iso_name=${iso_fn}" >> $GITHUB_OUTPUT
