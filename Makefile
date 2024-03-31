@@ -70,7 +70,7 @@ _SUBDIRS = container external flatpak_refs lorax_templates repos xorriso test
 
 # Create checksum
 ## Default action
-$(ISO_NAME)-CHECKSUM: build/$(ISO_NAME)
+$(ISO_NAME)-CHECKSUM: $(ISO_NAME)
 	cd build && sha256sum $(notdir $(ISO_NAME)) > $(ISO_NAME)-CHECKSUM
 
 # Build end ISO

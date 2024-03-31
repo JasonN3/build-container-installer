@@ -42,7 +42,7 @@ jobs:
       flatpaks_refs_dir: /github/workspace/flatpak_refs
 
   build_iso_no_flatpaks:
-    name: Build ISO with Flatpaks Refs
+    name: Build ISO without Flatpaks
     needs:
       - build_container
     uses: ./.github/workflows/build_iso.yml
