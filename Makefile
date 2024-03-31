@@ -1,27 +1,4 @@
-# Configuration vars
-## Formatting = UPPERCASE
-# General
-export ADDITIONAL_TEMPLATES =
-export ARCH = x86_64
-export EXTRA_BOOT_PARAMS =
-export IMAGE_NAME = base
-export IMAGE_REPO = quay.io/fedora-ostree-desktops
-export IMAGE_TAG = $(VERSION)
-REPOS = $(subst :,\:,$(wildcard /etc/yum.repos.d/*.repo))
-export ROOTFS_SIZE = 4
-export VARIANT = Server
-export VERSION = 39
-export WEB_UI = false
-# Flatpak
-export FLATPAK_REMOTE_NAME = flathub
-export FLATPAK_REMOTE_URL = https://flathub.org/repo/flathub.flatpakrepo
-export FLATPAK_REMOTE_REFS =
-export FLATPAK_REMOTE_REFS_DIR =
-export FLATPAK_DIR =
-# Secure boot
-export ENROLLMENT_PASSWORD =
-export SECURE_BOOT_KEY_URL =
-export ISO_NAME = $(_BASE_DIR)/build/deploy.iso
+include Makefile.inputs
 
 ###################
 # Hidden vars
@@ -81,27 +58,7 @@ _LORAX_TEMPLATES += $(call get_templates,cache)
 _TEMPLATE_VARS   += DNF_CACHE
 endif
 
-ifneq ($(FLATPAK_DIR),)
-_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
-_LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(call get_templates,flatpak)
-_TEMPLATE_VARS   += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
-else
-ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
-COLLECTED_REFS = $(foreach file,$(shell ls $(FLATPAK_REMOTE_REFS_DIR)/*),$(shell cat $(file)))
-FLATPAK_REMOTE_REFS += $(sort $(COLLECTED_REFS))
-endif
-
-ifneq ($(FLATPAK_REMOTE_REFS),)
-_FLATPAK_REPO_GPG = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-_FLATPAK_REPO_URL = $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
-_LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(call get_templates,flatpak) \
-					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
-_TEMPLATE_VARS   += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
-endif
-endif
+include Makefile.flatpak
 
 
 ifneq ($(SECURE_BOOT_KEY_URL),)
@@ -111,14 +68,18 @@ endif
 
 _SUBDIRS = container external flatpak_refs lorax_templates repos xorriso test
 
-# Step 7: Build end ISO
+# Create checksum
 ## Default action
-build/deploy.iso: results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+$(ISO_NAME)-CHECKSUM: build/$(ISO_NAME)
+	cd build && sha256sum $(notdir $(ISO_NAME)) > $(ISO_NAME)-CHECKSUM
+
+# Build end ISO
+$(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	$(if $(wildcard build),,mkdir build)
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
-	implantisomd5 $(ISO_NAME)
+	implantisomd5 build/$(ISO_NAME)
 
-# Step 3: Build boot.iso using Lorax
+# Build boot.iso using Lorax
 results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
 	$(if $(wildcard results), rm -Rf results)
 	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)

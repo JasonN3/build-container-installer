@@ -83,7 +83,7 @@ files/disk.qcow2:
 
 .PHONY: install_os
 install_os: files/install.iso files/disk.qcow2
-	timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom test.iso -smp 2 -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
+	timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom files/install.iso -smp 2 -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$!
 	echo "PID: $QEMU_PID"
 	timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
 	(nc localhost 4321 | tee vm.stdout) &
@@ -101,7 +101,7 @@ start_vm: install_os
 	-netdev user,id=net0,hostfwd=tcp::${VM_PORT}-:22 \
 	-device virtio-serial \
 	-device virtserialport,chardev=qga0,name=org.qemu.guest_agent.0 \
-	-boot c -hda disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$!
+	-boot c -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & export QEMU_PID=$!
 	echo "PID: $QEMU_PID"
 
 	timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
