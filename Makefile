@@ -71,7 +71,7 @@ _SUBDIRS = container external flatpak_refs lorax_templates repos xorriso test
 # Create checksum
 ## Default action
 $(ISO_NAME)-CHECKSUM: $(ISO_NAME)
-	cd build && sha256sum $(notdir $(ISO_NAME)) > $(ISO_NAME)-CHECKSUM
+	cd $(dir $(ISO_NAME)) && sha256sum $(notdir $(ISO_NAME)) > $(notdir $(ISO_NAME))-CHECKSUM
 
 # Build end ISO
 $(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
