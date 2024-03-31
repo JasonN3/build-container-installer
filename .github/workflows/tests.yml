@@ -58,9 +58,6 @@ jobs:
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test ISO
-      iso_name-38: ${{ needs.build_iso.outputs.iso_name-38 }}
-      iso_name-39: ${{ needs.build_iso.outputs.iso_name-39 }}
-      iso_name-40: ${{ needs.build_iso.outputs.iso_name-40 }}
 
   test_deployment:
     name: Test Deployment
@@ -70,6 +67,3 @@ jobs:
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test Deployment
-      iso_name-38: ${{ needs.build_iso.outputs.iso_name-38 }}
-      iso_name-39: ${{ needs.build_iso.outputs.iso_name-39 }}
-      iso_name-40: ${{ needs.build_iso.outputs.iso_name-40 }}
