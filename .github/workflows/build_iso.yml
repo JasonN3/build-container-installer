@@ -137,7 +137,7 @@ jobs:
         id: save_output
         shell: bash
         run: |
-          echo "iso_name-${{ matrix.version }}=${{ steps.build.outputs.iso_name}}" >> $GITHUB_OUTPUT
+          find
 
       - name: Upload ISO as artifact
         id: upload
