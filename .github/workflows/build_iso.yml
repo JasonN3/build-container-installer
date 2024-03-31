@@ -145,8 +145,8 @@ jobs:
         with:
           name: ${{ steps.build.outputs.iso_name }}
           path: |
-            ${{ steps.build.outputs.iso_path }}
-            ${{ steps.build.outputs.iso_path }}-CHECKSUM
+            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
+            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
