@@ -1,3 +1,5 @@
+name: Test Deployment
+
 on:
   workflow_call:
     inputs:

@@ -1,3 +1,5 @@
+name: Test ISO
+
 on:
   workflow_call:
     inputs:
