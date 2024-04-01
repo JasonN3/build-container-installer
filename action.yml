@@ -143,7 +143,14 @@ runs:
       shell: bash
       run: |
         cd ${{ github.action_path }}
-        make flatpaks/repo
+        make flatpaks/repo \
+          FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
+          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
+          FLATPAK_REMOTE_REFS_DIR="${{ inputs.flatpak_remote_refs_dir }}" \
+          FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
+          IMAGE_NAME="${{ inputs.image_name }}" \
+          IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_TAG="${{ inputs.image_tag || inputs.version }}"
 
     - name: Run docker image
       id: docker
