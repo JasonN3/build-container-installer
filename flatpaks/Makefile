@@ -3,12 +3,12 @@ full_list: repo
 	
 
 repo: script.sh
-	image="$(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)"
+	$(eval IMAGE=$(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG))
 	$(if $(GITHUB_WORKSPACE),$(eval FLATPAK_DIR=$(shell mktemp -d -p $(GITHUB_WORKSPACE) flatpak.XXX),$(PWD)))
 	$(if $(GITHUB_WORKSPACE),cp script.sh $(GITHUB_WORKSPACE)/$(FLATPAK_DIR)/)
-	docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume $(_BASE_DIR)/flatpaks:/flatpak_dir ${image} /flatpak_dir/script.sh
+	docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume $(_BASE_DIR)/flatpaks:/flatpak_dir $(IMAGE) /flatpak_dir/script.sh
 	$(if $(GITHUB_OUTPUT),echo "flatpak_dir=$(notdir $(FLATPAK_DIR))" >> $(GITHUB_OUTPUT))
-	docker rmi ${image}
+	docker rmi $(IMAGE)
 
 script.sh:
 	cat << EOF > script.sh
