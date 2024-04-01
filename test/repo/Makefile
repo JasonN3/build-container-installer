@@ -6,4 +6,6 @@ $(REPO_TESTS):
 	chmod +x $@
 	./$@
 
+install-deps:
+
 .PHONY: $(REPO_TESTS)

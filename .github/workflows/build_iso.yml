@@ -10,6 +10,9 @@ on:
       flatpaks_refs_dir:
         required: false
         type: string
+      suffix:
+        required: false
+        type: string
 
 jobs:
   load_vars:
@@ -114,7 +117,7 @@ jobs:
           flatpak_remote_refs_dir: ${{ inputs.flatpaks_refs_dir }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
-          iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
+          iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
 
       - name: Save output
         id: save_output
@@ -126,10 +129,10 @@ jobs:
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}
+          name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
           path: |
-            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
-            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso-CHECKSUM
+            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
+            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0

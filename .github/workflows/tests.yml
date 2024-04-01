@@ -38,11 +38,32 @@ jobs:
     uses: ./.github/workflows/build_iso.yml
     with:
       pr: ${{ inputs.pr }}
-      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build ISO
+      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build ISO with Flatpaks
       flatpaks_refs_dir: /github/workspace/flatpak_refs
+      suffix: flatpaks
 
-  build_iso_no_flatpaks:
-    name: Build ISO without Flatpaks
+  test_iso_flatpaks:
+    name: Test ISO with Flatpaks
+    needs:
+      - build_iso_flatpaks
+    uses: ./.github/workflows/test_iso.yml
+    with:
+      pr: ${{ inputs.pr }}
+      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test ISO with Flatpaks
+      suffix: flatpaks
+
+  test_deployment_flatpaks:
+    name: Test Deployment with Flatpaks
+    needs:
+      - build_iso_flatpaks
+    uses: ./.github/workflows/test_deployment.yml
+    with:
+      pr: ${{ inputs.pr }}
+      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test Deployment with Flatpaks
+      suffix: flatpaks
+
+  build_iso:
+    name: Build ISO
     needs:
       - build_container
     uses: ./.github/workflows/build_iso.yml
@@ -53,7 +74,7 @@ jobs:
   test_iso:
     name: Test ISO
     needs:
-      - build_iso_flatpaks
+      - build_iso
     uses: ./.github/workflows/test_iso.yml
     with:
       pr: ${{ inputs.pr }}
@@ -62,7 +83,7 @@ jobs:
   test_deployment:
     name: Test Deployment
     needs:
-      - build_iso_flatpaks
+      - build_iso
     uses: ./.github/workflows/test_deployment.yml
     with:
       pr: ${{ inputs.pr }}

@@ -6,7 +6,10 @@ on:
         type: string
       parent_job_name:
         required: true
-        type: string      
+        type: string   
+      suffix:
+        required: false
+        type: string   
 
 jobs:
   load_vars:
@@ -72,7 +75,7 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}
+          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
 
       - name: Run ISO checks
         run: |
@@ -86,7 +89,7 @@ jobs:
             FLATPAK_REMOTE_REFS_DIR=${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
-            ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}.iso
+            ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
 
       - name: Set status
         if: inputs.pr && always()

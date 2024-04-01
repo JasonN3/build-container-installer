@@ -24,4 +24,7 @@ jobs:
         
       - name: Run test
         run: |
-          /bin/bash tests/repo/vars.sh
+          apt-get update
+          apt-get install -y make
+          make test/repo/install-deps
+          make test/repo
