@@ -1,6 +1,22 @@
 #!/bin/bash
 
+exit 0
+
+makefile = open('../../Makefile.inputs', 'r')
+makefile_lines = makefile.readlines()
+
+vars = []
+
+for line in makefile_lines:
+    if line.startswith('#'):
+        makefile_lines.remove(line)
+    parts = line.split('=', 1)
+    vars += { parts[0]: parts[1] }
+
+print(vars)
+
 vars=()
+default_values=()
 
 while read -r line
 do
@@ -8,11 +24,7 @@ do
     then
         vars+=$(echo $line | cut -d= -f1 | tr [:upper:] [:lower:])
     fi
-    if [[ $line =~ ^########## ]]
-    then
-        break
-    fi
-done < ../../Makefile
+done < ../../Makefile.inputs
 
 result=0
 
