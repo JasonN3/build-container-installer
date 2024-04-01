@@ -3,7 +3,6 @@
 #set -ex
 
 checkisomd5 ../../${ISO_NAME}
-cd $(dirname ../../${ISO_NAME}) && sha256sum -c $(basename ${ISO_NAME})-CHECKSUM
 if [[ $? != 0 ]]
 then
     echo "Found:"
@@ -11,3 +10,5 @@ then
     echo "Expected:"
     implantisomd5 --force base-39.iso
 fi
+
+cd $(dirname ../../${ISO_NAME}) && sha256sum -c $(basename ${ISO_NAME})-CHECKSUM
