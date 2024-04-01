@@ -69,7 +69,7 @@ clean: files/mnt/iso
 
 files/install.iso: files/grub.cfg
 	xorriso -dialog on << EOF
-	-indev $(ISO_NAME)
+	-indev ../../$(ISO_NAME)
 	-outdev files/install.iso
 	-boot_image any replay
 	-map files/ks.cfg ks.cfg
