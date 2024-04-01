@@ -1,0 +1,37 @@
+full_list: repo
+	cat list.txt >&2
+	
+
+repo: script.sh
+	image="$(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)"
+	$(if $(GITHUB_WORKSPACE),$(eval FLATPAK_DIR=$(shell mktemp -d -p $(GITHUB_WORKSPACE) flatpak.XXX),$(PWD)))
+	$(if $(GITHUB_WORKSPACE),cp script.sh $(GITHUB_WORKSPACE)/$(FLATPAK_DIR)/)
+	docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume $(_BASE_DIR)/flatpaks:/flatpak_dir ${image} /flatpak_dir/script.sh
+	$(if $(GITHUB_OUTPUT),echo "flatpak_dir=$(notdir $(FLATPAK_DIR))" >> $(GITHUB_OUTPUT))
+	docker rmi ${image}
+
+script.sh:
+	cat << EOF > script.sh
+	mkdir -p /flatpak/flatpak /flatpak/triggers
+	mkdir /var/tmp || true
+	chmod -R 1777 /var/tmp
+	flatpak config --system --set languages "*"
+	flatpak remote-add --system $(FLATPAK_REMOTE_NAME) $(FLATPAK_REMOTE_URL)
+	flatpak install --system -y $(FLATPAK_REMOTE_REFS)
+	ostree init --repo=/flatpak_dir/repo --mode=archive-z2
+	for i in \$$(ostree refs --repo=\$${FLATPAK_SYSTEM_DIR}/repo | grep '^deploy/' | sed 's/^deploy\///g')
+	do
+	echo "Copying \$${i}..."
+	ostree --repo=/flatpak_dir/repo pull-local \$${FLATPAK_SYSTEM_DIR}/repo \$$(ostree --repo=\$${FLATPAK_SYSTEM_DIR}/repo rev-parse $(FLATPAK_REMOTE_NAME)/\$${i})
+	mkdir -p \$(dirname /flatpak_dir/repo/refs/heads/\${i})
+	ostree --repo=\$${FLATPAK_SYSTEM_DIR}/repo rev-parse $(FLATPAK_REMOTE_NAME)/\$${i} > /flatpak_dir/repo/refs/heads/\$${i}
+	done
+	flatpak build-update-repo /flatpak_dir/repo
+	ostree refs --repo=/flatpak_dir/repo > /flatpak_dir/list.txt
+	EOF
+
+install-deps:
+
+clean:
+
+.ONESHELL:

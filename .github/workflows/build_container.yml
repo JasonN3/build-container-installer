@@ -32,11 +32,6 @@ jobs:
           fetch-depth: 0
           fetch-tags: 'true'
 
-      - name: Debug
-        run: |
-          export
-          set
-
       - name: Switch branch
         if: inputs.pr
         env:

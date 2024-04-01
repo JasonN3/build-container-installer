@@ -66,6 +66,9 @@ inputs:
     description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
     required: false
     default: build/deploy.iso
+  make_action:
+    description: "Overrides the default make action"
+    required: false
   repos:
     description: List of repo files for Lorax to use
     required: false
@@ -92,11 +95,11 @@ inputs:
 
 outputs:
   iso_name:
-    value: ${{ steps.rename_iso.outputs.iso_name }}
+    value: ${{ steps.docker.outputs.iso_name }}
     description: The name of the resulting .iso
   iso_path:
-    value: ${{ steps.rename_iso.outputs.iso_path }}
-    description: The name and path of the resulting .iso
+    value: ${{ steps.docker.outputs.iso_path }}
+    description: The path of the resulting .iso
 
 runs:
   using: composite
@@ -139,44 +142,18 @@ runs:
       id: flatpak_dependencies
       shell: bash
       run: |
-        image="${{ inputs.image_repo }}/${{ inputs.image_name }}:${{ inputs.image_tag }}"
-        # Make temp space
-        FLATPAK_DIR=$(basename $(mktemp -d -p ${{ github.workspace }} flatpak.XXX))
-        # Get list of refs from directory
-        sudo mkdir /github || true
-        sudo ln -s ${{ github.workspace }} /github/workspace
-        DIR_REFS=$(cat ${{ inputs.flatpak_remote_refs_dir }}/* | tr '\n' ' ' )
-        # Generate install script
-        cat << EOF > ${{ github.workspace }}/${FLATPAK_DIR}/script.sh
-        mkdir -p /flatpak/flatpak /flatpak/triggers
-        mkdir /var/tmp || true
-        chmod -R 1777 /var/tmp
-        flatpak config --system --set languages "*"
-        flatpak remote-add --system ${{ inputs.flatpak_remote_name }} ${{ inputs.flatpak_remote_url }}
-        flatpak install --system -y ${{ inputs.flatpak_remote_refs }} ${DIR_REFS}
-        ostree init --repo=/flatpak_dir/repo --mode=archive-z2
-        for i in \$(ostree refs --repo=\${FLATPAK_SYSTEM_DIR}/repo | grep '^deploy/' | sed 's/^deploy\///g')
-        do
-        echo "Copying \${i}..."
-        ostree --repo=/flatpak_dir/repo pull-local \${FLATPAK_SYSTEM_DIR}/repo \$(ostree --repo=\${FLATPAK_SYSTEM_DIR}/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i})
-        mkdir -p \$(dirname /flatpak_dir/repo/refs/heads/\${i})
-        ostree --repo=\${FLATPAK_SYSTEM_DIR}/repo rev-parse ${{ inputs.flatpak_remote_name }}/\${i} > /flatpak_dir/repo/refs/heads/\${i}
-        done
-        flatpak build-update-repo /flatpak_dir/repo
-        ostree refs --repo=/flatpak_dir/repo
-        EOF
-        docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume ${{ github.workspace }}/${FLATPAK_DIR}:/flatpak_dir ${image} /flatpak_dir/script.sh
-        echo "flatpak_dir=${FLATPAK_DIR}" >> $GITHUB_OUTPUT
-        docker rmi ${image}
+        cd ${{ github.action_path }}
+        make flatpaks/repo
 
     - name: Run docker image
+      id: docker
       env:
         ACTION_REPO: ${{ github.action_repository }}
         ACTION_REF: ${{ github.action_ref }}
       shell: bash
       run: |
         image=$(echo "ghcr.io/${ACTION_REPO}" | tr [:upper:] [:lower:])
-        # Check if running inside01 of the action repo
+        # Check if running inside of the action repo
         if [[ -z "${ACTION_REPO}" ]]
         then
           image=$(echo "ghcr.io/${{ github.repository }}" | tr [:upper:] [:lower:])
@@ -208,6 +185,7 @@ runs:
           exit 1
         fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
+          ${{ inputs.make_action }} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \
@@ -225,6 +203,8 @@ runs:
           VARIANT="${{ inputs.variant }}" \
           VERSION="${{ inputs.version }}" \
           WEB_UI="${{ inputs.web_ui }}"
+        echo "iso_path=$(dirname ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
+        echo "iso_name=$(basename ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
 
     - name: Save dnf cache
       env:

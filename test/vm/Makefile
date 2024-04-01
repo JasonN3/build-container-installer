@@ -72,6 +72,8 @@ files/install.iso: files/grub.cfg
 	-indev ../../$(ISO_NAME)
 	-outdev files/install.iso
 	-boot_image any replay
+	-joliet on
+	-compliance joliet_long_names
 	-map files/ks.cfg ks.cfg
 	-chmod 0444 ks.cfg
 	-map files/grub.cfg boot/grub2/grub.cfg

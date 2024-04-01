@@ -1,5 +1,5 @@
 ISO_NAME=deploy.iso
-ISO_TESTS=$(wildcard install_*) $(if $(FLATPAK_REMOTE_REFS) $(FLATPAK_DIR),$(wildcard flatpak_*))
+ISO_TESTS=$(wildcard install_*) $(if $(FLATPAK_REMOTE_REFS),$(wildcard flatpak_*))$(if $(FLATPAK_DIR),$(wildcard flatpak_*))
 
 all: $(ISO_TESTS) clean
 

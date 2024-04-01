@@ -6,7 +6,7 @@ _LORAX_TEMPLATES += $(call get_templates,flatpak)
 _TEMPLATE_VARS   += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
 else
 ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
-COLLECTED_REFS = $(foreach file,$(shell ls $(FLATPAK_REMOTE_REFS_DIR)/*),$(shell cat $(file)))
+COLLECTED_REFS = $(foreach file,$(filter-out README.md Makefile,$(wildcard $(FLATPAK_REMOTE_REFS_DIR)/*)),$(shell cat $(file)))
 FLATPAK_REMOTE_REFS += $(sort $(COLLECTED_REFS))
 endif
 
