@@ -79,6 +79,7 @@ $(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorris
 	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
 	implantisomd5 $(ISO_NAME)
 	chmod ugo=r $(ISO_NAME)
+	$(if $(GITHUB_OUTPUT), echo "iso_name=$(ISO_NAME)" >> $(GITUHB_OUTPUT))
 
 # Build boot.iso using Lorax
 results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
