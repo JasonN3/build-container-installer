@@ -6,7 +6,10 @@ on:
         type: string
       parent_job_name:
         required: true
-        type: string   
+        type: string
+      flatpaks_refs_dir:
+        required: false
+        type: string
       suffix:
         required: false
         type: string   
@@ -86,7 +89,7 @@ jobs:
             IMAGE_TAG=${{ matrix.version }} \
             VERSION=${{ matrix.version }} \
             VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
-            FLATPAK_REMOTE_REFS_DIR=${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }} \
+            FLATPAK_REMOTE_REFS_DIR=${{ inputs.flatpaks_refs_dir }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
             ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso

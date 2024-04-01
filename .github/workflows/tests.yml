@@ -50,6 +50,7 @@ jobs:
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test ISO with Flatpaks
+      flatpaks_refs_dir: /github/workspace/flatpak_refs
       suffix: flatpaks
 
   test_deployment_flatpaks:
@@ -60,6 +61,7 @@ jobs:
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test Deployment with Flatpaks
+      flatpaks_refs_dir: /github/workspace/flatpak_refs
       suffix: flatpaks
 
   build_iso:
