@@ -52,7 +52,7 @@ for line in action_lines:
         vars[var_name]['action'] = True
     else:
       at_inputs = False
-    
+
   if not at_outputs:
     if line.strip() == 'outputs:':
       at_outputs = True
@@ -103,6 +103,3 @@ for line in readme_lines:
       var_default_value = parts[3].strip()
       var_action = parts[4].strip()
       var_makefile = parts[5].strip()
-      
-      
-              

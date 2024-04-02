@@ -94,7 +94,7 @@ install_os: files/install.iso files/disk.qcow2
 .ONESHELL:
 
 .PHONY: start_vm
-start_vm: install_os
+start_vm:
 	mkfifo vm.stdin
 	qemu-system-x86_64 -name "Anaconda" \
 	-m 4096 -cpu qemu64 -display none -smp 2 \
