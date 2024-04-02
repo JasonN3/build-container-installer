@@ -6,7 +6,7 @@ echo "-outdev ${ISO_NAME}"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-#pushd ${PWD}/results > /dev/null
+#pushd "${PWD}/results" > /dev/null
 #for file in $(find * -type f)
 #do
 #    if [[ "$file" == "images/boot.iso" ]]
@@ -20,7 +20,7 @@ echo "-compliance joliet_long_names"
 
 if [[ -n "${FLATPAK_DIR}" ]]
 then
-    pushd ${FLATPAK_DIR} > /dev/null
+    pushd "${FLATPAK_DIR}" > /dev/null
     for file in $(find * -type f)
     do
         echo "-map $(pwd)/${file} flatpak/${file}"
@@ -35,8 +35,8 @@ then
 	echo "-chmod 0444 /sb_pubkey.der"
 fi
 
-pushd ${PWD}/container > /dev/null
-for file in $(find ${IMAGE_NAME}-${IMAGE_TAG} -type f)
+pushd "${PWD}/container" > /dev/null
+for file in $(find "${IMAGE_NAME}-${IMAGE_TAG}" -type f)
 do
     echo "-map $(pwd)/${file} ${file}"
     echo "-chmod 0444 ${file}"
