@@ -11,4 +11,4 @@ then
     implantisomd5 --force "../../${ISO_NAME}"
 fi
 
-cd $(dirname "../../${ISO_NAME}") && sha256sum -c "$(basename ${ISO_NAME})-CHECKSUM"
+cd "$(dirname "../../${ISO_NAME}")" && sha256sum -c "$(basename "${ISO_NAME}")-CHECKSUM"
