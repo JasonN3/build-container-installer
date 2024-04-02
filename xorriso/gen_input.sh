@@ -7,13 +7,13 @@ echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
 #pushd "${PWD}/results" > /dev/null
-#for file in $(find * -type f)
+#for file in $(find . -type f)
 #do
-#    if [[ "$file" == "images/boot.iso" ]]
+#    if [[ "$file" == "./images/boot.iso" ]]
 #    then
 #        continue
 #    fi
-#    echo "-map ${PWD}/results/${file} ${file}"
+#    echo "-map ${PWD}/results/${file} ${file:2}"
 #    echo "-chmod 0444 ${file}"
 #done
 #popd > /dev/null

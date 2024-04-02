@@ -98,7 +98,7 @@ for line in readme_lines:
       if not var_name in inputs:
         print("ERROR: " + var_name + " is not listed in action.yml or Makefile")
         inputs[var_name] = {}
-      inputs[var_name]
+      print(inputs[var_name])
       var_description = parts[2].strip()
       var_default_value = parts[3].strip()
       var_action = parts[4].strip()
