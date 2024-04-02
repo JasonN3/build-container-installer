@@ -1,19 +1,19 @@
 #!/bin/bash
 
 echo "-report_about WARNING"
-echo "-indev ${_BASE_DIR}/results/images/boot.iso"
+echo "-indev ${PWD}/results/images/boot.iso"
 echo "-outdev ${ISO_NAME}"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-#pushd ${_BASE_DIR}/results > /dev/null
+#pushd ${PWD}/results > /dev/null
 #for file in $(find * -type f)
 #do
 #    if [[ "$file" == "images/boot.iso" ]]
 #    then
 #        continue
 #    fi
-#    echo "-map ${_BASE_DIR}/results/${file} ${file}"
+#    echo "-map ${PWD}/results/${file} ${file}"
 #    echo "-chmod 0444 ${file}"
 #done
 #popd > /dev/null
@@ -35,7 +35,7 @@ then
 	echo "-chmod 0444 /sb_pubkey.der"
 fi
 
-pushd ${_BASE_DIR}/container > /dev/null
+pushd ${PWD}/container > /dev/null
 for file in $(find ${IMAGE_NAME}-${IMAGE_TAG} -type f)
 do
     echo "-map $(pwd)/${file} ${file}"

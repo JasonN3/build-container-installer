@@ -24,14 +24,13 @@ export install_pkg
 
 # Generated/internal vars
 ## Formatting = _UPPERCASE
-export _BASE_DIR           := $(shell pwd)
 _IMAGE_REPO_ESCAPED        := $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED := $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _LORAX_ARGS                := 
 _LORAX_TEMPLATES           := $(call get_templates,install)
 _REPO_FILES                := $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR                  := $(shell mktemp -d)
-_TEMPLATE_VARS             := ARCH _BASE_DIR IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
+_TEMPLATE_VARS             := ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
 _VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
@@ -96,30 +95,31 @@ $(ISO_NAME)-CHECKSUM: $(ISO_NAME)
 # Build end ISO
 $(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
 	$(if $(wildcard $(dir $(ISO_NAME))),,mkdir -p $(dir $(ISO_NAME)); chmod ugo=rwX $(dir $(ISO_NAME)))
-	xorriso -dialog on < $(_BASE_DIR)/xorriso/input.txt
+	xorriso -dialog on < xorriso/input.txt
 	implantisomd5 $(ISO_NAME)
 	chmod ugo=r $(ISO_NAME)
 	$(if $(GITHUB_OUTPUT), echo "iso_name=$(ISO_NAME)" >> $(GITUHB_OUTPUT))
 
+# Download the secure boot key
+sb_pubkey.der:
+	curl --fail -L -o sb_pubkey.der $(SECURE_BOOT_KEY_URL)
+
 # Build boot.iso using Lorax
-results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES)
+results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES) $(if $(SECURE_BOOT_KEY_URL),sb_pubkey.der)
 	$(if $(wildcard results), rm -Rf results)
 	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)
 
-# Download the secure boot key
-	$(if $(SECURE_BOOT_KEY_URL), curl --fail -L -o $(_BASE_DIR)/sb_pubkey.der $(SECURE_BOOT_KEY_URL))
-
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(_BASE_DIR)/external/lorax/share/templates.d/99-generic \
+		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
-		$(foreach file,$(_REPO_FILES),--repo $(_BASE_DIR)/$(file)) \
-		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(_BASE_DIR)/$(file)) \
+		$(foreach file,$(_REPO_FILES),--repo $(PWD)/$(file)) \
+		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
 		$(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
 		$(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
-		$(foreach file,$(_EXTERNAL_TEMPLATES),--add-template $(_BASE_DIR)/external/$(file)) \
+		$(foreach file,$(_EXTERNAL_TEMPLATES),--add-template $(PWD)/external/$(file)) \
 		--rootfs-size $(ROOTFS_SIZE) \
 		$(foreach var,$(_TEMPLATE_VARS),--add-template-var "$(shell echo $(var) | tr '[:upper:]' '[:lower:]')=$($(var))") \
-		$(_BASE_DIR)/results/
+		results/
 	$(if $(wildcard $(_TEMP_DIR)/macros.image-language-conf),mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf)
 
 

@@ -17,7 +17,7 @@ mnt/iso:
 clean:
 	sudo umount mnt/install || true
 	sudo umount mnt/iso || true
-	sudo rmdir mnt/install /mnt/iso
+	sudo rmdir mnt/install mnt/iso
 
 install-deps:
 	$(install_pkg) isomd5sum coreutils squashfs-tools curl
