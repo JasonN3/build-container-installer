@@ -198,8 +198,8 @@ runs:
           DNF_CACHE="/cache/dnf" \
           ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
-          FLATPAK_REMOTE_REFS="${{ inputs.flatpak_remote_refs }}" \
-          FLATPAK_REMOTE_REFS_DIR="${{ inputs.flatpak_remote_refs_dir }}" \
+          ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
+          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpak_remote_refs_dir) || ''}} \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
