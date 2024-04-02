@@ -14,17 +14,17 @@ echo "-compliance joliet_long_names"
 #        continue
 #    fi
 #    echo "-map ${PWD}/results/${file} ${file:2}"
-#    echo "-chmod 0444 ${file}"
+#    echo "-chmod 0444 ${file:2}"
 #done
 #popd > /dev/null
 
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd "${FLATPAK_DIR}" > /dev/null
-    for file in $(find * -type f)
+    for file in $(find . -type f)
     do
-        echo "-map ${PWD}/${file} flatpak/${file}"
-        echo "-chmod 0444 flatpak/${file}"
+        echo "-map ${PWD}/${file} flatpak/${file:2}"
+        echo "-chmod 0444 flatpak/${file:2}"
     done
     popd > /dev/null
 fi
