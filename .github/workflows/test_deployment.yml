@@ -85,28 +85,15 @@ jobs:
         with:
           name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}
 
-      - name: Add Kickstart and Grub options to ISO
-        run: |
-          make test/vm/files/install.iso ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}.iso
-
-      - name: Create VM disk
-        run: |
-          make test/vm/files/disk.qcow2
-
-      - name: Install the test VM
-        run: |
-          make test/vm/install_os
-
-      - name: Start the test VM
+      - name: Run VM Tests
         env:
           VM_USER: core
           VM_PASS: foobar
           VM_IP: "127.0.0.1"
           VM_PORT: "5555"
         run: |
-          make test/vm/start_vm
-          
-          make test/vm VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
+          make test/vm ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}.iso \
+            VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
             IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
             IMAGE_REPO=${{ needs.load_vars.outputs.IMAGE_REPO}} \

@@ -1,38 +1,14 @@
-VM_TESTS=$(filter-out README.md Makefile files,$(wildcard *))
+VM_TESTS=$(wildcard install_*) $(if $(FLATPAK_REMOTE_REFS),$(wildcard flatpak_*))$(if $(FLATPAK_DIR),$(wildcard flatpak_*))
 
-# Get a list of tests for the feature
-# $1 = test type
-# $2 = feature
-define run_tests
-	tests="$(shell ls tests/$(1)/$(2)_*)"; \
-	if [ -n "$$tests" ]; \
-	then \
-		chmod +x $$tests; \
-		for test in $$tests; \
-		do \
-			$(foreach var,$(_VARS),$(var)=$($(var))) ./$${test}; \
-			RC=$$?; \
-			if [ $$RC != 0 ]; \
-			then \
-				exit $$RC; \
-			fi; \
-		done; \
-	fi
-endef
+all: $(ISO_TESTS) clean
 
-$(VM_TESTS): start_vm ansible_inventory
+$(ISO_TESTS): start_vm ansible_inventory
 	$(eval _VARS = IMAGE_REPO IMAGE_NAME IMAGE_TAG)
 
 	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
 
-	# install tests
-	$(call run_tests,vm,install)
-
-	# flapak tests
-	if [ -n "$(FLATPAK_REMOTE_REFS)" ]; \
-	then \
-		$(call run_tests,vm,flatpak); \
-	fi
+	chmod +x $@
+	$(foreach var,$(_VARS),$(var)=$($(var))) ./$@
 
 ansible_inventory: 
 	echo "ungrouped:" > ansible_inventory
@@ -63,9 +39,13 @@ files/grub.cfg: files/mnt/iso
 
 .PHONY: clean
 clean: files/mnt/iso
-	sudo umount files/mnt/iso
-	rmdir files/mnt/iso
-
+	$(if $(wildcard files/mnt/iso),sudo umount files/mnt/iso)
+	$(if $(wildcard files/mnt/iso),rmdir files/mnt/iso)
+	$(if $(wildcard ansible_inventory),rm ansible_inventory)
+	$(if $(wildcard files/install.iso),rm files/install.iso)
+	$(if $(wildcard files/disk.qcow2),rm files/disk.qcow2)
+	$(if $(wildcard install_os),rm install_os)
+	$(if $(wildcard start_vm),rm start_vm)
 
 files/install.iso: files/grub.cfg
 	xorriso -dialog on << EOF
@@ -83,18 +63,17 @@ files/install.iso: files/grub.cfg
 files/disk.qcow2:
 	qemu-img create -f qcow2 files/disk.qcow2 50G
 
-.PHONY: install_os
 install_os: files/install.iso files/disk.qcow2
 	timeout 1h qemu-system-x86_64 -name "Anaconda" -boot d -m 4096 -cpu qemu64 -display none -cdrom files/install.iso -smp 2 -hda files/disk.qcow2 -serial telnet:localhost:4321,server=on,wait=off & QEMU_PID=$$!
 	echo "PID: $$QEMU_PID"
 	timeout 1m bash -c "while ! (echo > /dev/tcp/127.0.0.1/4321); do sleep 0.1; done"
 	(nc localhost 4321 | tee vm.stdout) &
 	wait $$QEMU_PID
+	touch install_os
 
 .ONESHELL:
 
-.PHONY: start_vm
-start_vm:
+start_vm: install_os
 	mkfifo vm.stdin
 	qemu-system-x86_64 -name "Anaconda" \
 	-m 4096 -cpu qemu64 -display none -smp 2 \
@@ -117,4 +96,4 @@ start_vm:
 	fi
 	
 	echo "VM ready for tests at IP $(VM_IP):$(VM_PORT)"
-	$(MAKE) ansible_inventory VM_IP=$(VM_IP) VM_PORT=$(VM_PORT) VM_USER=core VM_PASS=foobar
+	touch start_vm
