@@ -15,9 +15,9 @@ mnt/iso:
 	sudo mount -t squashfs -o loop mnt/iso/images/install.img mnt/install
 
 clean:
-	sudo umount /mnt/install || true
-	sudo umount /mnt/iso || true
-	sudo rmdir /mnt/install /mnt/iso
+	sudo umount mnt/install || true
+	sudo umount mnt/iso || true
+	sudo rmdir mnt/install /mnt/iso
 
 install-deps:
 	$(install_pkg) isomd5sum coreutils squashfs-tools curl

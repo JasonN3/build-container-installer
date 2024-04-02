@@ -3,10 +3,10 @@ include Makefile.inputs
 ###################
 # Hidden vars
 
-export SHELL = /bin/sh
+export SHELL := /bin/sh
 # Cache
-export DNF_CACHE = 
-export PACKAGE_MANAGER = dnf
+export DNF_CACHE := 
+export PACKAGE_MANAGER := dnf
 
 # Functions
 ## Formatting = lowercase
@@ -24,20 +24,20 @@ export install_pkg
 
 # Generated/internal vars
 ## Formatting = _UPPERCASE
-export _BASE_DIR = $(shell pwd)
-_IMAGE_REPO_ESCAPED = $(subst /,\/,$(IMAGE_REPO))
-_IMAGE_REPO_DOUBLE_ESCAPED = $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
-_LORAX_ARGS = 
-_LORAX_TEMPLATES = $(call get_templates,install)
-_REPO_FILES = $(subst /etc/yum.repos.d,repos,$(REPOS))
-_TEMP_DIR = $(shell mktemp -d)
-_TEMPLATE_VARS = ARCH _BASE_DIR IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
-_VOLID = $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
+export _BASE_DIR           := $(shell pwd)
+_IMAGE_REPO_ESCAPED        := $(subst /,\/,$(IMAGE_REPO))
+_IMAGE_REPO_DOUBLE_ESCAPED := $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
+_LORAX_ARGS                := 
+_LORAX_TEMPLATES           := $(call get_templates,install)
+_REPO_FILES                := $(subst /etc/yum.repos.d,repos,$(REPOS))
+_TEMP_DIR                  := $(shell mktemp -d)
+_TEMPLATE_VARS             := ARCH _BASE_DIR IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
+_VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
-_RHEL = true
+_RHEL := true
 else
-_RHEL = false
+_RHEL := false
 endif
 
 ifeq ($(_RHEL),true)
@@ -66,7 +66,7 @@ _LORAX_TEMPLATES += $(call get_templates,secureboot)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
-_SUBDIRS = container external flatpak_refs lorax_templates repos xorriso test
+_SUBDIRS := container external flatpak_refs lorax_templates repos xorriso test
 
 # Create checksum
 ## Default action
@@ -103,7 +103,7 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 	$(if $(wildcard $(_TEMP_DIR)/macros.image-language-conf),mv -f $(_TEMP_DIR)/macros.image-language-conf /etc/rpm/macros.image-language-conf)
 
 
-FILES_TO_CLEAN = $(wildcard build debugdata pkglists results original-pkgsizes.txt final-pkgsizes.txt lorax.conf *.iso *log)
+FILES_TO_CLEAN := $(wildcard build debugdata pkglists results original-pkgsizes.txt final-pkgsizes.txt lorax.conf *.iso *log)
 .PHONY: clean
 clean:
 	rm -Rf $(FILES_TO_CLEAN)
