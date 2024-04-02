@@ -9,6 +9,9 @@ on:
       parent_job_name:
         required: true
         type: string
+      flatpaks_refs:
+        required: false
+        type: string
       flatpaks_refs_dir:
         required: false
         type: string
@@ -116,6 +119,7 @@ jobs:
           image_tag: ${{ matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
+          flatpak_remote_refs: ${{ inputs.flatpaks_refs }}
           flatpak_remote_refs_dir: ${{ inputs.flatpaks_refs_dir }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}

@@ -64,6 +64,39 @@ jobs:
       flatpaks_refs_dir: flatpak_refs
       suffix: flatpaks
 
+  build_iso_flatpak_refs:
+    name: Build ISO with Flatpak Refs
+    needs:
+      - build_container
+    uses: ./.github/workflows/build_iso.yml
+    with:
+      pr: ${{ inputs.pr }}
+      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build ISO with Flatpak Refs
+      flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
+      suffix: flatpaks
+
+  test_iso_flatpak_refs:
+    name: Test ISO with Flatpak Refs
+    needs:
+      - build_iso_flatpak_refs
+    uses: ./.github/workflows/test_iso.yml
+    with:
+      pr: ${{ inputs.pr }}
+      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test ISO with Flatpak Refs
+      flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
+      suffix: flatpaks
+
+  test_deployment_flatpak_refs:
+    name: Test Deployment with Flatpak Refs
+    needs:
+      - build_iso_flatpak_refs
+    uses: ./.github/workflows/test_deployment.yml
+    with:
+      pr: ${{ inputs.pr }}
+      parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test Deployment with Flatpak Refs
+      flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
+      suffix: flatpaks
+
   build_iso:
     name: Build ISO
     needs:
