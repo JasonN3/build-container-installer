@@ -121,12 +121,6 @@ jobs:
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
 
-      - name: Save output
-        id: save_output
-        shell: bash
-        run: |
-          find
-
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
