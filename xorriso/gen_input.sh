@@ -6,17 +6,17 @@ echo "-outdev ${ISO_NAME}"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-pushd ${_BASE_DIR}/results > /dev/null
-for file in $(find * -type f)
-do
-    if [[ "$file" == "images/boot.iso" ]]
-    then
-        continue
-    fi
-    echo "-map ${_BASE_DIR}/results/${file} ${file}"
-    echo "-chmod 0444 ${file}"
-done
-popd > /dev/null
+#pushd ${_BASE_DIR}/results > /dev/null
+#for file in $(find * -type f)
+#do
+#    if [[ "$file" == "images/boot.iso" ]]
+#    then
+#        continue
+#    fi
+#    echo "-map ${_BASE_DIR}/results/${file} ${file}"
+#    echo "-chmod 0444 ${file}"
+#done
+#popd > /dev/null
 
 if [[ -n "${FLATPAK_DIR}" ]]
 then

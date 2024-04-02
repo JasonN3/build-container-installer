@@ -20,6 +20,6 @@ clean:
 	sudo rmdir /mnt/install /mnt/iso
 
 install-deps:
-	$(install_pkg) isomd5sum coreutils squashfs-tools
+	$(install_pkg) isomd5sum coreutils squashfs-tools curl
 
 .PHONY: all $(ISO_TESTS) clean

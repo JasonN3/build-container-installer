@@ -1,24 +1,24 @@
 # Configuration vars
 ## Formatting = UPPERCASE
 # General
-export ADDITIONAL_TEMPLATES    :=
-export ARCH                    := x86_64
-export EXTRA_BOOT_PARAMS       :=
-export IMAGE_NAME              := base
-export IMAGE_REPO              := quay.io/fedora-ostree-desktops
-export IMAGE_TAG                = $(VERSION)
-       REPOS                   := $(subst :,\:,$(wildcard /etc/yum.repos.d/*.repo))
-export ROOTFS_SIZE             := 4
-export VARIANT                 := Server
-export VERSION                 := 39
-export WEB_UI                  := false
+export ADDITIONAL_TEMPLATES    =
+export ARCH                    = x86_64
+export EXTRA_BOOT_PARAMS       =
+export IMAGE_NAME              = base
+export IMAGE_REPO              = quay.io/fedora-ostree-desktops
+export IMAGE_TAG               = $(VERSION)
+       REPOS                   = $(subst :,\:,$(wildcard /etc/yum.repos.d/*.repo))
+export ROOTFS_SIZE             = 4
+export VARIANT                 = Server
+export VERSION                 = 39
+export WEB_UI                  = false
 # Flatpak
-export FLATPAK_REMOTE_NAME     := flathub
-export FLATPAK_REMOTE_URL      := https://flathub.org/repo/flathub.flatpakrepo
-export FLATPAK_REMOTE_REFS     :=
-export FLATPAK_REMOTE_REFS_DIR :=
-export FLATPAK_DIR             :=
+export FLATPAK_REMOTE_NAME     = flathub
+export FLATPAK_REMOTE_URL      = https://flathub.org/repo/flathub.flatpakrepo
+export FLATPAK_REMOTE_REFS     =
+export FLATPAK_REMOTE_REFS_DIR =
+export FLATPAK_DIR             =
 # Secure boot
-export ENROLLMENT_PASSWORD     :=
-export SECURE_BOOT_KEY_URL     :=
-export ISO_NAME                := build/deploy.iso
+export ENROLLMENT_PASSWORD     =
+export SECURE_BOOT_KEY_URL     =
+export ISO_NAME                = build/deploy.iso
