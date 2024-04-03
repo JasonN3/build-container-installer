@@ -22,10 +22,10 @@ popd > /dev/null
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd "${FLATPAK_DIR}" > /dev/null
-    for file in $(find . -type f)
+    for file in $(find repo -type f)
     do
-        echo "-map ${PWD}/${file} flatpak/${file:2}"
-        echo "-chmod 0444 flatpak/${file:2}"
+        echo "-map ${PWD}/${file} flatpak/${file}"
+        echo "-chmod 0444 flatpak/${file}"
     done
     popd > /dev/null
 fi
