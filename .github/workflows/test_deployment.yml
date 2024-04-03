@@ -104,7 +104,6 @@ jobs:
             ${{ inputs.flatpaks_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpaks_refs_dir) || '' }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
-          kill $QEMU_PID
 
       - name: Set status
         if: inputs.pr && always()

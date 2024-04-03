@@ -197,6 +197,7 @@ runs:
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \
           ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
+          EXTRA_BOOT_PARAMS="${{ inputs.extra_boot_params }}" \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
           ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpak_remote_refs_dir) || ''}} \

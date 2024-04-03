@@ -73,7 +73,7 @@ jobs:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build ISO with Flatpak Refs
       flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
-      suffix: flatpaks
+      suffix: flatpaks_refs
 
   test_iso_flatpak_refs:
     name: Test ISO with Flatpak Refs
@@ -84,7 +84,7 @@ jobs:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test ISO with Flatpak Refs
       flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
-      suffix: flatpaks
+      suffix: flatpaks_refs
 
   test_deployment_flatpak_refs:
     name: Test Deployment with Flatpak Refs
@@ -95,7 +95,7 @@ jobs:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test Deployment with Flatpak Refs
       flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
-      suffix: flatpaks
+      suffix: flatpaks_refs
 
   build_iso:
     name: Build ISO
