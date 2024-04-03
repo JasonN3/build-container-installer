@@ -1,8 +1,8 @@
 VM_TESTS=$(wildcard install_*) $(if $(FLATPAK_REMOTE_REFS),$(wildcard flatpak_*))$(if $(FLATPAK_DIR),$(wildcard flatpak_*))
 
-all: $(ISO_TESTS) clean
+all: $(VM_TESTS) clean
 
-$(ISO_TESTS): start_vm ansible_inventory
+$(VM_TESTS): start_vm ansible_inventory
 	$(eval _VARS = IMAGE_REPO IMAGE_NAME IMAGE_TAG)
 
 	ansible -i ansible_inventory -m ansible.builtin.wait_for_connection vm
@@ -38,7 +38,8 @@ files/grub.cfg: files/mnt/iso
 	sed -i 's/set timeout=60/set timeout=1/'                        files/grub.cfg
 
 .PHONY: clean
-clean: files/mnt/iso
+clean:
+	$(if $(wildcard start_vm), kill "$(shell cat start_vm)")
 	$(if $(wildcard files/mnt/iso),sudo umount files/mnt/iso)
 	$(if $(wildcard files/mnt/iso),rmdir files/mnt/iso)
 	$(if $(wildcard ansible_inventory),rm ansible_inventory)
@@ -96,4 +97,4 @@ start_vm: install_os
 	fi
 	
 	echo "VM ready for tests at IP $(VM_IP):$(VM_PORT)"
-	touch start_vm
+	echo $$QEMU_PID > start_vm
