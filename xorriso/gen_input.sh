@@ -24,6 +24,10 @@ then
     pushd "${FLATPAK_DIR}" > /dev/null
     for file in $(find repo)
     do
+        if [[ "${file}" == "repo/.lock" ]]
+        then
+            continue
+        fi
         echo "-map ${PWD}/${file} flatpak/${file}"
         echo "-chmod 0444 flatpak/${file}"
     done
