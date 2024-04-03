@@ -6,7 +6,7 @@ echo "-outdev ${ISO_NAME}"
 echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
-pushd "${PWD}/results" > /dev/null
+pushd "${PWD}/../results" > /dev/null
 #for file in $(find . -type f)
 for file in ./boot/grub2/grub.cfg ./EFI/BOOT/grub.cfg
 do
@@ -14,14 +14,14 @@ do
     then
         continue
     fi
-    echo "-map ${PWD}/results/${file} ${file:2}"
+    echo "-map ${PWD}/../results/${file} ${file:2}"
     echo "-chmod 0444 ${file:2}"
 done
 popd > /dev/null
 
-if [[ -n "../${FLATPAK_DIR}" ]]
+if [[ -n "${FLATPAK_DIR}" ]]
 then
-    pushd "../${FLATPAK_DIR}" > /dev/null
+    pushd "${FLATPAK_DIR}" > /dev/null
     for file in $(find . -type f)
     do
         echo "-map ${PWD}/${file} flatpak/${file:2}"
