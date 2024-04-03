@@ -18,7 +18,7 @@ define get_templates
 endef
 
 define install_pkg
-	$(PACKAGE_MANAGER) install -y
+	$(PACKAGE_MANAGER) install -y $(if $(findstring dnf,$(PACKAGE_MANAGER)),--disablerepo='*-testing')
 endef
 export install_pkg
 
