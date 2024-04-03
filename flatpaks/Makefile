@@ -1,5 +1,5 @@
 IMAGE := $(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
-FLATPAK_DIR := $(if $(GITHUB_WORKSPACE),$(shell mktemp -d -p $(GITHUB_WORKSPACE) flatpak.XXX),$(PWD))
+FLATPAK_DIR := $(if $(GITHUB_WORKSPACE),$(shell mktemp -d -p $(GITHUB_WORKSPACE) flatpak.XXX),$(PWD)/flatpaks)
 
 .PHONY: full_list
 full_list: repo
@@ -35,5 +35,8 @@ script.sh:
 install-deps:
 
 clean:
+	$(if $(wildcard script.sh),rm script.sh)
+	$(if $(wildcard repo),rm -Rf repo)
+	$(if $(wildcard list.txt),rm list.txt)
 
 .ONESHELL:

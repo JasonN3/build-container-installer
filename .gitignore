@@ -1,6 +1,8 @@
 /debugdata
 /build
 /flatpaks/script.sh
+/flatpaks/repo
+/flatpaks/list.txt
 /lorax_templates/post_*
 /pkglists
 /repos/*.repo

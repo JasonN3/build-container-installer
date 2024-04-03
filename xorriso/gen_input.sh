@@ -7,7 +7,7 @@ echo "-boot_image any replay"
 echo "-joliet on"
 echo "-compliance joliet_long_names"
 pushd "${PWD}/../results" > /dev/null
-#for file in $(find . -type f)
+#for file in $(find .)
 for file in ./boot/grub2/grub.cfg ./EFI/BOOT/grub.cfg
 do
     if [[ "$file" == "./images/boot.iso" ]]
@@ -22,7 +22,7 @@ popd > /dev/null
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd "${FLATPAK_DIR}" > /dev/null
-    for file in $(find repo -type f)
+    for file in $(find repo)
     do
         echo "-map ${PWD}/${file} flatpak/${file}"
         echo "-chmod 0444 flatpak/${file}"
