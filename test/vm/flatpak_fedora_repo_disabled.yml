@@ -9,6 +9,10 @@
     service_facts:
     register: services_state
 
+  - name: Debug
+    debug:
+      var: services_state
+
   - name: Check that flatpak-add-fedora-repos is disabled
     ansible.builtin.assert:
       that:

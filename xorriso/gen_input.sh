@@ -14,7 +14,7 @@ do
     then
         continue
     fi
-    echo "-map ${PWD}/../results/${file} ${file:2}"
+    echo "-map ${PWD}/${file} ${file:2}"
     echo "-chmod 0444 ${file:2}"
 done
 popd > /dev/null
