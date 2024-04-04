@@ -221,7 +221,7 @@ runs:
         then
           echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ steps.flatpak_dependencies.outputs.flatpak_dir }}/list.txt)" >> $GITHUB_OUTPUT
         else
-          if [[ ${{ inputs.flatpak_remote_refs_dir }} != '' ]]
+          if [[ "${{ inputs.flatpak_remote_refs_dir }}" != '' ]]
           then
             echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ inputs.flatpak_remote_refs_dir }}/*)" >> $GITHUB_OUTPUT
           else
