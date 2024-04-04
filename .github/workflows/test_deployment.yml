@@ -83,7 +83,7 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}
+          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
 
       - name: Run VM Tests
         env:
