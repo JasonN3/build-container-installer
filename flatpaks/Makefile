@@ -29,7 +29,7 @@ script.sh:
 	ostree --repo=\$${FLATPAK_SYSTEM_DIR}/repo rev-parse $(FLATPAK_REMOTE_NAME)/\$${i} > /flatpak_dir/repo/refs/heads/\$${i}
 	done
 	flatpak build-update-repo /flatpak_dir/repo
-	ostree refs --repo=/flatpak_dir/repo > /flatpak_dir/list.txt
+	ostree refs --repo=/flatpak_dir/repo | tee /flatpak_dir/list.txt
 	EOF
 
 install-deps:
