@@ -1,8 +1,12 @@
+name: Build Vars
+
 on:
   workflow_call:
     outputs:
       ARCH:
         value: 'x86_64'
+      BUILD_VERSIONS:
+        value: '[38, 39, 40]'
       IMAGE_NAME:
         value: 'base'
       IMAGE_REPO:

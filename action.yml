@@ -24,6 +24,10 @@ inputs:
     description: Whether to enable caching for skopeo
     required: false
     default: "false"
+  enable_flatpak_dependencies:
+    description: Whether to enable automatically determining Flatpak dependencies
+    required: false
+    default: "true"
   enrollment_password:
     description: Used for supporting secure boot (requires secure_boot_key_url to be defined)
     required: false
@@ -40,7 +44,7 @@ inputs:
     required: false
     default: ""
   flatpak_remote_refs_dir:
-    description: Directory that contains files that list the flatpak refs to install
+    description: Directory that contains files that list the flatpak refs to install relative to the github workspace
     required: false
     default: ""
   flatpak_remote_url:
@@ -62,11 +66,15 @@ inputs:
     description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
     required: false
     default: build/deploy.iso
+  make_target:
+    description: "Overrides the default make target"
+    required: false
   repos:
     description: List of repo files for Lorax to use
     required: false
   rootfs_size:
     description: The size (in GiB) for the squashfs runtime volume
+    default: "2"
   secrets_dir:
     description: The location that will be mounted to /run/secrets
     required: false
@@ -91,11 +99,14 @@ inputs:
 
 outputs:
   iso_name:
-    value: ${{ steps.rename_iso.outputs.iso_name }}
+    value: ${{ steps.docker.outputs.iso_name }}
     description: The name of the resulting .iso
   iso_path:
-    value: ${{ steps.rename_iso.outputs.iso_path }}
-    description: The name and path of the resulting .iso
+    value: ${{ steps.docker.outputs.iso_path }}
+    description: The path of the resulting .iso
+  flatpak_refs:
+    value: ${{ steps.docker.outputs.flatpak_refs }}
+    description: The list of Flatpak refs
 
 runs:
   using: composite
@@ -133,7 +144,23 @@ runs:
         mkdir /cache/dnf_new || true
         mkdir /cache/skopeo || true
 
+    - name: Determine Flatpak dependencies
+      if: inputs.enable_flatpak_dependencies == 'true' && (inputs.flatpak_remote_refs != '' || inputs.flatpak_remote_refs_dir != '')
+      id: flatpak_dependencies
+      shell: bash
+      run: |
+        cd ${{ github.action_path }}
+        make flatpaks/repo \
+          FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
+          ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
+          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpak_remote_refs_dir) || ''}} \
+          FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
+          IMAGE_NAME="${{ inputs.image_name }}" \
+          IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_TAG="${{ inputs.image_tag || inputs.version }}"
+
     - name: Run docker image
+      id: docker
       env:
         ACTION_REPO: ${{ github.action_repository }}
         ACTION_REF: ${{ github.action_ref }}
@@ -170,14 +197,6 @@ runs:
         then
           echo "ERROR: flatpak_remote_refs is mutually exclusive to flatpak_remote_refs_dir"
           exit 1
-        else
-          if [[ -n "${{ inputs.flatpak_remote_refs }}" ]]
-          then
-            vars="${vars} FLATPAK_REMOTE_REFS=\"${{ inputs.flatpak_remote_refs }}\""
-          elif [[ -n "${{ inputs.flatpak_remote_refs_dir }}" ]]
-          then
-            vars="${vars} FLATPAK_REMOTE_REFS_DIR=\"${{ inputs.flatpak_remote_refs_dir }}\""
-          fi
         fi
         if [[ -n "${{ inputs.secrets_dir }}" ]]
         then
@@ -189,21 +208,39 @@ runs:
           image=${image}-ubi
         fi
         docker run --privileged ${volumes} --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
+          ${{ inputs.make_target }} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \
           ENROLLMENT_PASSWORD="${{ inputs.enrollment_password }}" \
+          EXTRA_BOOT_PARAMS="${{ inputs.extra_boot_params }}" \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
-          ${vars} \
+          ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
+          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="/github/workspace/{0}"', inputs.flatpak_remote_refs_dir) || ''}} \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
+          FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
+          ISO_NAME=/github/workspace/${{ inputs.iso_name }} \
           REPOS="${{ inputs.repos }}" \
           SECURE_BOOT_KEY_URL="${{ inputs.secure_boot_key_url }}" \
           VARIANT="${{ inputs.variant }}" \
           VERSION="${{ inputs.version }}" \
           WEB_UI="${{ inputs.web_ui }}"
+        echo "iso_path=$(dirname ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
+        echo "iso_name=$(basename ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
+        if [[ "${{ steps.flatpak_dependencies.outputs.flatpak_dir }}" != '' ]]
+        then
+          echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ steps.flatpak_dependencies.outputs.flatpak_dir }}/list.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
+        else
+          if [[ "${{ inputs.flatpak_remote_refs_dir }}" != '' ]]
+          then
+            echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ inputs.flatpak_remote_refs_dir }}/* | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          else
+            echo "flatpak_refs=${{ inputs.flatpak_remote_refs}}" >> $GITHUB_OUTPUT
+          fi
+        fi
 
     - name: Save dnf cache
       env:
@@ -222,27 +259,3 @@ runs:
       with:
         path: /cache/skopeo
         key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
-          
-
-    - name: Rename ISO file
-      id: rename_iso
-      shell: bash
-      run: |
-        if [[ ! ( "${{ inputs.iso_name }}" =~ \.iso$ ) ]]
-        then
-          iso_name="${{ inputs.iso_name }}.iso"
-        else
-          iso_name="${{ inputs.iso_name }}"
-        fi
-        if [[ "${{ inputs.iso_name }}" =~ ^/ ]]
-        then
-          full_path="${iso_name}"
-        else
-          full_path="${{ github.workspace }}/${iso_name}"
-        fi
-        mv ${{ github.workspace }}/build/deploy.iso ${full_path} || true
-        cd $(dirname ${full_path})
-        iso_fn=$(basename ${iso_name})
-        sha256sum ${iso_fn} > ${iso_fn}-CHECKSUM
-        echo "iso_path=${full_path}" >> $GITHUB_OUTPUT
-        echo "iso_name=${iso_fn}" >> $GITHUB_OUTPUT

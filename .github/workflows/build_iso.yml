@@ -1,3 +1,5 @@
+name: Build ISO
+
 on:
   workflow_call:
     inputs:
@@ -7,21 +9,20 @@ on:
       parent_job_name:
         required: true
         type: string
+      flatpaks_refs:
+        required: false
+        type: string
+      flatpaks_refs_dir:
+        required: false
+        type: string
+      suffix:
+        required: false
+        type: string
     secrets:
       RH_REPO: 
         required: true
       RH_ENT:
         required: true
-    outputs:
-      iso_name-38:
-        description: "Version 38 ISO Name"
-        value: ${{ jobs.build_iso.outputs.iso_name-38 }}
-      iso_name-39:
-        description: "Version 39 ISO Name"
-        value: ${{ jobs.build_iso.outputs.iso_name-39 }}
-      iso_name-40:
-        description: "Version 40 ISO Name"
-        value: ${{ jobs.build_iso.outputs.iso_name-40 }}
 
 jobs:
   load_vars:
@@ -43,19 +44,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - 8
-          - 38
-          - 39
-          - 40
+        version: ${{ fromJson(needs.load_vars.outputs.BUILD_VERSIONS) }}
         include:
           - version: 8
             image_tag: 39
             rhel: true
-    outputs:
-      iso_name-38: ${{ steps.save_output.outputs.iso_name-38 }}
-      iso_name-39: ${{ steps.save_output.outputs.iso_name-39 }}
-      iso_name-40: ${{ steps.save_output.outputs.iso_name-40 }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -90,6 +83,22 @@ jobs:
           context: ${{ env.JOB_NAME }} (${{ matrix.version }})
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
 
       - name: Lowercase Registry
         id: registry_case
@@ -128,27 +137,22 @@ jobs:
           image_tag: ${{ matrix.image_tag || matrix.version }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
-          flatpak_remote_refs_dir: ${{ ( ! matrix.rhel ) && format('/github/workspace/{0}', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR ) || '' }}
+          flatpak_remote_refs: ${{ inputs.flatpaks_refs }}
+          flatpak_remote_refs_dir: ${{ inputs.flatpaks_refs_dir }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
-          iso_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}.iso
+          iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
           secrets_dir: ${{ matrix.rhel && format('{0}/ubi', github.workspace) || '' }}
           repos: ${{ matrix.rhel && '/etc/yum.repos.d/redhat.repo' || '/etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo' }}
-
-      - name: Save output
-        id: save_output
-        shell: bash
-        run: |
-          echo "iso_name-${{ matrix.version }}=${{ steps.build.outputs.iso_name}}" >> $GITHUB_OUTPUT
 
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.build.outputs.iso_name }}
+          name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
           path: |
-            ${{ steps.build.outputs.iso_path }}
-            ${{ steps.build.outputs.iso_path }}-CHECKSUM
+            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
+            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
@@ -163,3 +167,4 @@ jobs:
           context: ${{ env.JOB_NAME }} (${{ matrix.version }})
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
+

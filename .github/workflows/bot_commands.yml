@@ -78,6 +78,22 @@ jobs:
       RH_REPO: ${{ secrets.RH_REPO }}
       RH_ENT: ${{ secrets.RH_ENT }}
 
+  run_build_iso:
+    name: Run Build ISO
+    if: >
+      github.event.issue.pull_request && 
+      contains(github.event.comment.body, '/run build iso')
+    permissions:
+      contents: read
+      packages: write
+      statuses: write
+    needs:
+      - permissions
+    uses: ./.github/workflows/build_iso.yml
+    with:
+      pr: ${{ github.event.issue.number }}
+      parent_job_name: Run Build ISO
+
   run_test_iso:
     name: Run ISO Tests
     permissions:
@@ -92,9 +108,6 @@ jobs:
     with:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run ISO Tests
-      iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
-      iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
-      iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
 
   run_test_deployment:
     name: Run ISO Deployment Tests
@@ -110,6 +123,3 @@ jobs:
     with:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run ISO Deployment Tests
-      iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
-      iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
-      iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso

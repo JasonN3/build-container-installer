@@ -1,3 +1,5 @@
+name: Test ISO
+
 on:
   workflow_call:
     inputs:
@@ -7,16 +9,15 @@ on:
       parent_job_name:
         required: true
         type: string
-      iso_name-38:
-        required: true
+      flatpaks_refs:
+        required: false
         type: string
-      iso_name-39:
-        required: true
+      flatpaks_refs_dir:
+        required: false
         type: string
-      iso_name-40:
-        required: true
-        type: string
-      
+      suffix:
+        required: false
+        type: string   
 
 jobs:
   load_vars:
@@ -37,10 +38,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        version:
-          - 38
-          - 39
-          - 40
+        version: ${{ fromJson(needs.load_vars.outputs.BUILD_VERSIONS) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -80,31 +78,27 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y make
-          sudo make install-test-deps PACKAGE_MANAGER=apt-get
+          sudo make test/iso/install-deps PACKAGE_MANAGER=apt-get
 
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ inputs[format('iso_name-{0}', matrix.version)] }}
-    
-      - name: Verify ISO
-        run: |
-          checkisomd5 ${{ inputs[format('iso_name-{0}', matrix.version)] }}
-          sha256sum -c ${{ inputs[format('iso_name-{0}', matrix.version)] }}-CHECKSUM
+          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
 
       - name: Run ISO checks
         run: |
-          mv ${{ inputs[format('iso_name-{0}', matrix.version)] }} deploy.iso
-          make test-iso \
+          make test/iso \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
             IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
             IMAGE_REPO=${{ needs.load_vars.outputs.IMAGE_REPO}} \
             IMAGE_TAG=${{ matrix.version }} \
             VERSION=${{ matrix.version }} \
             VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
-            FLATPAK_REMOTE_REFS_DIR=${{ needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR }} \
+            ${{ inputs.flatpaks_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpaks_refs) || '' }} \
+            ${{ inputs.flatpaks_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpaks_refs_dir) || '' }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
-            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
+            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
+            ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
 
       - name: Set status
         if: inputs.pr && always()

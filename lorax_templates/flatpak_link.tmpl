@@ -1,0 +1,5 @@
+<%page args="flatpak_dir"/>
+
+%if flatpak_dir != "":
+symlink /run/install/repo/flatpak /flatpak
+%endif
