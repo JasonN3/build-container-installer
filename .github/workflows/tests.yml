@@ -49,6 +49,9 @@ jobs:
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build ISO with Flatpaks
       flatpaks_refs_dir: flatpak_refs
       suffix: flatpaks
+    secrets:
+      RH_REPO: ${{ secrets.RH_REPO }}
+      RH_ENT: ${{ secrets.RH_ENT }}
 
   test_iso_flatpaks:
     name: Test ISO with Flatpaks
@@ -82,6 +85,9 @@ jobs:
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Build ISO with Flatpak Refs
       flatpaks_refs: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
       suffix: flatpaks_refs
+    secrets:
+      RH_REPO: ${{ secrets.RH_REPO }}
+      RH_ENT: ${{ secrets.RH_ENT }}
 
   test_iso_flatpak_refs:
     name: Test ISO with Flatpak Refs
