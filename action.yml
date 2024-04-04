@@ -44,7 +44,7 @@ inputs:
     required: false
     default: ""
   flatpak_remote_refs_dir:
-    description: Directory that contains files that list the flatpak refs to install
+    description: Directory that contains files that list the flatpak refs to install relative to the github workspace
     required: false
     default: ""
   flatpak_remote_url:
@@ -101,6 +101,9 @@ outputs:
   iso_path:
     value: ${{ steps.docker.outputs.iso_path }}
     description: The path of the resulting .iso
+  flatpak_refs:
+    value: ${{ steps.docker.outputs.flatpak_refs }}
+    description: The list of Flatpak refs
 
 runs:
   using: composite
@@ -201,7 +204,7 @@ runs:
           EXTRA_BOOT_PARAMS="${{ inputs.extra_boot_params }}" \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
-          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpak_remote_refs_dir) || ''}} \
+          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="/github/workspace/{0}"', inputs.flatpak_remote_refs_dir) || ''}} \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
@@ -214,6 +217,17 @@ runs:
           WEB_UI="${{ inputs.web_ui }}"
         echo "iso_path=$(dirname ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
         echo "iso_name=$(basename ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
+        if [[ "${{ steps.flatpak_dependencies.outputs.flatpak_dir }}" != '' ]]
+        then
+          echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ steps.flatpak_dependencies.outputs.flatpak_dir }}/list.txt)" >> $GITHUB_OUTPUT
+        else
+          if [[ ${{ inputs.flatpak_remote_refs_dir }} != '' ]]
+          then
+            echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ inputs.flatpak_remote_refs_dir }}/*)" >> $GITHUB_OUTPUT
+          else
+            echo "flatpak_refs=${{ inputs.flatpak_remote_refs}}" >> $GITHUB_OUTPUT
+          fi
+        fi
 
     - name: Save dnf cache
       env:
