@@ -44,12 +44,9 @@ for line in action_lines:
           inputs[var_name]['default_value'] = parts[1].strip().strip('"')
     elif line.startswith('  '):
       var_name = line.strip().strip(':').lower()
-      if var_name in inputs:
-        inputs[var_name][action] = True
-      else:
-        print("WARNING: " + var_name + " found in action.yml but not Makefile")
+      if not var_name in inputs:
         inputs[var_name] = {}
-        inputs[var_name]['action'] = True
+      inputs[var_name]['action'] = True
     else:
       at_inputs = False
 
@@ -97,9 +94,25 @@ for line in readme_lines:
       var_name = parts[1].strip().lower()
       if not var_name in inputs:
         print("ERROR: " + var_name + " is not listed in action.yml or Makefile")
-        inputs[var_name] = {}
-      print(inputs[var_name])
-      var_description = parts[2].strip()
-      var_default_value = parts[3].strip()
-      var_action = parts[4].strip()
-      var_makefile = parts[5].strip()
+        errors += 1
+        continue
+      if 'description' in inputs[var_name]:
+        if parts[2].strip() != inputs[var_name]['description']:
+          print("WARNING: " + var_name + " description in README.md does not match action.yml")
+      if 'default_value' in inputs[var_name]:
+        if not parts[3].strip().strip('"').startswith('*'):
+          if inputs[var_name]['default_value'] == "":
+            if parts[3].strip().strip('"') != '\\[empty\\]':
+              print("ERROR: " + var_name + " default value in README.md does not match action.yml")
+              errors += 1
+          elif parts[3].strip().strip('"') != inputs[var_name]['default_value']:
+            print("ERROR: " + var_name + " default value in README.md does not match action.yml")
+            errors += 1
+      if 'action' in inputs[var_name] and inputs[var_name]['action']:
+        if parts[4].strip() != ':white_check_mark:':
+          print("WARNING: " + var_name + " not labeled as in action.yml in the README.md")
+      if 'makefile' in inputs[var_name] and inputs[var_name]['makefile']:
+        if parts[4].strip() != ':white_check_mark:':
+          print("WARNING: " + var_name + " not labeled as in Makefile in the README.md")
+
+exit(errors)

@@ -22,7 +22,6 @@ popd > /dev/null
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd "${FLATPAK_DIR}" > /dev/null
-    chmod -R ugo=rX .
     for file in $(find repo)
     do
         if [[ "${file}" == "repo/.lock" ]]
@@ -30,6 +29,7 @@ then
             continue
         fi
         echo "-map ${PWD}/${file} flatpak/${file}"
+        echo "-chmod 0444 ${file}"
     done
     popd > /dev/null
 fi
