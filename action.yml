@@ -66,8 +66,8 @@ inputs:
     description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
     required: false
     default: build/deploy.iso
-  make_action:
-    description: "Overrides the default make action"
+  make_target:
+    description: "Overrides the default make target"
     required: false
   repos:
     description: List of repo files for Lorax to use
@@ -196,7 +196,7 @@ runs:
           exit 1
         fi
         docker run --privileged --volume ${{ github.workspace }}:/github/workspace/ ${cache} ${image}:${tag} \
-          ${{ inputs.make_action }} \
+          ${{ inputs.make_target }} \
           ADDITIONAL_TEMPLATES="${{ inputs.additional_templates }}" \
           ARCH="${{ inputs.arch }}" \
           DNF_CACHE="/cache/dnf" \
