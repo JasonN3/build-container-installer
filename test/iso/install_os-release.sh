@@ -1,6 +1,6 @@
 #!/bin/bash
 
-FOUND_VERSION=$(cat /mnt/install/etc/os-release | grep VERSION_ID | cut -d= -f2)
+FOUND_VERSION=$(grep VERSION_ID mnt/install/etc/os-release | cut -d= -f2)
 
 if [[ ${FOUND_VERSION} != ${VERSION} ]]
 then

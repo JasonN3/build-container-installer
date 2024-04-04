@@ -85,9 +85,6 @@ jobs:
     with:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run ISO Tests
-      iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
-      iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
-      iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
 
   run_test_deployment:
     name: Run ISO Deployment Tests
@@ -106,6 +103,3 @@ jobs:
     with:
       pr: ${{ github.event.issue.number }}
       parent_job_name: Run ISO Deployment Tests
-      iso_name-38: ${{ needs.load_vars.outputs.IMAGE_NAME }}-38.iso
-      iso_name-39: ${{ needs.load_vars.outputs.IMAGE_NAME }}-39.iso
-      iso_name-40: ${{ needs.load_vars.outputs.IMAGE_NAME }}-40.iso
