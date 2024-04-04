@@ -92,7 +92,7 @@ jobs:
           VM_IP: "127.0.0.1"
           VM_PORT: "5555"
         run: |
-          make test/vm ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}.iso \
+          make test/vm ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso \
             VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
             IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
