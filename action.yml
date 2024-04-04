@@ -219,11 +219,11 @@ runs:
         echo "iso_name=$(basename ${{ inputs.iso_name }})" >> $GITHUB_OUTPUT
         if [[ "${{ steps.flatpak_dependencies.outputs.flatpak_dir }}" != '' ]]
         then
-          echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ steps.flatpak_dependencies.outputs.flatpak_dir }}/list.txt)" >> $GITHUB_OUTPUT
+          echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ steps.flatpak_dependencies.outputs.flatpak_dir }}/list.txt | tr '\n' ' ')" >> $GITHUB_OUTPUT
         else
           if [[ "${{ inputs.flatpak_remote_refs_dir }}" != '' ]]
           then
-            echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ inputs.flatpak_remote_refs_dir }}/*)" >> $GITHUB_OUTPUT
+            echo "flatpak_refs=$(cat ${{ github.workspace }}/${{ inputs.flatpak_remote_refs_dir }}/* | tr '\n' ' ')" >> $GITHUB_OUTPUT
           else
             echo "flatpak_refs=${{ inputs.flatpak_remote_refs}}" >> $GITHUB_OUTPUT
           fi
