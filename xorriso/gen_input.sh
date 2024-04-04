@@ -29,7 +29,7 @@ then
             continue
         fi
         echo "-map ${PWD}/${file} flatpak/${file}"
-        echo "-chmod 0444 ${file}"
+        echo "-chmod 0444 flatpak/${file}"
     done
     popd > /dev/null
 fi
