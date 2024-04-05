@@ -150,7 +150,7 @@ runs:
         make flatpaks/repo \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
-          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpak_remote_refs_dir) || ''}} \
+          ${{ inputs.flatpak_remote_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}/{1}"', github.workspace, inputs.flatpak_remote_refs_dir) || ''}} \
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
