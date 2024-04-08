@@ -14,8 +14,11 @@ do
     then
         continue
     fi
-    echo "-map ${PWD}/${file} ${file:2}"
-    echo "-chmod 0444 ${file:2}"
+    if [[ -f ${PWD}/${file} ]]
+    then
+        echo "-map ${PWD}/${file} ${file:2}"
+        echo "-chmod 0444 ${file:2}"
+    fi
 done
 popd > /dev/null
 
