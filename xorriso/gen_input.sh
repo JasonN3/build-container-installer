@@ -35,7 +35,6 @@ then
 fi
 
 pushd "${PWD}/../" > /dev/null
-ls -alh ${PWD}
 if [ -f ${PWD}/sb_pubkey.der ]
 then
 	echo "-map ${PWD}/sb_pubkey.der sb_pubkey.der"
