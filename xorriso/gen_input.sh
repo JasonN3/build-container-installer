@@ -34,6 +34,8 @@ then
     popd > /dev/null
 fi
 
+ls -alh ${PWD}
+
 if [ -f ${PWD}/../sb_pubkey.der ]
 then
 	echo "-map ${PWD}/../sb_pubkey.der sb_pubkey.der"
