@@ -22,7 +22,7 @@ on:
 jobs:
   load_vars:
     name: Load Variables
-    uses: ./.github/workflows/build_vars_rhel.yml
+    uses: ./.github/workflows/build_vars.yml
       
   build_iso:
     name: Build ISO
