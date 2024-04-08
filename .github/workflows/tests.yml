@@ -149,7 +149,7 @@ jobs:
     name: Test RHEL ISO
     needs:
       - build_iso
-    uses: ./.github/workflows/test_iso.yml
+    uses: ./.github/workflows/test_iso_rhel.yml
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test ISO
@@ -159,7 +159,7 @@ jobs:
     name: Test RHEL Deployment
     needs:
       - build_iso
-    uses: ./.github/workflows/test_deployment.yml
+    uses: ./.github/workflows/test_deployment_rhel.yml
     with:
       pr: ${{ inputs.pr }}
       parent_job_name: ${{ inputs.parent_job_name && format('{0} / ', inputs.parent_job_name) }}Test Deployment
