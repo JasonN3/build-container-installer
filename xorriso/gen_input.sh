@@ -34,7 +34,7 @@ then
     popd > /dev/null
 fi
 
-ls -alh ${PWD}
+find ${PWD}/../
 
 if [ -f ${PWD}/../sb_pubkey.der ]
 then
