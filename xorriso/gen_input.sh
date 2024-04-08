@@ -8,7 +8,6 @@ echo "-joliet on"
 echo "-compliance joliet_long_names"
 pushd "${PWD}/../results" > /dev/null
 #for file in $(find .)
-find
 for file in ./boot/grub2/grub.cfg ./EFI/BOOT/grub.cfg
 do
     if [[ "$file" == "./images/boot.iso" ]]
