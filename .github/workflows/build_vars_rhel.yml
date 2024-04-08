@@ -6,19 +6,15 @@ on:
       ARCH:
         value: 'x86_64'
       BUILD_VERSIONS:
-        value: '[38, 39, 40]'
-      BUILD_VERSIONS_RHEL:
         value: '[8]'
       IMAGE_NAME:
-        value: 'base'
+        value: 'fedora-bootc'
       IMAGE_REPO:
-        value: 'quay.io/fedora-ostree-desktops'
+        value: 'quay.io/centos-bootc'
       IMAGE_TAG:
-        value: '39'
+        value: 'eln'
       VARIANT:
         value: 'Server'
-      FLATPAK_REMOTE_REFS_DIR:
-        value: flatpak_refs
       SECURE_BOOT_KEY_URL:
         value: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
       ENROLLMENT_PASSWORD:

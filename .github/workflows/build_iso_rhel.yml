@@ -9,20 +9,19 @@ on:
       parent_job_name:
         required: true
         type: string
-      flatpaks_refs:
-        required: false
-        type: string
-      flatpaks_refs_dir:
-        required: false
-        type: string
       suffix:
         required: false
         type: string
+    secrets:
+      RH_REPO: 
+        required: true
+      RH_ENT:
+        required: true
 
 jobs:
   load_vars:
     name: Load Variables
-    uses: ./.github/workflows/build_vars_rhel.yml
+    uses: ./.github/workflows/build_vars.yml
       
   build_iso:
     name: Build ISO
@@ -109,6 +108,14 @@ jobs:
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - name: Get UBI Subs
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.RH_REPO }}
+          ssh-key: ${{ secrets.RH_ENT }}
+          persist-credentials: false
+          path: ubi
+
       - name: Build ISO
         uses: ./
         id: build
@@ -116,15 +123,14 @@ jobs:
           arch: ${{ needs.load_vars.outputs.ARCH }}
           image_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}
           image_repo: ${{ needs.load_vars.outputs.IMAGE_REPO }}
-          image_tag: ${{ matrix.version }}
+          image_tag: ${{ needs.load_vars.outputs.IMAGE_TAG }}
           version: ${{ matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
-          flatpak_remote_refs: ${{ inputs.flatpaks_refs }}
-          flatpak_remote_refs_dir: ${{ inputs.flatpaks_refs_dir }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
-          repos: '/etc/yum.repos.d/fedora.repo /etc/yum.repos.d/fedora-updates.repo'
+          secrets_dir: ${{ format('{0}/ubi', github.workspace) }}
+          repos: '/etc/yum.repos.d/redhat.repo'
 
       - name: Upload ISO as artifact
         id: upload
