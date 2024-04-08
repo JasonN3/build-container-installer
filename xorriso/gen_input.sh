@@ -34,13 +34,11 @@ then
     popd > /dev/null
 fi
 
-pushd "${PWD}/../" > /dev/null
-if [ -f ${PWD}/sb_pubkey.der ]
+if [ -f ${PWD}/../sb_pubkey.der ]
 then
-	echo "-map ${PWD}/sb_pubkey.der sb_pubkey.der"
+	echo "-map ${PWD}/../sb_pubkey.der sb_pubkey.der"
 	echo "-chmod 0444 /sb_pubkey.der"
 fi
-popd > /dev/null
 
 pushd "${PWD}/../container" > /dev/null
 for file in $(find "${IMAGE_NAME}-${IMAGE_TAG}" -type f)
