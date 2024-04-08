@@ -102,7 +102,7 @@ $(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorris
 
 # Download the secure boot key
 sb_pubkey.der:
-	curl --fail -L -o sb_pubkey.der $(SECURE_BOOT_KEY_URL) && ls -alh
+	curl --fail -L -o sb_pubkey.der $(SECURE_BOOT_KEY_URL)
 
 # Build boot.iso using Lorax
 results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES) $(if $(SECURE_BOOT_KEY_URL),sb_pubkey.der)
