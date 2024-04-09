@@ -64,6 +64,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }})"
+          per_page: 100
 
       - name: Set status
         if: inputs.pr && always()

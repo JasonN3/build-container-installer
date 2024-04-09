@@ -34,9 +34,9 @@ then
     popd > /dev/null
 fi
 
-if [ -f $(pwd)/sb_pubkey.der ]
+if [ -f "${PWD}/../sb_pubkey.der" ]
 then
-	echo "-map $(pwd)/../sb_pubkey.der sb_pubkey.der"
+	echo "-map ${PWD}/../sb_pubkey.der sb_pubkey.der"
 	echo "-chmod 0444 /sb_pubkey.der"
 fi
 
