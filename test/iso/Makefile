@@ -10,9 +10,10 @@ $(ISO_TESTS): mnt/iso
 
 mnt/iso:
 	sudo modprobe loop
-	sudo mkdir -p mnt/iso mnt/install
+	sudo mkdir -p mnt/iso mnt/live mnt/install
 	sudo mount -o loop ../../$(ISO_NAME) mnt/iso
-	sudo mount -t squashfs -o loop mnt/iso/images/install.img mnt/install
+	sudo mount -t squashfs -o loop mnt/iso/images/install.img $(if $(_RHEL),mnt/live,mnt/install)
+	$(if $(_RHEL),sudo mount mnt/live/LiveOS/rootfs.img mnt/install)
 
 clean:
 	sudo umount mnt/install || true

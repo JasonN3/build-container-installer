@@ -1,5 +1,5 @@
 <%page args="image_repo, _image_repo_double_escaped, image_name, image_tag, _rhel, version"/>
-if (which bootc &> /dev/null) && [ ${_rhel} == 'false' && ${version} -ge 39 ]
+if (which bootc &> /dev/null) && [ "${_rhel}" != 'true' && ${version} -ge 39 ]
 then
   bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
 else
