@@ -110,7 +110,7 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)
 
 	lorax -p $(if $(findstring true,$(_RHEL)),RHEL,$(IMAGE_NAME)) -v $(VERSION) -r $(VERSION) $($(VARIANT),-t $(VARIANT)) \
-		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
+		--isfinal --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
 		$(foreach file,$(_REPO_FILES),--repo $(PWD)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
