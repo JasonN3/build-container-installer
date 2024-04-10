@@ -19,7 +19,7 @@ VOLUME /build-container-installer/build
 VOLUME /build-container-installer/repos
 VOLUME /cache
 
-RUN dnf install -y make && make install-deps
+RUN dnf install -y make && make install-deps && dnf clean all
 
 ENTRYPOINT ["/bin/bash", "/build-container-installer/entrypoint.sh"]
 
