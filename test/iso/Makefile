@@ -17,7 +17,7 @@ mnt/iso:
 
 clean:
 	sudo umount mnt/install
-	$(if $(wildcard mnt/live),sudo umount mnt/live)
+	$(if $(_RHEL),sudo umount mnt/live)
 	sudo umount mnt/iso
 	sudo rmdir mnt/install mnt/iso $(wildcard mnt/live)
 
