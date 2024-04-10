@@ -32,7 +32,7 @@ files/mnt/iso:
 	sudo mount -o loop ../../$(ISO_NAME) files/mnt/iso
 
 files/grub.cfg: files/mnt/iso
-	cp files/mnt/iso/boot/$(if $(_RHEL),isolinux/grub.conf,grub2/grub.cfg) files/grub.cfg
+	cp files/mnt/iso/$(if $(_RHEL),isolinux/grub.conf,boot/grub2/grub.cfg) files/grub.cfg
 	sed -i 's/quiet/console=ttyS0,115200n8 inst.ks=cdrom:\/ks.cfg/' files/grub.cfg
 	sed -i 's/set default="1"/set default="0"/'                     files/grub.cfg
 	sed -i 's/set timeout=60/set timeout=1/'                        files/grub.cfg
