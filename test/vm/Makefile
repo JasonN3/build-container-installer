@@ -57,7 +57,7 @@ files/install.iso: files/grub.cfg
 	-compliance joliet_long_names
 	-map files/ks.cfg ks.cfg
 	-chmod 0444 ks.cfg
-	-map files/grub.cfg boot/$(if $(_RHEL),isolinux/grub.conf,grub2/grub.cfg)
+	-map files/grub.cfg $(if $(_RHEL),isolinux/grub.conf,boot/grub2/grub.cfg)
 	-end
 	EOF
 
