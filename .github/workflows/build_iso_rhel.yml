@@ -121,16 +121,17 @@ jobs:
         id: build
         with:
           arch: ${{ needs.load_vars.outputs.ARCH }}
+          enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           image_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}
           image_repo: ${{ needs.load_vars.outputs.IMAGE_REPO }}
           image_tag: ${{ needs.load_vars.outputs.IMAGE_TAG }}
-          version: ${{ matrix.version }}
-          variant: ${{ needs.load_vars.outputs.VARIANT }}
-          secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
-          enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
           iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
-          secrets_dir: ${{ format('{0}/ubi', github.workspace) }}
           repos: '/etc/yum.repos.d/redhat.repo'
+          secrets_dir: ${{ format('{0}/ubi', github.workspace) }}
+          secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
+          ubi: "true"
+          variant: ${{ needs.load_vars.outputs.VARIANT }}
+          version: ${{ matrix.version }}
 
       - name: Upload ISO as artifact
         id: upload

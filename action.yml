@@ -84,6 +84,9 @@ inputs:
   skopeo_cache_key:
     description: Overrides the skopeo cache key
     required: false
+  ubi:
+    description: Use the UBI version of the builder image
+    required: false
   variant:
     description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
     required: true
@@ -203,7 +206,7 @@ runs:
           volumes="--volume ${{ inputs.secrets_dir }}:/run/secrets"
         fi
         # RHEL
-        if [[ ${{ inputs.version }} -lt 30 ]]
+        if [[ "${{ inputs.ubi }}" == "true" ]]
         then
           image=${image}-ubi
         fi
