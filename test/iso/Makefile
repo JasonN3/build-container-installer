@@ -16,9 +16,10 @@ mnt/iso:
 	$(if $(_RHEL),sudo mount mnt/live/LiveOS/rootfs.img mnt/install)
 
 clean:
-	sudo umount mnt/install || true
-	sudo umount mnt/iso || true
-	sudo rmdir mnt/install mnt/iso
+	sudo umount mnt/install
+	$(if $(wildcard mnt/live),sudo umount mnt/live)
+	sudo umount mnt/iso
+	sudo rmdir mnt/install mnt/iso $(wildcard mnt/live)
 
 install-deps:
 	$(install_pkg) isomd5sum coreutils squashfs-tools curl

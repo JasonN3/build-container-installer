@@ -36,6 +36,7 @@ files/grub.cfg: files/mnt/iso
 	sed -i 's/quiet/console=ttyS0,115200n8 inst.ks=cdrom:\/ks.cfg/' files/grub.cfg
 	sed -i 's/set default="1"/set default="0"/'                     files/grub.cfg
 	sed -i 's/set timeout=60/set timeout=1/'                        files/grub.cfg
+	cat files/grub.cfg
 
 .PHONY: clean
 clean:
