@@ -83,14 +83,15 @@ jobs:
         run: |
           make test/iso \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
+            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
             IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
             IMAGE_REPO=${{ needs.load_vars.outputs.IMAGE_REPO}} \
             IMAGE_TAG=${{ matrix.version }} \
-            VERSION=${{ matrix.version }} \
-            VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
+            ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso \
+            REPOS=/etc/yum.repos.d/redhat.repo \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
-            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
-            ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
+            VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
+            VERSION=${{ matrix.version }}
 
       - name: Set status
         if: inputs.pr && always()
