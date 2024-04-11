@@ -37,11 +37,11 @@ jobs:
       matrix:
         os:
           - registry.fedoraproject.org/fedora
-          - registry.access.redhat.com/ubi8/ubi
+          - registry.access.redhat.com/ubi9/ubi
         include:
           - os: registry.fedoraproject.org/fedora
             tag: 39
-          - os: registry.access.redhat.com/ubi8/ubi
+          - os: registry.access.redhat.com/ubi9/ubi
             tag: latest
             append: ubi
     steps:
