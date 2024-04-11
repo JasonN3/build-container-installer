@@ -6,7 +6,7 @@ on:
       ARCH:
         value: 'x86_64'
       BUILD_VERSIONS:
-        value: '[38, 39, 40, eln]'
+        value: '["38", "39", "40", "eln"]'
       IMAGE_NAME:
         value: 'base'
       IMAGE_REPO:
