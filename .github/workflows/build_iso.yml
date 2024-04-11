@@ -9,15 +9,6 @@ on:
       parent_job_name:
         required: true
         type: string
-      flatpaks_refs:
-        required: false
-        type: string
-      flatpaks_refs_dir:
-        required: false
-        type: string
-      suffix:
-        required: false
-        type: string
 
 jobs:
   load_vars:
@@ -38,8 +29,7 @@ jobs:
     continue-on-error: false
     strategy:
       fail-fast: false
-      matrix:
-        version: ${{ fromJson(needs.load_vars.outputs.BUILD_VERSIONS) }}
+      matrix: ${{ fromJson(needs.load_vars.outputs.BUILD_MATRIX) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,7 +53,7 @@ jobs:
         id: jobs
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }})"
+          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
           per_page: 100
 
       - name: Set status
@@ -72,7 +62,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
-          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
+          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
@@ -111,31 +101,35 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build ISO
-        if: matrix.version != 'eln' || ( inputs.flatpak_remote_refs_dir == '' && inputs.flatpaks_refs == '')
         uses: ./
         id: build
+        env:
+          IMAGE_NAME: "${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}"
+          IMAGE_REPO: "${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}"
         with:
           arch: ${{ needs.load_vars.outputs.ARCH }}
-          image_name: ${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}
-          image_repo: ${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}
-          image_tag: ${{ matrix.version || matrix.version }}
+          image_name: ${{ env.IMAGE_NAME }}
+          image_repo: ${{ env.IMAGE_REPO}}
+          image_tag: ${{ matrix.version }}
           version: ${{ matrix.version == 'eln' && '39' || matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
-          flatpak_remote_refs: ${{ inputs.flatpaks_refs }}
-          flatpak_remote_refs_dir: ${{ inputs.flatpaks_refs_dir }}
+          flatpak_remote_refs: ${{ matrix.flatpaks == 'flatpak_refs' && needs.load_vars.outputs.FLATPAK_REMOTE_REFS || '' }}
+          flatpak_remote_refs_dir: ${{ matrix.flatpaks == 'flatpak_refs_dir' && needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR || '' }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
-          iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
+          iso_name: build/${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
 
       - name: Upload ISO as artifact
-        if: matrix.version != 'eln' || ( inputs.flatpak_remote_refs_dir == '' && inputs.flatpaks_refs == '')
         id: upload
         uses: actions/upload-artifact@v4
+        env:
+          IMAGE_NAME: "${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}"
+          IMAGE_REPO: "${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}"
         with:
-          name: ${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
+          name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}
           path: |
-            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
-            build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso-CHECKSUM
+            build/${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
+            build/${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0
@@ -147,7 +141,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
-          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
+          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 

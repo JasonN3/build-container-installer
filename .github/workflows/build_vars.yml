@@ -5,8 +5,31 @@ on:
     outputs:
       ARCH:
         value: 'x86_64'
-      BUILD_VERSIONS:
-        value: '["38", "39", "40", "eln"]'
+      BUILD_MATRIX:
+        value: '
+          {
+            "version": [
+              "38", 
+              "39", 
+              "40", 
+              "eln"
+            ], 
+            "flatpaks": [
+              "false",
+              "flatpak_dir",
+              "flatpak_refs"
+            ],
+            "exclude": [
+              {
+                "version": "eln",
+                "flatpaks": "flatpak_dir"
+              },
+              {
+                "version": "eln",
+                "flatpaks": "flatpak_refs"
+              }
+            ]
+          }'
       IMAGE_NAME:
         value: 'base'
       IMAGE_REPO:
@@ -15,6 +38,8 @@ on:
         value: 'Server'
       FLATPAK_REMOTE_REFS_DIR:
         value: flatpak_refs
+      FLATPAK_REMOTE_REFS:
+        value: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
       SECURE_BOOT_KEY_URL:
         value: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
       ENROLLMENT_PASSWORD:
