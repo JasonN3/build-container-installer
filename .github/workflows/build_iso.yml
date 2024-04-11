@@ -111,14 +111,15 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build ISO
+        if: matrix.version != 'eln' || ( inputs.flatpak_remote_refs_dir == '' && inputs.flatpaks_refs == '')
         uses: ./
         id: build
         with:
           arch: ${{ needs.load_vars.outputs.ARCH }}
-          image_name: ${{ needs.load_vars.outputs.IMAGE_NAME }}
-          image_repo: ${{ needs.load_vars.outputs.IMAGE_REPO }}
-          image_tag: ${{ matrix.version }}
-          version: ${{ matrix.version }}
+          image_name: ${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}
+          image_repo: ${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}
+          image_tag: ${{ matrix.version || matrix.version }}
+          version: ${{ matrix.version == 'eln' && '39' || matrix.version }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
           flatpak_remote_refs: ${{ inputs.flatpaks_refs }}
           flatpak_remote_refs_dir: ${{ inputs.flatpaks_refs_dir }}
@@ -127,6 +128,7 @@ jobs:
           iso_name: build/${{ needs.load_vars.outputs.IMAGE_NAME }}-${{ matrix.version }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso
 
       - name: Upload ISO as artifact
+        if: matrix.version != 'eln' || ( inputs.flatpak_remote_refs_dir == '' && inputs.flatpaks_refs == '')
         id: upload
         uses: actions/upload-artifact@v4
         with:

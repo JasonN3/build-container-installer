@@ -6,13 +6,11 @@ on:
       ARCH:
         value: 'x86_64'
       BUILD_VERSIONS:
-        value: '[38, 39, 40]'
+        value: '[38, 39, 40, eln]'
       IMAGE_NAME:
         value: 'base'
       IMAGE_REPO:
         value: 'quay.io/fedora-ostree-desktops'
-      IMAGE_TAG:
-        value: '39'
       VARIANT:
         value: 'Server'
       FLATPAK_REMOTE_REFS_DIR:
