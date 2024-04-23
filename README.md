@@ -93,12 +93,12 @@ Examples:
 
 Building an ISO to install Fedora 38
 ```bash
-docker run --rm --privileged --volume .:/github/workspace/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
+docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
 ```
 
 Building an ISO to install Fedora 39
 ```bash
-docker run --rm --privileged --volume .:/github/workspace/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
+docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
 ```
 
 ### VSCode Dev Container
