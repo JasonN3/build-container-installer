@@ -93,6 +93,7 @@ jobs:
             IMAGE_REPO=${{ env.IMAGE_REPO}} \
             IMAGE_TAG=${{ matrix.version }} \
             ISO_NAME=${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso \
+            ${{ matrix.version == 'eln' && 'REPOS="repos/centos.repo"' || '' }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
             VERSION=${{ matrix.version == 'eln' && '39' || matrix.version }}
