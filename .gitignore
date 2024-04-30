@@ -5,7 +5,6 @@
 /flatpaks/list.txt
 /lorax_templates/post_*
 /pkglists
-/repos/*.repo
 /results
 /xorriso/input.txt
 /original-pkgsizes.txt

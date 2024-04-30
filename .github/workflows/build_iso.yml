@@ -112,7 +112,7 @@ jobs:
           image_repo: ${{ env.IMAGE_REPO}}
           image_tag: ${{ matrix.version }}
           version: ${{ matrix.version == 'eln' && '9' || matrix.version }}
-          repos: ${{ matrix.version == 'eln' && 'repos/centos.srepo' || '' }}
+          repos: ${{ matrix.version == 'eln' && 'repos/centos.repo' || '' }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
           flatpak_remote_refs: ${{ matrix.flatpaks == 'flatpak_refs' && needs.load_vars.outputs.FLATPAK_REMOTE_REFS || '' }}
           flatpak_remote_refs_dir: ${{ matrix.flatpaks == 'flatpak_refs_dir' && needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR || '' }}

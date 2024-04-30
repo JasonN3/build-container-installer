@@ -35,7 +35,7 @@ _VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 export _RHEL := true
-else ifeq ($(findstring centos.srepo,$(REPOS)),centos.srepo)
+else ifeq ($(findstring centos.repo,$(REPOS)),centos.repo)
 export _RHEL := true
 else
 export _RHEL := false
