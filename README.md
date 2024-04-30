@@ -143,3 +143,12 @@ Build a new container image:
 	"privileged": true
 }
 ```
+## Star History
+
+<a href="https://star-history.com/#jasonn3/build-container-installer&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date" />
+ </picture>
+</a>
