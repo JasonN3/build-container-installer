@@ -38,7 +38,7 @@ export _RHEL := true
 else ifeq ($(findstring centos.repo,$(REPOS)),centos.repo)
 export _RHEL := true
 else
-export _RHEL := false
+undefine _RHEL
 endif
 
 ifeq ($(_RHEL),true)
