@@ -111,7 +111,6 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
-		-i grubby \
 		$(_LORAX_ARGS) \
 		$(foreach file,$(_REPO_FILES),--repo $(PWD)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
