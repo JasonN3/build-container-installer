@@ -211,6 +211,7 @@ runs:
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
           ISO_NAME=/github/workspace/${{ inputs.iso_name }} \
+          ${{ inputs.repos && format('REPOS="{0}"', inputs.repos) || '' }} \
           SECURE_BOOT_KEY_URL="${{ inputs.secure_boot_key_url }}" \
           VARIANT="${{ inputs.variant }}" \
           VERSION="${{ inputs.version }}" \
