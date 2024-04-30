@@ -1,2 +1,6 @@
-append etc/anaconda/conf.d/disable_resolver_copy.conf "[Installation System]"
-append etc/anaconda/conf.d/disable_resolver_copy.conf "provides_resolver_config = False"
+append etc/anaconda/conf.d/anaconda_modules.conf "[Anaconda]"
+append etc/anaconda/conf.d/anaconda_modules.conf "kickstart_modules="
+append etc/anaconda/conf.d/anaconda_modules.conf "    org.fedoraproject.Anaconda.Modules.Network"
+append etc/anaconda/conf.d/anaconda_modules.conf "    org.fedoraproject.Anaconda.Modules.Payloads"
+append etc/anaconda/conf.d/anaconda_modules.conf "    org.fedoraproject.Anaconda.Modules.Storage"
+append etc/anaconda/conf.d/anaconda_modules.conf "    org.fedoraproject.Anaconda.Modules.Users"
