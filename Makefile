@@ -34,11 +34,11 @@ _TEMPLATE_VARS             := ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCA
 _VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
-_RHEL := true
+export _RHEL := true
 else ifeq ($(findstring centos.srepo,$(REPOS)),centos.srepo)
-_RHEL := true
+export _RHEL := true
 else
-_RHEL := false
+export _RHEL := false
 endif
 
 ifeq ($(_RHEL),true)
