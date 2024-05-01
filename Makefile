@@ -97,7 +97,7 @@ $(ISO_NAME)-CHECKSUM: $(ISO_NAME)
 	cd $(dir $(ISO_NAME)) && sha256sum $(notdir $(ISO_NAME)) > $(notdir $(ISO_NAME))-CHECKSUM
 
 # Build end ISO
-$(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+$(ISO_NAME): results/images/boot.iso container/container xorriso/input.txt
 	$(if $(wildcard $(dir $(ISO_NAME))),,mkdir -p $(dir $(ISO_NAME)); chmod ugo=rwX $(dir $(ISO_NAME)))
 	xorriso -dialog on < xorriso/input.txt
 	implantisomd5 $(ISO_NAME)
