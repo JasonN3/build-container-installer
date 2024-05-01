@@ -27,9 +27,9 @@ This action is designed to be called from a GitHub workflow using the following 
     path: |
       ${{ steps.build.outputs.iso_path }}
       ${{ steps.build.outputs.iso_path }}-CHECKSUM
-  if-no-files-found: error
-  retention-days: 0
-  compression-level: 0
+    if-no-files-found: error
+    retention-days: 0
+    compression-level: 0
 ```
 
 See [Customizing](#customizing) for information about customizing the ISO that gets created using `with`
