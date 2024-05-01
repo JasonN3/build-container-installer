@@ -44,7 +44,7 @@ then
 fi
 
 pushd "${PWD}/../container" > /dev/null
-for file in $(find container)
+for file in $(find container -type f)
 do
     echo "-map ${PWD}/${file} ${file}"
     echo "-chmod 0444 ${file}"
