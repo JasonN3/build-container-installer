@@ -46,9 +46,9 @@ endif
 ifeq ($(_RHEL),true)
 _LORAX_ARGS += --nomacboot --noupgrade
 else ifeq ($(VARIANT),Server)
-_LORAX_ARGS += --macboot --noupgrade
+_LORAX_ARGS += --macboot --noupgrade --squashfs-only
 else
-_LORAX_ARGS += --nomacboot
+_LORAX_ARGS += --nomacboot --squashfs-only
 endif
 
 ifeq ($(WEB_UI),true)
@@ -114,7 +114,7 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
+		--isfinal --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
 		$(foreach file,$(_REPO_FILES),--repo $(PWD)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
