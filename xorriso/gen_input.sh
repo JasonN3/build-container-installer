@@ -43,11 +43,11 @@ then
 	echo "-chmod 0444 /sb_pubkey.der"
 fi
 
-pushd "${PWD}/../container" > /dev/null
-for file in $(find "${IMAGE_NAME}-${IMAGE_TAG}" -type f)
+pushd "${PWD}/../container/${IMAGE_NAME}-${IMAGE_TAG}" > /dev/null
+for file in $(find)
 do
-    echo "-map ${PWD}/${file} ${file}"
-    echo "-chmod 0444 ${file}"
+    echo "-map ${PWD}/${file} container/${file}"
+    echo "-chmod 0444 container/${file}"
 done
 popd > /dev/null
 echo "-end"
