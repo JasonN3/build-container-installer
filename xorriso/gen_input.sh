@@ -51,5 +51,5 @@ do
 done
 popd > /dev/null
 echo "-map ${PWD}/temp.ks temp.ks"
-echo "-chmoc 0444 temp.ks"
+echo "-chmod 0444 temp.ks"
 echo "-end"
