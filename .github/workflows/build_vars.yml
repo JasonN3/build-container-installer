@@ -5,18 +5,53 @@ on:
     outputs:
       ARCH:
         value: 'x86_64'
-      BUILD_VERSIONS:
-        value: '[38, 39, 40]'
-      IMAGE_NAME:
-        value: 'base'
-      IMAGE_REPO:
-        value: 'quay.io/fedora-ostree-desktops'
-      IMAGE_TAG:
-        value: '39'
+      BUILD_MATRIX:
+        value: '
+          {
+            "version": [
+              "38", 
+              "39", 
+              "40", 
+            ], 
+            "flatpaks": [
+              "false",
+              "flatpak_dir",
+              "flatpak_refs"
+            ],
+            "exclude": [
+              {
+                "version": "40",
+                "flatpaks": "flatpak_dir"
+              },
+              {
+                "version": "40",
+                "flatpaks": "flatpak_refs"
+              }
+            ],
+            "include": [
+              {
+                "version": "38",
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_name": "base"
+              },
+              {
+                "version": "39",
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_name": "base"
+              },
+              {
+                "version": "40",
+                "image_repo": "quay.io/fedora",
+                "image_name": "fedora-bootc"
+              }
+            ]
+          }'
       VARIANT:
         value: 'Server'
       FLATPAK_REMOTE_REFS_DIR:
         value: flatpak_refs
+      FLATPAK_REMOTE_REFS:
+        value: "app/org.mozilla.firefox/x86_64/stable app/org.videolan.VLC/x86_64/stable"
       SECURE_BOOT_KEY_URL:
         value: 'https://github.com/ublue-os/akmods/raw/main/certs/public_key.der'
       ENROLLMENT_PASSWORD:

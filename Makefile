@@ -34,17 +34,18 @@ _TEMPLATE_VARS             := ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCA
 _VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
-_RHEL := true
+export _RHEL := true
+_LORAX_TEMPLATES += $(call get_templates,rhel)
 else
-_RHEL := false
+undefine _RHEL
 endif
 
 ifeq ($(_RHEL),true)
 _LORAX_ARGS += --nomacboot --noupgrade
 else ifeq ($(VARIANT),Server)
-_LORAX_ARGS += --macboot --noupgrade
+_LORAX_ARGS += --macboot --noupgrade --squashfs-only
 else
-_LORAX_ARGS += --nomacboot
+_LORAX_ARGS += --nomacboot --squashfs-only
 endif
 
 ifeq ($(WEB_UI),true)
@@ -110,7 +111,7 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
-		--isfinal --squashfs-only --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
+		--isfinal --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
 		$(foreach file,$(_REPO_FILES),--repo $(PWD)/$(file)) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
@@ -131,7 +132,7 @@ clean:
 
 .PHONY: install-deps
 install-deps:
-	$(install_pkg) lorax xorriso coreutils gettext
+	$(install_pkg) lorax xorriso coreutils gettext syslinux-nonlinux
 	$(foreach DIR,$(filter-out test,$(_SUBDIRS)),$(MAKE) -w -C $(DIR) install-deps;)
 
 

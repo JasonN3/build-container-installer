@@ -9,15 +9,6 @@ on:
       parent_job_name:
         required: true
         type: string
-      flatpaks_refs:
-        required: false
-        type: string
-      flatpaks_refs_dir:
-        required: false
-        type: string
-      suffix:
-        required: false
-        type: string
 
 jobs:
   load_vars:
@@ -37,8 +28,7 @@ jobs:
     continue-on-error: false
     strategy:
       fail-fast: false
-      matrix:
-        version: ${{ fromJson(needs.load_vars.outputs.BUILD_VERSIONS) }}
+      matrix: ${{ fromJson(needs.load_vars.outputs.BUILD_MATRIX) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,7 +52,7 @@ jobs:
         id: jobs
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }})"
+          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
           per_page: 100
 
       - name: Set status
@@ -71,7 +61,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
-          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
+          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
@@ -84,7 +74,7 @@ jobs:
       - name: Download generated ISO
         uses: actions/download-artifact@v4
         with:
-          name: ${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}
+          name: ${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}
 
       - name: Run VM Tests
         env:
@@ -93,18 +83,23 @@ jobs:
           VM_IP: "127.0.0.1"
           VM_PORT: "5555"
         run: |
-          make test/vm ISO_NAME=${{ format('{0}-{1}', needs.load_vars.outputs.IMAGE_NAME, matrix.version) }}${{ inputs.suffix && format('-{0}', inputs.suffix || '') }}.iso \
-            VM_IP=${VM_IP} VM_PORT=${VM_PORT} VM_USER=${VM_USER} VM_PASS=${VM_PASS} \
+          make test/vm \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
-            IMAGE_NAME=${{ needs.load_vars.outputs.IMAGE_NAME}} \
-            IMAGE_REPO=${{ needs.load_vars.outputs.IMAGE_REPO}} \
+            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
+            ${{ matrix.flatpaks == 'flatpak_refs' && format('FLATPAK_REMOTE_REFS="{0}"', needs.load_vars.outputs.FLATPAK_REMOTE_REFS) || '' }} \
+            ${{ matrix.flatpaks == 'flatpak_refs_dir' && format('FLATPAK_REMOTE_REFS_DIR="{0}"', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR) || '' }} \
+            IMAGE_NAME=${{ matrix.image_name }} \
+            IMAGE_REPO=${{ matrix.image_repo }} \
             IMAGE_TAG=${{ matrix.version }} \
-            VERSION=${{ matrix.version }} \
-            VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
-            ${{ inputs.flatpaks_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpaks_refs) || '' }} \
-            ${{ inputs.flatpaks_refs_dir && format('FLATPAK_REMOTE_REFS_DIR="{0}"', inputs.flatpaks_refs_dir) || '' }} \
+            ISO_NAME=${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso \
+            ${{ matrix.repos != '' && format('REPOS="{0}"', matrix.repos) || '' }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
-            ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
+            VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
+            VERSION=${{ matrix.version }} \
+            VM_IP=${VM_IP} \
+            VM_PASS=${VM_PASS} \
+            VM_PORT=${VM_PORT} \
+            VM_USER=${VM_USER}
 
       - name: Set status
         if: inputs.pr && always()
@@ -112,6 +107,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
-          context: ${{ env.JOB_NAME }} (${{ matrix.version }})
+          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}

@@ -2,9 +2,11 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/35a48e77e64f469ba19d60a1a1e0be71)](https://app.codacy.com/gh/JasonN3/build-container-installer/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 # Build Container Installer Action
+
 This action is used to generate an ISO for installing an OSTree stored in a container image. This utilizes the anaconda command `ostreecontainer`
 
 ## Usage
+
 This action is designed to be called from a GitHub workflow using the following format
 ```yaml
 - name: Build ISO
@@ -36,9 +38,11 @@ This action is designed to be called from a GitHub workflow using the following 
 See [Customizing](#customizing) for information about customizing the ISO that gets created using `with`
 
 ## Customizing
+
 The following variables can be used to customize the created ISO.
 
 ### Inputs
+
 | Variable                | Description                                                                  | Default Value                                | Action             | Container/Makefile |
 | ----------------------- | ---------------------------------------------------------------------------- | -------------------------------------------- | ------------------ | ------------------ |
 | additional_templates    | Space delimited list of additional Lorax templates to include                | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
@@ -48,12 +52,12 @@ The following variables can be used to customize the created ISO.
 | flatpak_remote_name     | Name of the Flatpak repo on the destination OS                               | flathub                                      | :white_check_mark: | :white_check_mark: |
 | flatpak_remote_refs     | Space separated list of flatpak refs to install                              | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
 | flatpak_remote_refs_dir | Directory that contains files that list the flatpak refs to install          | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
-| flatpak_remote_url      | URL of the flatpakrepo file                                                  | https://flathub.org/repo/flathub.flatpakrepo | :white_check_mark: | :white_check_mark: |
+| flatpak_remote_url      | URL of the flatpakrepo file                                                  | <https://flathub.org/repo/flathub.flatpakrepo> | :white_check_mark: | :white_check_mark: |
 | image_name              | Name of the source container image                                           | base                                         | :white_check_mark: | :white_check_mark: |
 | image_repo              | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               | :white_check_mark: | :white_check_mark: |
 | image_tag               | Tag of the source container image                                            | *VERSION*                                    | :white_check_mark: | :white_check_mark: |
 | iso_name                | Name of the ISO you wish to output when completed                            | build/deploy.iso                             | :white_check_mark: | :white_check_mark: |
-| make_target             | Overrides the default make target                                            | *ISO Checksum*                               | :white_check_mark: | :x:                |
+| make_target             | Overrides the default make target                                            | *ISO_NAME*-Checksum                          | :white_check_mark: | :x:                |
 | repos                   | List of repo files for Lorax to use                                          | /etc/yum.repos.d/*.repo                      | :white_check_mark: | :white_check_mark: |
 | rootfs_size             | The size (in GiB) for the squashfs runtime volume                            | 2                                            | :white_check_mark: | :white_check_mark: |
 | secure_boot_key_url     | Secure boot key that is installed from URL location\*\*                      | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
@@ -67,6 +71,7 @@ Variant will be the third item in the package name. Example: `fedora-release-kin
 \*\* If you need to reference a local file, you can use `file://*path*`
 
 ### Outputs
+
 | Variable | Description                             | Usage                                            |
 | -------- | ----------------------------------------| ------------------------------------------------ |
 | iso_name | The name of the resulting .iso          | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
@@ -75,7 +80,9 @@ Variant will be the third item in the package name. Example: `fedora-release-kin
 For outputs, see example above.
 
 ## Development
+
 ### Makefile
+
 The Makefile contains all of the commands that are run in the action. There are separate targets for each file generated, however `make` can be used to generate the final image and `make clean` can be used to clean up the workspace. The resulting ISO will be stored in the `build` directory.
 
 `make install-deps` can be used to install the necessary packages
@@ -83,6 +90,7 @@ The Makefile contains all of the commands that are run in the action. There are 
 See [Customizing](#customizing) for information about customizing the ISO that gets created. All variable should be specified CAPITALIZED.
 
 ### Container
+
 A container with `make install-deps` already run is provided at `ghcr.io/jasonn3/build-container-installer:latest`
 
 To use the container file, run `docker run --privileged --volume .:/build-container-installer/build ghcr.io/jasonn3/build-container-installer:latest`.
@@ -103,6 +111,7 @@ docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.i
 ```
 
 ### VSCode Dev Container
+
 There is a dev container configuration provided for development. By default it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`, however, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
 
 The code from VSCode will be available at `/workspaces/build-container-installer` once the container has started.
@@ -112,35 +121,45 @@ Privileged is required for access to loop devices for lorax.
 Use existing container image:
 ```
 {
-	"name": "Existing Dockerfile",
-	// "build": {
-	// 	"context": "..",
-	// 	"dockerfile": "../Containerfile",
-	// 	"args": {
-	// 		"version": "39"
-	// 	}
-	// },
-	"image": "ghcr.io/jasonn3/build-container-installer:latest",
-	"overrideCommand": true,
-	"shutdownAction": "stopContainer",
-	"privileged": true
+  "name": "Existing Dockerfile",
+//  "build": {
+//    "context": "..",
+//    "dockerfile": "../Containerfile",
+//    "args": {
+//      "version": "39"
+//    }
+//  },
+  "image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "overrideCommand": true,
+  "shutdownAction": "stopContainer",
+  "privileged": true
 }
 ```
 
 Build a new container image:
 ```
 {
-	"name": "Existing Dockerfile",
-	"build": {
-		"context": "..",
-		"dockerfile": "../Containerfile",
-		"args": {
-			"version": "39"
-		}
-	},
-	//"image": "ghcr.io/jasonn3/build-container-installer:latest",
-	"overrideCommand": true,
-	"shutdownAction": "stopContainer",
-	"privileged": true
+  "name": "Existing Dockerfile",
+  "build": {
+    "context": "..",
+    "dockerfile": "../Containerfile",
+    "args": {
+      "version": "39"
+    }
+  },
+  //"image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "overrideCommand": true,
+  "shutdownAction": "stopContainer",
+  "privileged": true
 }
 ```
+
+## Star History
+
+<a href="https://star-history.com/#jasonn3/build-container-installer&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date" />
+ </picture>
+</a>
