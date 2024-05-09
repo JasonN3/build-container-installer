@@ -1,7 +1,16 @@
-<%page args="image_repo, _image_repo_double_escaped, image_name, image_tag, _rhel, version"/>
+<%page args="image_repo, _image_repo_double_escaped, image_name, image_signed, image_tag, _rhel, version"/>
+
 if (which bootc &> /dev/null) && [ ${_rhel} == 'false' && ${version} -ge 39 ]
 then
+% if image_signed == 'true':
   bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
+% else:
+  bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
+% endif
 else
+% if image_signed == 'true':
   sed -i 's/container-image-reference=.*/container-image-reference=ostree-image-signed:docker:\/\/${_image_repo_double_escaped}\/${image_name}:${image_tag}/' /ostree/deploy/default/deploy/*.origin
+% else:
+  sed -i 's/container-image-reference=.*/container-image-reference=ostree-unverified-image:docker:\/\/${_image_repo_double_escaped}\/${image_name}:${image_tag}/' /ostree/deploy/default/deploy/*.origin
+% endif
 fi
