@@ -122,13 +122,13 @@ Use existing container image:
 ```
 {
   "name": "Existing Dockerfile",
-  // "build": {
-  // 	"context": "..",
-  // 	"dockerfile": "../Containerfile",
-  // 	"args": {
-  // 		"version": "39"
-  // 	}
-  // },
+//  "build": {
+//    "context": "..",
+//    "dockerfile": "../Containerfile",
+//    "args": {
+//      "version": "39"
+//    }
+//  },
   "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
