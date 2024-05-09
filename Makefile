@@ -36,9 +36,6 @@ _VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 export _RHEL := true
 _LORAX_TEMPLATES += $(call get_templates,rhel)
-else ifeq ($(findstring centos.repo,$(REPOS)),centos.repo)
-export _RHEL := true
-_LORAX_TEMPLATES += $(call get_templates,rhel)
 else
 undefine _RHEL
 endif
