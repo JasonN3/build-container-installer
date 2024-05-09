@@ -103,34 +103,28 @@ jobs:
       - name: Build ISO
         uses: ./
         id: build
-        env:
-          IMAGE_NAME: "${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}"
-          IMAGE_REPO: "${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}"
         with:
           arch: ${{ needs.load_vars.outputs.ARCH }}
-          image_name: ${{ env.IMAGE_NAME }}
-          image_repo: ${{ env.IMAGE_REPO}}
+          image_name: ${{ matrix.image_name }}
+          image_repo: ${{ matrix.image_repo}}
           image_tag: ${{ matrix.version }}
-          version: ${{ matrix.version == 'eln' && '9' || matrix.version }}
-          repos: ${{ matrix.version == 'eln' && 'repos/centos.repo' || '' }}
+          version: ${{ matrix.version }}
+          repos: ${{ matrix.repos }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
           flatpak_remote_refs: ${{ matrix.flatpaks == 'flatpak_refs' && needs.load_vars.outputs.FLATPAK_REMOTE_REFS || '' }}
           flatpak_remote_refs_dir: ${{ matrix.flatpaks == 'flatpak_refs_dir' && needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR || '' }}
           secure_boot_key_url: ${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }}
           enrollment_password: ${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }}
-          iso_name: build/${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
+          iso_name: build/${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
 
       - name: Upload ISO as artifact
         id: upload
         uses: actions/upload-artifact@v4
-        env:
-          IMAGE_NAME: "${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}"
-          IMAGE_REPO: "${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}"
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}
+          name: ${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}
           path: |
-            build/${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
-            build/${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso-CHECKSUM
+            build/${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
+            build/${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso-CHECKSUM
           if-no-files-found: error
           retention-days: 0
           compression-level: 0

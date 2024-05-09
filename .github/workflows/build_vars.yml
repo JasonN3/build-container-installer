@@ -12,7 +12,6 @@ on:
               "38", 
               "39", 
               "40", 
-              "eln"
             ], 
             "flatpaks": [
               "false",
@@ -21,19 +20,33 @@ on:
             ],
             "exclude": [
               {
-                "version": "eln",
+                "version": "40",
                 "flatpaks": "flatpak_dir"
               },
               {
-                "version": "eln",
+                "version": "40",
                 "flatpaks": "flatpak_refs"
+              }
+            ],
+            "include": [
+              {
+                "version": "38",
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_name": "base"
+              },
+              {
+                "version": "39",
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_name": "base"
+              },
+              {
+                "version": "40",
+                "image_repo": "quay.io/fedora",
+                "image_name": "fedora-bootc",
+                "repos": "repos/centos.repo"
               }
             ]
           }'
-      IMAGE_NAME:
-        value: 'base'
-      IMAGE_REPO:
-        value: 'quay.io/fedora-ostree-desktops'
       VARIANT:
         value: 'Server'
       FLATPAK_REMOTE_REFS_DIR:
