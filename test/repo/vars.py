@@ -16,7 +16,7 @@ for line in makefile_lines:
     var_name = parts[0].strip().split(' ')[1].lower()
   else:
     var_name = parts[0].strip().lower()
-  inputs[var_name] = {'default_value': parts[1].strip(' []'), 'makefile': True}
+  inputs[var_name] = {'default_value': parts[1].strip(' <>'), 'makefile': True}
 
 action = open('../../action.yml', 'r')
 action_lines = action.readlines()
