@@ -69,6 +69,10 @@ inputs:
   make_target:
     description: "Overrides the default make target"
     required: false
+  online:
+    description: Whether to download the container image on boot instead of storing the image on the ISO
+    required: false
+    default: "false"
   repos:
     description: List of repo files for Lorax to use
     required: false
@@ -211,6 +215,7 @@ runs:
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
           ISO_NAME=/github/workspace/${{ inputs.iso_name }} \
+          ONLINE=${{ inputs.online }} \
           ${{ inputs.repos && format('REPOS="{0}"', inputs.repos) || '' }} \
           SECURE_BOOT_KEY_URL="${{ inputs.secure_boot_key_url }}" \
           VARIANT="${{ inputs.variant }}" \
