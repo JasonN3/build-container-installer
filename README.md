@@ -52,7 +52,7 @@ The following variables can be used to customize the created ISO.
 | flatpak_remote_name     | Name of the Flatpak repo on the destination OS                               | flathub                                      | :white_check_mark: | :white_check_mark: |
 | flatpak_remote_refs     | Space separated list of flatpak refs to install                              | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
 | flatpak_remote_refs_dir | Directory that contains files that list the flatpak refs to install          | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
-| flatpak_remote_url      | URL of the flatpakrepo file                                                  | [https://flathub.org/repo/flathub.flatpakrepo] | :white_check_mark: | :white_check_mark: |
+| flatpak_remote_url      | URL of the flatpakrepo file                                                  | <https://flathub.org/repo/flathub.flatpakrepo> | :white_check_mark: | :white_check_mark: |
 | image_name              | Name of the source container image                                           | base                                         | :white_check_mark: | :white_check_mark: |
 | image_repo              | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               | :white_check_mark: | :white_check_mark: |
 | image_tag               | Tag of the source container image                                            | *VERSION*                                    | :white_check_mark: | :white_check_mark: |
