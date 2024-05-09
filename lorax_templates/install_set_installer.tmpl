@@ -1,4 +1,4 @@
 <%page args="image_name, image_tag"/>
 
-append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=/run/install/repo/container --transport=oci --no-signature-verification"
+append usr/share/anaconda/interactive-defaults.ks "ostreecontainer --url=/run/install/repo/${image_name}-${image_tag} --transport=oci --no-signature-verification"
 

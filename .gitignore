@@ -6,7 +6,6 @@
 /lorax_templates/post_*
 /pkglists
 /repos/*.repo
-!/repos/centos.repo
 /results
 /xorriso/input.txt
 /original-pkgsizes.txt

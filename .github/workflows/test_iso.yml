@@ -90,7 +90,7 @@ jobs:
             ${{ matrix.repos != '' && format('REPOS="{0}"', matrix.repos) || '' }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
-            VERSION=${{ matrix.version == 'eln' && '39' || matrix.version }}
+            VERSION=${{ matrix.version }}
 
       - name: Set status
         if: inputs.pr && always()

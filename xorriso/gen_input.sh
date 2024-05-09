@@ -44,12 +44,10 @@ then
 fi
 
 pushd "${PWD}/../container" > /dev/null
-for file in $(find container -type f)
+for file in $(find "${IMAGE_NAME}-${IMAGE_TAG}" -type f)
 do
     echo "-map ${PWD}/${file} ${file}"
     echo "-chmod 0444 ${file}"
 done
 popd > /dev/null
-echo "-map ${PWD}/temp.ks temp.ks"
-echo "-chmod 0444 temp.ks"
 echo "-end"
