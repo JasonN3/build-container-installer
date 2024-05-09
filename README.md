@@ -57,7 +57,7 @@ The following variables can be used to customize the created ISO.
 | image_repo              | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               | :white_check_mark: | :white_check_mark: |
 | image_tag               | Tag of the source container image                                            | *VERSION*                                    | :white_check_mark: | :white_check_mark: |
 | iso_name                | Name of the ISO you wish to output when completed                            | build/deploy.iso                             | :white_check_mark: | :white_check_mark: |
-| make_target             | Overrides the default make target                                            | *ISO Checksum*                               | :white_check_mark: | :x:                |
+| make_target             | Overrides the default make target                                            | *ISO_NAME*-Checksum                          | :white_check_mark: | :x:                |
 | repos                   | List of repo files for Lorax to use                                          | /etc/yum.repos.d/*.repo                      | :white_check_mark: | :white_check_mark: |
 | rootfs_size             | The size (in GiB) for the squashfs runtime volume                            | 2                                            | :white_check_mark: | :white_check_mark: |
 | secure_boot_key_url     | Secure boot key that is installed from URL location\*\*                      | \[empty\]                                    | :white_check_mark: | :white_check_mark: |
