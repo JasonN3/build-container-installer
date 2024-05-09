@@ -16,7 +16,7 @@ for line in makefile_lines:
     var_name = parts[0].strip().split(' ')[1].lower()
   else:
     var_name = parts[0].strip().lower()
-  inputs[var_name] = {'default_value': parts[1].strip(' <>'), 'makefile': True}
+  inputs[var_name] = {'default_value': parts[1].strip(), 'makefile': True}
 
 action = open('../../action.yml', 'r')
 action_lines = action.readlines()
@@ -100,12 +100,12 @@ for line in readme_lines:
         if parts[2].strip() != inputs[var_name]['description']:
           print("WARNING: " + var_name + " description in README.md does not match action.yml")
       if 'default_value' in inputs[var_name]:
-        if not parts[3].strip().strip('"').startswith('*'):
+        if not parts[3].strip().strip('"<>').startswith('*'):
           if inputs[var_name]['default_value'] == "":
             if parts[3].strip().strip('"') != '\\[empty\\]':
               print("ERROR: " + var_name + " default value in README.md does not match action.yml")
               errors += 1
-          elif parts[3].strip().strip('"') != inputs[var_name]['default_value']:
+          elif parts[3].strip().strip('"<>') != inputs[var_name]['default_value']:
             print("ERROR: " + var_name + " default value in README.md does not match action.yml")
             errors += 1
       if 'action' in inputs[var_name] and inputs[var_name]['action']:
