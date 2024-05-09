@@ -1,2 +1,2 @@
 all
-rule 'MD013', :allowed_elements => ['a','img','picture','source']
+rule 'MD033', :allowed_elements => ["a","img","picture","source"]
