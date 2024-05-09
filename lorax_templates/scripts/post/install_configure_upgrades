@@ -2,15 +2,17 @@
 
 if (which bootc &> /dev/null) && [ ${_rhel} == 'false' && ${version} -ge 39 ]
 then
-% if image_signed == 'true':
-  bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
-% else:
-  bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
-% endif
+  if [ ${image_signed} == 'true' ]
+  then
+    bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
+  else
+    bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
+  fi
 else
-% if image_signed == 'true':
-  sed -i 's/container-image-reference=.*/container-image-reference=ostree-image-signed:docker:\/\/${_image_repo_double_escaped}\/${image_name}:${image_tag}/' /ostree/deploy/default/deploy/*.origin
-% else:
-  sed -i 's/container-image-reference=.*/container-image-reference=ostree-unverified-image:docker:\/\/${_image_repo_double_escaped}\/${image_name}:${image_tag}/' /ostree/deploy/default/deploy/*.origin
-% endif
+  if [ ${image_signed} == 'true' ]
+  then
+    sed -i 's/container-image-reference=.*/container-image-reference=ostree-image-signed:docker:\/\/${_image_repo_double_escaped}\/${image_name}:${image_tag}/' /ostree/deploy/default/deploy/*.origin
+  else
+    sed -i 's/container-image-reference=.*/container-image-reference=ostree-unverified-image:docker:\/\/${_image_repo_double_escaped}\/${image_name}:${image_tag}/' /ostree/deploy/default/deploy/*.origin
+  fi
 fi
