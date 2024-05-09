@@ -73,27 +73,21 @@ jobs:
 
       - name: Download generated ISO
         uses: actions/download-artifact@v4
-        env:
-          IMAGE_NAME: "${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}"
-          IMAGE_REPO: "${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}"
         with:
-          name: ${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}
+          name: ${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}
 
       - name: Run ISO checks
-        env:
-          IMAGE_NAME: "${{ matrix.version == 'eln' && 'fedora-bootc' || needs.load_vars.outputs.IMAGE_NAME }}"
-          IMAGE_REPO: "${{ matrix.version == 'eln' && 'quay.io/centos-bootc' || needs.load_vars.outputs.IMAGE_REPO }}"
         run: |
           make test/iso \
             ARCH=${{ needs.load_vars.outputs.ARCH}} \
             ENROLLMENT_PASSWORD=${{ needs.load_vars.outputs.ENROLLMENT_PASSWORD }} \
             ${{ matrix.flatpaks == 'flatpak_refs' && format('FLATPAK_REMOTE_REFS="{0}"', needs.load_vars.outputs.FLATPAK_REMOTE_REFS) || '' }} \
             ${{ matrix.flatpaks == 'flatpak_refs_dir' && format('FLATPAK_REMOTE_REFS_DIR="{0}"', needs.load_vars.outputs.FLATPAK_REMOTE_REFS_DIR) || '' }} \
-            IMAGE_NAME=${{ env.IMAGE_NAME}} \
-            IMAGE_REPO=${{ env.IMAGE_REPO}} \
+            IMAGE_NAME=${{ matrix.image_name }} \
+            IMAGE_REPO=${{ matrix.image_repo }} \
             IMAGE_TAG=${{ matrix.version }} \
-            ISO_NAME=${{ env.IMAGE_NAME }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso \
-            ${{ matrix.version == 'eln' && 'REPOS="repos/centos.repo"' || '' }} \
+            ISO_NAME=${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso \
+            ${{ matrix.repos != '' && format('REPOS="{0}"', matrix.repos) || '' }} \
             SECURE_BOOT_KEY_URL=${{ needs.load_vars.outputs.SECURE_BOOT_KEY_URL }} \
             VARIANT=${{ needs.load_vars.outputs.VARIANT }} \
             VERSION=${{ matrix.version == 'eln' && '39' || matrix.version }}
