@@ -42,8 +42,7 @@ on:
               {
                 "version": "40",
                 "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc",
-                "repos": "repos/centos.repo"
+                "image_name": "fedora-bootc"
               }
             ]
           }'
