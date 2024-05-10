@@ -6,7 +6,7 @@ then
   then
     bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
   else
-    bootc switch --mutate-in-place --enforce-container-sigpolicy --transport registry ${image_repo}/${image_name}:${image_tag}
+    bootc switch --mutate-in-place --transport registry ${image_repo}/${image_name}:${image_tag}
   fi
 else
   if [ ${image_signed} == 'true' ]
