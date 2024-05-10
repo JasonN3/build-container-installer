@@ -59,6 +59,10 @@ inputs:
     description: Repository containing the source container image
     required: true
     default: quay.io/fedora-ostree-desktops
+  image_signed:
+    description: Whether the container image is signed. The policy to test the signing must be configured inside the container image
+    required: false
+    default: "true"
   image_tag:
     description: Tag of the source container image. Defaults to the installer version
     required: false
@@ -209,6 +213,7 @@ runs:
           FLATPAK_DIR="${{ steps.flatpak_dependencies.outputs.flatpak_dir && format('/github/workspace/{0}', steps.flatpak_dependencies.outputs.flatpak_dir) || '' }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_SIGNED="${{ inputs.image_signed }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
           ISO_NAME=/github/workspace/${{ inputs.iso_name }} \
           ${{ inputs.repos && format('REPOS="{0}"', inputs.repos) || '' }} \
