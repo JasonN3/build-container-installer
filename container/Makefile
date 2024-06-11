@@ -1,5 +1,5 @@
 $(IMAGE_NAME)-$(IMAGE_TAG):
-	skopeo copy docker://$(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG) oci:$(IMAGE_NAME)-$(IMAGE_TAG)
+	skopeo copy $(IMAGE_SRC) oci:$(IMAGE_NAME)-$(IMAGE_TAG)
 
 install-deps:
 	$(install_pkg) skopeo

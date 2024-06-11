@@ -63,6 +63,9 @@ inputs:
     description: Whether the container image is signed. The policy to test the signing must be configured inside the container image
     required: false
     default: "true"
+  image_src:
+    description: Overrides the source of the container image. Must be formatted for the skopeo copy command
+    required: false
   image_tag:
     description: Tag of the source container image. Defaults to the installer version
     required: false

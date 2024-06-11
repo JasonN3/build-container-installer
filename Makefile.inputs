@@ -6,6 +6,7 @@ export ARCH                    := x86_64
 export EXTRA_BOOT_PARAMS       :=
 export IMAGE_NAME              := base
 export IMAGE_REPO              := quay.io/fedora-ostree-desktops
+export IMAGE_SRC                = docker://$(IMAGE_REPO)/$(IMAGE_NAME):$(IMAGE_TAG)
 export IMAGE_TAG                = $(VERSION)
 export IMAGE_SIGNED            := true
        REPOS                   := $(subst :,\:,$(wildcard /etc/yum.repos.d/*.repo))
