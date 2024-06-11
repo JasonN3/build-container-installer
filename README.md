@@ -86,11 +86,11 @@ For outputs, see example above.
 
 ### Makefile
 
-The Makefile contains all of the commands that are run in the action. There are separate targets for each file generated, however `make` can be used to generate the final image and `make clean` can be used to clean up the workspace. The resulting ISO will be stored in the `build` directory.
+The Makefile contains all commands that are run the action. There are separate targets for each file generated, however `make` can be used to generate the final image and `make clean` can be used to clean up the workspace. The resulting ISO will be stored in the `build` directory.
 
-`make install-deps` can be used to install the necessary packages
+You can use `make install-deps` to install the required packages.
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created. All variable should be specified CAPITALIZED.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. All variables should be specified in CAPITALIZED form.
 
 ### Container
 
@@ -117,7 +117,7 @@ docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.i
 
 ### VSCode Dev Container
 
-There is a dev container configuration provided for development. By default it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`, however, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
+There is a dev container configuration provided for development. By default, it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`. However, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
 
 The code from VSCode will be available at `/workspaces/build-container-installer` once the container has started.
 
