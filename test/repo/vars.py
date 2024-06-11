@@ -104,9 +104,13 @@ for line in readme_lines:
           if inputs[var_name]['default_value'] == "":
             if parts[3].strip().strip('"') != '\\[empty\\]':
               print("ERROR: " + var_name + " default value in README.md does not match action.yml")
+              print("Found " + parts[3].strip().strip('"<>'))
+              print("Expected " + inputs[var_name]['default_value'])
               errors += 1
           elif parts[3].strip().strip('"<>') != inputs[var_name]['default_value']:
             print("ERROR: " + var_name + " default value in README.md does not match action.yml")
+            print("Found " + parts[3].strip().strip('"<>'))
+            print("Expected " + inputs[var_name]['default_value'])
             errors += 1
       if 'action' in inputs[var_name] and inputs[var_name]['action']:
         if parts[4].strip() != ':white_check_mark:':

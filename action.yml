@@ -161,6 +161,7 @@ runs:
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_SRC="${{ inputs.image_src }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}"
 
     - name: Run docker image
@@ -217,6 +218,7 @@ runs:
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_SIGNED="${{ inputs.image_signed }}" \
+          IMAGE_SRC="${{ inputs.image_src }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
           ISO_NAME=/github/workspace/${{ inputs.iso_name }} \
           ${{ inputs.repos && format('REPOS="{0}"', inputs.repos) || '' }} \
