@@ -100,7 +100,7 @@ To use the container file, run `docker run --privileged --volume .:/build-contai
 
 This will create an ISO with the baked in defaults of the container image. The resulting file will be called `deploy.iso`
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created. The variable can either be defined as environment variables. All variable should be specified CAPITALIZED.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. All variables should be specified in CAPITALIZED form.
 Examples:
 
 Building an ISO to install Fedora 38
