@@ -29,26 +29,26 @@ inputs:
     required: false
     default: "true"
   enrollment_password:
-    description: Used for supporting secure boot (requires secure_boot_key_url to be defined)
+    description: Used for supporting secure boot (requires SECURE_BOOT_KEY_URL to be defined)
     required: false
     default: "container-installer"
   extra_boot_params:
     description: Extra params used by grub to boot the anaconda installer
     required: false
   flatpak_remote_name:
-    description: Name of the Flatpak remote repo
+    description: Name of the Flatpak repo on the destination OS
     required: false
     default: "flathub"
   flatpak_remote_refs:
-    description: Space delimited list of refs to the flatpak packages to install
+    description: Space separated list of flatpak refs to install
     required: false
     default: ""
   flatpak_remote_refs_dir:
-    description: Directory that contains files that list the flatpak refs to install relative to the github workspace
+    description: Directory that contains files that list the flatpak refs to install
     required: false
     default: ""
   flatpak_remote_url:
-    description: The URL of the Flatpak remote flatpakrepo file
+    description: URL of the flatpakrepo file
     required: false
     default: https://flathub.org/repo/flathub.flatpakrepo
   image_name:
@@ -63,15 +63,18 @@ inputs:
     description: Whether the container image is signed. The policy to test the signing must be configured inside the container image
     required: false
     default: "true"
+  image_src:
+    description: Overrides the source of the container image. Must be formatted for the skopeo copy command
+    required: false
   image_tag:
-    description: Tag of the source container image. Defaults to the installer version
+    description: Tag of the source container image
     required: false
   iso_name:
-    description: "Name of the resulting ISO. Relative paths are relative to github.workspace"
+    description: Name of the ISO you wish to output when completed
     required: false
     default: build/deploy.iso
   make_target:
-    description: "Overrides the default make target"
+    description: Overrides the default make target
     required: false
   repos:
     description: List of repo files for Lorax to use
@@ -158,6 +161,7 @@ runs:
           FLATPAK_REMOTE_URL="${{ inputs.flatpak_remote_url }}" \
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_SRC="${{ inputs.image_src }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}"
 
     - name: Run docker image
@@ -214,6 +218,7 @@ runs:
           IMAGE_NAME="${{ inputs.image_name }}" \
           IMAGE_REPO="${{ inputs.image_repo }}" \
           IMAGE_SIGNED="${{ inputs.image_signed }}" \
+          IMAGE_SRC="${{ inputs.image_src }}" \
           IMAGE_TAG="${{ inputs.image_tag || inputs.version }}" \
           ISO_NAME=/github/workspace/${{ inputs.iso_name }} \
           ${{ inputs.repos && format('REPOS="{0}"', inputs.repos) || '' }} \

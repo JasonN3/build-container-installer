@@ -9,7 +9,6 @@ on:
         value: '
           {
             "version": [
-              "38", 
               "39", 
               "40", 
             ], 
@@ -29,11 +28,6 @@ on:
               }
             ],
             "include": [
-              {
-                "version": "38",
-                "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base"
-              },
               {
                 "version": "39",
                 "image_repo": "quay.io/fedora-ostree-desktops",

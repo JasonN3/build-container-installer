@@ -8,6 +8,7 @@ This action is used to generate an ISO for installing an OSTree stored in a cont
 ## Usage
 
 This action is designed to be called from a GitHub workflow using the following format
+
 ```yaml
 - name: Build ISO
   uses: jasonn3/build-container-installer@main
@@ -56,6 +57,7 @@ The following variables can be used to customize the created ISO.
 | image_name              | Name of the source container image                                           | base                                         | :white_check_mark: | :white_check_mark: |
 | image_repo              | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               | :white_check_mark: | :white_check_mark: |
 | image_signed            | Whether the container image is signed. The policy to test the signing must be configured inside the container image | true  | :white_check_mark: | :white_check_mark: |
+| image_src               | Overrides the source of the container image. Must be formatted for the skopeo copy command | \[empty\]  | :white_check_mark: | :white_check_mark: |
 | image_tag               | Tag of the source container image                                            | *VERSION*                                    | :white_check_mark: | :white_check_mark: |
 | iso_name                | Name of the ISO you wish to output when completed                            | build/deploy.iso                             | :white_check_mark: | :white_check_mark: |
 | make_target             | Overrides the default make target                                            | *ISO_NAME*-Checksum                          | :white_check_mark: | :x:                |
@@ -84,11 +86,11 @@ For outputs, see example above.
 
 ### Makefile
 
-The Makefile contains all of the commands that are run in the action. There are separate targets for each file generated, however `make` can be used to generate the final image and `make clean` can be used to clean up the workspace. The resulting ISO will be stored in the `build` directory.
+The Makefile contains all commands that are run the action. There are separate targets for each file generated, however `make` can be used to generate the final image and `make clean` can be used to clean up the workspace. The resulting ISO will be stored in the `build` directory.
 
-`make install-deps` can be used to install the necessary packages
+You can use `make install-deps` to install the required packages.
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created. All variable should be specified CAPITALIZED.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. All variables should be specified in CAPITALIZED form.
 
 ### Container
 
@@ -98,39 +100,42 @@ To use the container file, run `docker run --privileged --volume .:/build-contai
 
 This will create an ISO with the baked in defaults of the container image. The resulting file will be called `deploy.iso`
 
-See [Customizing](#customizing) for information about customizing the ISO that gets created. The variable can either be defined as environment variables. All variable should be specified CAPITALIZED.
+See [Customizing](#customizing) for information about customizing the ISO that gets created. All variables should be specified in CAPITALIZED form.
 Examples:
 
 Building an ISO to install Fedora 38
+
 ```bash
 docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
 ```
 
 Building an ISO to install Fedora 39
+
 ```bash
 docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
 ```
 
 ### VSCode Dev Container
 
-There is a dev container configuration provided for development. By default it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`, however, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
+There is a dev container configuration provided for development. By default, it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`. However, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
 
 The code from VSCode will be available at `/workspaces/build-container-installer` once the container has started.
 
 Privileged is required for access to loop devices for lorax.
 
 Use existing container image:
-```
+
+```diff
 {
-  "name": "Existing Dockerfile",
-//  "build": {
-//    "context": "..",
-//    "dockerfile": "../Containerfile",
-//    "args": {
-//      "version": "39"
-//    }
-//  },
-  "image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "name": "Existing Image",
+- "build": {
+-   "context": "..",
+-   "dockerfile": "../Containerfile",
+-  "args": {
+-     "version": "39"
+-   }
+- },
++ "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
   "privileged": true
@@ -138,17 +143,18 @@ Use existing container image:
 ```
 
 Build a new container image:
-```
+
+```diff
 {
-  "name": "Existing Dockerfile",
-  "build": {
-    "context": "..",
-    "dockerfile": "../Containerfile",
-    "args": {
-      "version": "39"
-    }
-  },
-  //"image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "name": "New Image",
++ "build": {
++   "context": "..",
++   "dockerfile": "../Containerfile",
++   "args": {
++     "version": "39"
++   }
++ },
+- "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
   "privileged": true
