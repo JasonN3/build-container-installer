@@ -86,6 +86,12 @@ _LORAX_TEMPLATES += $(call get_templates,secureboot)
 _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
+ifneq ($(IMAGE_TAR),)
+_IMAGE_TARGET := container/$(IMAGE_NAME)-$(IMAGE_TAG)-tar
+else
+_IMAGE_TARGET := container/$(IMAGE_NAME)-$(IMAGE_TAG)
+endif
+
 _SUBDIRS := container external flatpak_refs lorax_templates repos xorriso test
 
 # Create checksum
@@ -94,7 +100,7 @@ $(ISO_NAME)-CHECKSUM: $(ISO_NAME)
 	cd $(dir $(ISO_NAME)) && sha256sum $(notdir $(ISO_NAME)) > $(notdir $(ISO_NAME))-CHECKSUM
 
 # Build end ISO
-$(ISO_NAME): results/images/boot.iso container/$(IMAGE_NAME)-$(IMAGE_TAG) xorriso/input.txt
+$(ISO_NAME): results/images/boot.iso $(_IMAGE_TARGET) xorriso/input.txt
 	$(if $(wildcard $(dir $(ISO_NAME))),,mkdir -p $(dir $(ISO_NAME)); chmod ugo=rwX $(dir $(ISO_NAME)))
 	xorriso -dialog on < xorriso/input.txt
 	implantisomd5 $(ISO_NAME)
