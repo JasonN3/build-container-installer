@@ -56,7 +56,7 @@ The following variables can be used to customize the created ISO.
 | image_name              | Name of the source container image                                           | base                                         | :white_check_mark: | :white_check_mark: |
 | image_repo              | Repository containing the source container image                             | quay.io/fedora-ostree-desktops               | :white_check_mark: | :white_check_mark: |
 | image_signed            | Whether the container image is signed. The policy to test the signing must be configured inside the container image | true  | :white_check_mark: | :white_check_mark: |
-| image_src               | Overrides the source of the container image. Must be formatted for the skopeo copy command | docker://*IMAGE_REPO*/*IMAGE_NAME*:*IMAGE_TAG*  | :white_check_mark: | :white_check_mark: |
+| image_src               | Overrides the source of the container image. Must be formatted for the skopeo copy command | \[empty\]  | :white_check_mark: | :white_check_mark: |
 | image_tag               | Tag of the source container image                                            | *VERSION*                                    | :white_check_mark: | :white_check_mark: |
 | iso_name                | Name of the ISO you wish to output when completed                            | build/deploy.iso                             | :white_check_mark: | :white_check_mark: |
 | make_target             | Overrides the default make target                                            | *ISO_NAME*-Checksum                          | :white_check_mark: | :x:                |

@@ -97,7 +97,7 @@ for line in readme_lines:
         errors += 1
         continue
       if 'description' in inputs[var_name]:
-        if parts[2].strip() != inputs[var_name]['description']:
+        if parts[2].strip().strip('\*') != inputs[var_name]['description']:
           print("WARNING: " + var_name + " description in README.md does not match action.yml")
       if 'default_value' in inputs[var_name]:
         if not parts[3].strip().strip('"<>').startswith('*'):
