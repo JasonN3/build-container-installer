@@ -8,6 +8,7 @@ This action is used to generate an ISO for installing an OSTree stored in a cont
 ## Usage
 
 This action is designed to be called from a GitHub workflow using the following format
+
 ```yaml
 - name: Build ISO
   uses: jasonn3/build-container-installer@main
@@ -103,11 +104,13 @@ See [Customizing](#customizing) for information about customizing the ISO that g
 Examples:
 
 Building an ISO to install Fedora 38
+
 ```bash
 docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=38 IMAGE_NAME=base IMAGE_TAG=38 VARIANT=Server
 ```
 
 Building an ISO to install Fedora 39
+
 ```bash
 docker run --rm --privileged --volume .:/build-container-installer/build  ghcr.io/jasonn3/build-container-installer:latest VERSION=39 IMAGE_NAME=base IMAGE_TAG=39 VARIANT=Server
 ```
@@ -121,17 +124,18 @@ The code from VSCode will be available at `/workspaces/build-container-installer
 Privileged is required for access to loop devices for lorax.
 
 Use existing container image:
-```
+
+```diff
 {
-  "name": "Existing Dockerfile",
-//  "build": {
-//    "context": "..",
-//    "dockerfile": "../Containerfile",
-//    "args": {
-//      "version": "39"
-//    }
-//  },
-  "image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "name": "Existing Image",
+- "build": {
+-   "context": "..",
+-   "dockerfile": "../Containerfile",
+-  "args": {
+-     "version": "39"
+-   }
+- },
++ "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
   "privileged": true
@@ -139,17 +143,18 @@ Use existing container image:
 ```
 
 Build a new container image:
-```
+
+```diff
 {
-  "name": "Existing Dockerfile",
-  "build": {
-    "context": "..",
-    "dockerfile": "../Containerfile",
-    "args": {
-      "version": "39"
-    }
-  },
-  //"image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "name": "New Image",
++ "build": {
++   "context": "..",
++   "dockerfile": "../Containerfile",
++   "args": {
++     "version": "39"
++   }
++ },
+- "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
   "privileged": true
