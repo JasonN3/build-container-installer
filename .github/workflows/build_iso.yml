@@ -119,6 +119,7 @@ jobs:
           iso_name: build/${{ matrix.image_name }}-${{ matrix.version }}${{ matrix.flatpaks == 'false' && '' || format('-{0}', matrix.flatpaks) }}.iso
 
       - name: Upload ISO as artifact
+        if: matrix.version != 'fake'
         id: upload
         uses: actions/upload-artifact@v4
         with:
