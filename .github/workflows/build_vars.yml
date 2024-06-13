@@ -37,6 +37,12 @@ on:
                 "version": "40",
                 "image_repo": "quay.io/fedora",
                 "image_name": "fedora-bootc"
+              },
+              {
+                "version": "fake",
+                "image_repo": "quay.io/fedora",
+                "image_name": "fedora-bootc",
+                "image_src": "docker://quay.io/fedora-ostree-desktops/base:39"
               }
             ]
           }'
