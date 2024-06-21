@@ -128,6 +128,7 @@ jobs:
         env:
           TAGS: ${{ steps.build-image.outputs.tags }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
           images=""
           digest=""
