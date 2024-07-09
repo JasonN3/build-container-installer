@@ -1,6 +1,6 @@
 # Using the VSCode Dev Container
 
-There is a dev container configuration provided for development. By default it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`, however, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
+There is a dev container configuration provided for development. By default, it will use the existing container image available at `ghcr.io/jasonn3/build-container-installer:latest`. However, you can have it build a new image by editing `.devcontainer/devcontainer.json` and replacing `image` with `build`. `Ctrl+/` can be used to comment and uncomment blocks of code within VSCode.
 
 The code from VSCode will be available at `/workspaces/build-container-installer` once the container has started.
 
