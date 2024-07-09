@@ -8,5 +8,5 @@ docs:
 	  mv "$${source_file}" "$${final_file}"; \
 	  no_ext_source=$$(basename -s .md $$source_file); \
 	  no_ext_final=$$(basename -s .md $$final_file); \
-	  sed -i "s/($${no_ext_source})/($${no_ext_final})/g" *.md; \
+	  sed -i "s/\($${no_ext_source}\)/\($${no_ext_final}\)/g" *.md; \
 	done
