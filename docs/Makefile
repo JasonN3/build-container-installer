@@ -10,3 +10,4 @@ docs:
 	  no_ext_final=$${final_file:0:-3}; \
 	  sed -i "s;($${no_ext_source});($${no_ext_final});g" *.md; \
 	done
+	find . -type d -empty -delete
