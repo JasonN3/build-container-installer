@@ -5,4 +5,4 @@
   - [Using the VSCode Dev Container](Development/VSCode)
 
 - Examples
-  - [Adding Flatpaks](Examples/Adding-Flatpak)
+  - [Adding Flatpaks](Examples/Adding-Flatpaks)
