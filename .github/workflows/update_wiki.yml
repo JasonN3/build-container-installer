@@ -19,6 +19,7 @@ jobs:
           repository: ${{github.repository}}.wiki
           persist-credentials: true
           path: wiki
+          ref: master
       - name: Copy files
         run: |
           rsync -av --exclude=.git/* ${GITHUB_WORKSPACE}/docs/ ${GITHUB_WORKSPACE/wiki/
