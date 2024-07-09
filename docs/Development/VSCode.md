@@ -7,17 +7,18 @@ The code from VSCode will be available at `/workspaces/build-container-installer
 Privileged is required for access to loop devices for lorax.
 
 ## Use existing container image:
-```
+
+```diff
 {
-  "name": "Existing Dockerfile",
-//  "build": {
-//    "context": "..",
-//    "dockerfile": "../Containerfile",
-//    "args": {
-//      "version": "39"
-//    }
-//  },
-  "image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "name": "Existing Image",
+- "build": {
+-   "context": "..",
+-   "dockerfile": "../Containerfile",
+-  "args": {
+-     "version": "39"
+-   }
+- },
++ "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
   "privileged": true
@@ -25,19 +26,21 @@ Privileged is required for access to loop devices for lorax.
 ```
 
 ## Build a new container image:
-```
+
+```diff
 {
-  "name": "Existing Dockerfile",
-  "build": {
-    "context": "..",
-    "dockerfile": "../Containerfile",
-    "args": {
-      "version": "39"
-    }
-  },
-  //"image": "ghcr.io/jasonn3/build-container-installer:latest",
+  "name": "New Image",
++ "build": {
++   "context": "..",
++   "dockerfile": "../Containerfile",
++   "args": {
++     "version": "39"
++   }
++ },
+- "image": "ghcr.io/jasonn3/build-container-installer:latest",
   "overrideCommand": true,
   "shutdownAction": "stopContainer",
   "privileged": true
 }
 ```
+
