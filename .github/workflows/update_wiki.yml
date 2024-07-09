@@ -31,7 +31,7 @@ jobs:
       # Push Changes
       - name: Push changes
         run: |
-          cd ${GITHUB_WORKSPACE/wiki/
+          cd ${GITHUB_WORKSPACE}/wiki/
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
