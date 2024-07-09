@@ -33,8 +33,6 @@ jobs:
         run: |
           cd ${GITHUB_WORKSPACE}/docs
           make
-          find
-          cat _Sidebar.md
 
       # Copy Docs
       - name: Copy files
@@ -49,4 +47,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "Add changes"
-      # git push
+          git push
