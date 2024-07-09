@@ -1,7 +1,7 @@
 # Adding Flatpaks
 
-- [Directly using refs](#Directly-using-refs)
-- [Using a directory](#Using-a-directory)
+- [Directly using refs](#directly-using-refs)
+- [Using a directory](#using-a-directory)
 
 ## Directly using refs
 Action:

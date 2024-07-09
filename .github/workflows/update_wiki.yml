@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Install packages
         run: |
-          sudo apt install -y make rsync
+          apt install -y make rsync
       # Checkout Main Repo
       - uses: actions/checkout@v2
 
