@@ -1,0 +1,32 @@
+name: Update Wiki
+on:
+  push:
+    paths:
+      - 'docs/**'
+
+jobs:
+  update-wiki:
+    name: Update Wiki
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Install rsync
+        run: |
+          sudo apt install -y rsync
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{github.repository}}.wiki
+          persist-credentials: true
+          path: wiki
+      - name: Copy files
+        run: |
+          rsync -av --exclude=.git/* ${GITHUB_WORKSPACE}/docs/ ${GITHUB_WORKSPACE/wiki/
+      - name: Push changes
+        run: |
+          cd ${GITHUB_WORKSPACE/wiki/
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Add changes"
+          git push
