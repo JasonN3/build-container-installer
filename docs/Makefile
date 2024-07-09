@@ -1,3 +1,5 @@
+SHELL = /bin/bash
+
 docs:
 	find -name '*.md' | while read -r line; \
 	do \
