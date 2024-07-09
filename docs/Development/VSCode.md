@@ -6,7 +6,7 @@ The code from VSCode will be available at `/workspaces/build-container-installer
 
 Privileged is required for access to loop devices for lorax.
 
-## Use existing container image:
+## Use existing container image
 
 ```diff
 {
@@ -25,7 +25,7 @@ Privileged is required for access to loop devices for lorax.
 }
 ```
 
-## Build a new container image:
+## Build a new container image
 
 ```diff
 {
