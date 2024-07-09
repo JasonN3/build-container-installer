@@ -12,18 +12,23 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Install rsync
-        run: |
-          sudo apt install -y rsync
+      # Checkout Main Repo
+      - uses: actions/checkout@v2
+
+      # Checkout Wiki Repo
       - uses: actions/checkout@v2
         with:
           repository: ${{github.repository}}.wiki
           persist-credentials: true
           path: wiki
           ref: master
+
+      # Copy Docs
       - name: Copy files
         run: |
           rsync -av --exclude='.git/*' ${GITHUB_WORKSPACE}/docs/ ${GITHUB_WORKSPACE}/wiki/
+      
+      # Push Changes
       - name: Push changes
         run: |
           cd ${GITHUB_WORKSPACE/wiki/
