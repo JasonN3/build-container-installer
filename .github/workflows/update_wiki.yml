@@ -1,0 +1,50 @@
+name: Update Wiki
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+      - '.github/workflows/update_wiki.yml'
+
+jobs:
+  update-wiki:
+    name: Update Wiki
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Install packages
+        run: |
+          apt install -y make rsync
+      # Checkout Main Repo
+      - uses: actions/checkout@v2
+
+      # Checkout Wiki Repo
+      - uses: actions/checkout@v2
+        with:
+          repository: ${{github.repository}}.wiki
+          persist-credentials: true
+          path: wiki
+          ref: master
+
+      # Generate final files
+      - name: Generate Files
+        run: |
+          cd ${GITHUB_WORKSPACE}/docs
+          make
+
+      # Copy Docs
+      - name: Copy files
+        run: |
+          rsync -av --exclude='.git/*' ${GITHUB_WORKSPACE}/docs/ ${GITHUB_WORKSPACE}/wiki/
+      
+      # Push Changes
+      - name: Push changes
+        run: |
+          cd ${GITHUB_WORKSPACE}/wiki/
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Add changes"
+          git push
