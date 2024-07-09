@@ -1,6 +1,8 @@
 name: Update Wiki
 on:
   push:
+    branches:
+      - main
     paths:
       - 'docs/**'
       - '.github/workflows/update_wiki.yml'
