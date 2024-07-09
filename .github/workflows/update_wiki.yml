@@ -23,7 +23,7 @@ jobs:
           ref: master
       - name: Copy files
         run: |
-          rsync -av --exclude=.git/* ${GITHUB_WORKSPACE}/docs/ ${GITHUB_WORKSPACE/wiki/
+          rsync -av --exclude='.git/*' ${GITHUB_WORKSPACE}/docs/ ${GITHUB_WORKSPACE}/wiki/
       - name: Push changes
         run: |
           cd ${GITHUB_WORKSPACE/wiki/
