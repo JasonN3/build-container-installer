@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'docs/**'
+      - '.github/workflows/update_wiki.yml'
 
 jobs:
   update-wiki:
