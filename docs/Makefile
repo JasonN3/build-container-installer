@@ -1,2 +1,2 @@
 docs:
-	while read -r line; do echo "\"${line}\""; done < <(find -name '*.md')
+	find -name '*.md' | while read -r line; do echo "\"$${line}\""; done
