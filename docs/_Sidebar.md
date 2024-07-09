@@ -1,8 +1,8 @@
 - [Home](Home)
 - Development
-  - [Using the Makefile](Development_Makefile)
-  - [Using the Container](Development_Container)
-  - [Using the VSCode Dev Container](Development_VSCode)
+  - [Using the Makefile](Development/Makefile)
+  - [Using the Container](Development/Container)
+  - [Using the VSCode Dev Container](Development/VSCode)
 
 - Examples
-  - [Adding Flatpaks](Examples_Adding-Flatpak)
+  - [Adding Flatpaks](Examples/Adding-Flatpak)
