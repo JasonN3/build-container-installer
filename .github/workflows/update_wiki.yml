@@ -14,6 +14,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Install packages
+        run: |
+          sudo apt install -y make rsync
       # Checkout Main Repo
       - uses: actions/checkout@v2
 
@@ -24,6 +27,13 @@ jobs:
           persist-credentials: true
           path: wiki
           ref: master
+
+      # Generate final files
+      - name: Generate Files
+        run: |
+          cd ${GITHUB_WORKSPACE}/docs
+          make
+          find
 
       # Copy Docs
       - name: Copy files
@@ -38,4 +48,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add .
           git commit -m "Add changes"
-          git push
+      # git push
