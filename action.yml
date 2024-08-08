@@ -16,11 +16,11 @@ inputs:
   dnf_cache_key:
     description: Overrides the dnf cache key
     required: false
-  enable_cache_dnf: 
+  enable_cache_dnf:
     description: Whether to enable caching for dnf
     required: false
     default: "true"
-  enable_cache_skopeo: 
+  enable_cache_skopeo:
     description: Whether to enable caching for skopeo
     required: false
     default: "false"
@@ -171,6 +171,8 @@ runs:
         ACTION_REF: ${{ github.action_ref }}
       shell: bash
       run: |
+        set -x
+
         image=$(echo "ghcr.io/${ACTION_REPO}" | tr [:upper:] [:lower:])
         # Check if running inside of the action repo
         if [[ -z "${ACTION_REPO}" ]]
@@ -184,7 +186,7 @@ runs:
           fi
         else
            tag="${ACTION_REF}"
-        fi        
+        fi
         if [[ "${{ inputs.enable_cache_dnf }}" == "true" ]]
         then
           cache="${cache} -v /cache/dnf:/cache/dnf"
