@@ -27,10 +27,13 @@ podman run --privileged --volume ./:/github/workspace/ ghcr.io/jasonn3/build-con
           FLATPAK_REMOTE_URL=https://flathub.org/repo/flathub.flatpakrepo \
           FLATPAK_REMOTE_REFS="app/org.videolan.VLC/x86_64/stable runtime/org.kde.Platform/x86_64/5.15-23.08"
 ```
+
 ---
+
 ## Using a directory
 
 Action:
+
 1. Create a directory within your GitHub repo named flatpak_refs
 1. Create a file within flatpak_refs with the following content
 
@@ -52,6 +55,7 @@ Specify the following in your workflow:
 ```
 
 Podman:
+
 1. Create a directory named flatpak_refs
 1. Create a file within flatpak_refs with the following content
 

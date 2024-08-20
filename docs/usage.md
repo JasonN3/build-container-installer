@@ -30,6 +30,7 @@ This action is designed to be called from a GitHub workflow using the following 
 ```
 
 ## Inputs
+
 | Variable                | Description                                                                  | Default Value                                  | Action             | Container/Makefile |
 | ----------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------- | ------------------ | ------------------ |
 | additional_templates    | Space delimited list of additional Lorax templates to include                | \[empty\]                                      | :white_check_mark: | :white_check_mark: |
@@ -54,13 +55,10 @@ This action is designed to be called from a GitHub workflow using the following 
 | version                 | Fedora version of installer to build                                         | 39                                             | :white_check_mark: | :white_check_mark: |
 | web_ui                  | Enable Anaconda WebUI (experimental)                                         | false                                          | :white_check_mark: | :white_check_mark: |
 
-
 \*Available options for VARIANT can be found by running `dnf provides system-release`.
 Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite
 
 \*\* If you need to reference a local file, you can use `file://*path*`
-
-
 
 ## Outputs
 
