@@ -1,4 +1,7 @@
-- [Home](home.md)
+Welcome to the build-container-installer wiki!
+
+## Index
+
 - Development
   - [Using the Makefile](development/makefile.md)
   - [Using the Container](development/container.md)

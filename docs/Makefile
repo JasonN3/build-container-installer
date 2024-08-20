@@ -8,6 +8,6 @@ docs:
 	  mv "$${source_file}" "$${final_file}"; \
 	  no_ext_source=$${source_file:0:-3}; \
 	  no_ext_final=$${final_file:0:-3}; \
-	  sed -i "s;($${no_ext_source});($${no_ext_final});g" *.md; \
+	  sed -i "s;(\(../\)*$${source_file});($${no_ext_final});g" $$(find -name '*.md'); \
 	done
 	find . -type d -empty -delete
