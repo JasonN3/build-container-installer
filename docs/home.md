@@ -9,3 +9,5 @@ Welcome to the build-container-installer wiki!
 
 - Examples
   - [Adding Flatpaks](examples/adding-flatpaks.md)
+
+- [Known Errors](known_errors.md)
