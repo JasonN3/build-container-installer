@@ -106,14 +106,14 @@ sb_pubkey.der:
 	curl --fail -L -o sb_pubkey.der $(SECURE_BOOT_KEY_URL)
 
 # Build boot.iso using Lorax
-results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(_REPO_FILES) $(if $(SECURE_BOOT_KEY_URL),sb_pubkey.der)
+results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templates/%,$(_LORAX_TEMPLATES)) $(filter repos/%,$(_REPO_FILES)) $(if $(SECURE_BOOT_KEY_URL),sb_pubkey.der)
 	$(if $(wildcard results), rm -Rf results)
 	$(if $(wildcard /etc/rpm/macros.image-language-conf),mv /etc/rpm/macros.image-language-conf $(_TEMP_DIR)/macros.image-language-conf)
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
 		$(_LORAX_ARGS) \
-		$(foreach file,$(_REPO_FILES),--repo $(PWD)/$(file)) \
+		$(foreach file,$(_REPO_FILES),--repo $(patsubst repos/%,$(PWD)/repos/%,$(file))) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
 		$(foreach file,$(ADDITIONAL_TEMPLATES),--add-template $(file)) \
 		$(foreach file,$(_FLATPAK_TEMPLATES),--add-template $(file)) \
