@@ -18,10 +18,10 @@ jobs:
         run: |
           sudo apt install -y make rsync
       # Checkout Main Repo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Checkout Wiki Repo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           repository: ${{github.repository}}.wiki
           persist-credentials: true
