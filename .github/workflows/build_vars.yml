@@ -10,7 +10,8 @@ on:
           {
             "version": [
               "39", 
-              "40", 
+              "40",
+              "41"
             ], 
             "flatpaks": [
               "false",
@@ -39,10 +40,9 @@ on:
                 "image_name": "fedora-bootc"
               },
               {
-                "version": "38",
+                "version": "41",
                 "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc",
-                "image_src": "docker://quay.io/fedora-ostree-desktops/base:39"
+                "image_name": "fedora-bootc"
               }
             ]
           }'
