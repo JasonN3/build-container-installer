@@ -15,7 +15,7 @@ on:
             ], 
             "flatpaks": [
               "false",
-              "flatpak_dir",
+              "flatpak_refs_dir",
               "flatpak_refs"
             ],
             "include": [
