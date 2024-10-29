@@ -12,7 +12,7 @@ on:
               "39", 
               "40",
               "41"
-            ], 
+            ],
             "flatpaks": [
               "false",
               "flatpak_refs_dir",

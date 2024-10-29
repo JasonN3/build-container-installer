@@ -2,8 +2,16 @@
 
 if [[ ${VERSION} -ge 41 ]]
 then
-    grep "${_FLATPAK_REPO_URL}" mnt/install/etc/anaconda/conf.d/anaconda.conf > /dev/null
-    exit $?
+    result=0
+    grep "^[Payload]" mnt/install/etc/anaconda/conf.d/anaconda.conf > /dev/null || {
+        echo "Missing [Payload] header"
+        result=1
+    }
+    grep "^flatpak_remote = ${FLATPAK_REMOTE_NAME} ${_FLATPAK_REPO_URL}" mnt/install/etc/anaconda/conf.d/anaconda.conf > /dev/null || {
+        echo "Missing flatpak_remote option"
+        result=1
+    }
+    exit ${result}
 fi
 
 add_line=$(grep flatpak_manager.add_remote mnt/install/usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
