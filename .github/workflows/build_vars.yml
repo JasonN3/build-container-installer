@@ -31,8 +31,8 @@ on:
               },
               {
                 "version": "41",
-                "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc"
+                "image_repo": "ghcr.io/ublue-os",
+                "image_name": "base-main"
               }
             ]
           }'
