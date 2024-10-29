@@ -31,7 +31,7 @@ _LORAX_TEMPLATES           := $(call get_templates,install)
 _REPO_FILES                := $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR                  := $(shell mktemp -d)
 _TEMPLATE_VARS             := ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_SIGNED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
-_VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)
+_VOLID                     := $(shell echo "$(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(IMAGE_TAG)" | cut -c 1-32)
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 export _RHEL := true
