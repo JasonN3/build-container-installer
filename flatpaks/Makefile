@@ -14,6 +14,7 @@ repo: script.sh
 
 script.sh:
 	cat << EOF > script.sh
+	dnf install -y flatpak
 	mkdir -p /flatpak/flatpak /flatpak/triggers
 	mkdir /var/tmp || true
 	chmod -R 1777 /var/tmp
