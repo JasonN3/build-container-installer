@@ -18,16 +18,16 @@ on:
               "flatpak_dir",
               "flatpak_refs"
             ],
-            "exclude": [
-              {
-                "version": "40",
-                "flatpaks": "flatpak_dir"
-              },
-              {
-                "version": "40",
-                "flatpaks": "flatpak_refs"
-              }
-            ],
+            #"exclude": [
+            #  {
+            #    "version": "40",
+            #    "flatpaks": "flatpak_dir"
+            #  },
+            #  {
+            #    "version": "40",
+            #    "flatpaks": "flatpak_refs"
+            #  }
+            #],
             "include": [
               {
                 "version": "39",

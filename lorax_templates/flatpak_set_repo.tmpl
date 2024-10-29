@@ -2,7 +2,6 @@
 % if int(version) >= 41:
 append etc/anaconda/conf.d/anaconda.conf "[Payload]"
 append etc/anaconda/conf.d/anaconda.conf "flatpak_remote = ${flatpak_remote_name} ${_flatpak_repo_url}"
-#replace "fedora  oci+https://registry.fedoraproject.org" "${flatpak_remote_name} ${_flatpak_repo_url}" etc/anaconda/anaconda.conf
 % else:
 replace "flatpak_manager\.add_remote\(\".*\", \".*\"\)" "flatpak_manager.add_remote(\"${flatpak_remote_name}\", \"${_flatpak_repo_url}\")" /usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
 replace "flatpak_manager\.replace_installed_refs_remote\(\".*\"\)" "flatpak_manager.replace_installed_refs_remote(\"${flatpak_remote_name}\")" /usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py
