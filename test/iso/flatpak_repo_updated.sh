@@ -2,7 +2,8 @@
 
 if [[ ${VERSION} -ge 41 ]]
 then
-    exit 0
+    grep "${_FLATPAK_REPO_URL}" mnt/install/etc/anaconda/conf.d/anaconda.conf > /dev/null
+    exit $?
 fi
 
 add_line=$(grep flatpak_manager.add_remote mnt/install/usr/lib64/python*/site-packages/pyanaconda/modules/payloads/payload/rpm_ostree/flatpak_installation.py)
