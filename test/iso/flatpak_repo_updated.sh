@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ ${VERSION} >= 41 ]]
+if [[ ${VERSION} -ge 41 ]]
 then
     exit 0
 fi
