@@ -72,7 +72,7 @@ endif
 
 ifneq ($(FLATPAK_REMOTE_REFS),)
 _FLATPAK_REPO_GPG := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
-export _FLATPAK_REPO_URL := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2 | sed 's;/$;;')
+export _FLATPAK_REPO_URL := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
 _LORAX_ARGS      += -i flatpak-libs
 _LORAX_TEMPLATES += $(call get_templates,flatpak) \
 					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
