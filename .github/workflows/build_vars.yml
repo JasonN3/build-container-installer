@@ -10,40 +10,19 @@ on:
           {
             "version": [
               "39", 
-              "40", 
-            ], 
+              "40",
+              "41"
+            ],
             "flatpaks": [
               "false",
-              "flatpak_dir",
+              "flatpak_refs_dir",
               "flatpak_refs"
             ],
-            "exclude": [
-              {
-                "version": "40",
-                "flatpaks": "flatpak_dir"
-              },
-              {
-                "version": "40",
-                "flatpaks": "flatpak_refs"
-              }
+            "image_repo": [
+              "ghcr.io/ublue-os"
             ],
-            "include": [
-              {
-                "version": "39",
-                "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base"
-              },
-              {
-                "version": "40",
-                "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc"
-              },
-              {
-                "version": "38",
-                "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc",
-                "image_src": "docker://quay.io/fedora-ostree-desktops/base:39"
-              }
+            "image_name": [
+              "base-main"
             ]
           }'
       VARIANT:
