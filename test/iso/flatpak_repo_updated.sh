@@ -3,7 +3,7 @@
 if [[ ${VERSION} -ge 41 ]]
 then
     result=0
-    grep "^[Payload]" mnt/install/etc/anaconda/conf.d/anaconda.conf > /dev/null || {
+    grep "^\[Payload\]" mnt/install/etc/anaconda/conf.d/anaconda.conf > /dev/null || {
         echo "Missing [Payload] header"
         result=1
     }
