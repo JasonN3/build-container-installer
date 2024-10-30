@@ -18,22 +18,11 @@ on:
               "flatpak_refs_dir",
               "flatpak_refs"
             ],
-            "include": [
-              {
-                "version": "39",
-                "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base"
-              },
-              {
-                "version": "40",
-                "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc"
-              },
-              {
-                "version": "41",
-                "image_repo": "ghcr.io/ublue-os",
-                "image_name": "base-main"
-              }
+            "image_repo": [
+              "ghcr.io/ublue-os"
+            ],
+            "image_name": [
+              "base-main"
             ]
           }'
       VARIANT:
