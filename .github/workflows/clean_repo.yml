@@ -1,7 +1,7 @@
 name: Clean Container Registry
 on:
-  schedule:
-    - cron: '0 21 * * 0'
+#  schedule:
+#    - cron: '0 21 * * 0'
 
   workflow_dispatch:
   
