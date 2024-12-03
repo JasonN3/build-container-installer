@@ -6,7 +6,7 @@ To use the container file, run `podman run --privileged --volume .:/build-contai
 
 This will create an ISO with the baked in defaults of the container image. The resulting file will be called `deploy.iso`
 
-See [Inputs](usage.md#inputs) for information about customizing the ISO that gets created. The variables can be defined as environment variables or command arguments. All variables should be specified in CAPITALIZED form.
+See [Inputs](usage#inputs) for information about customizing the ISO that gets created. The variables can be defined as environment variables or command arguments. All variables should be specified in CAPITALIZED form.
 Examples:
 
 Building an ISO to install Fedora 39
