@@ -4,4 +4,4 @@ The Makefile contains all the commands that are run in the action. There are sep
 
 `make install-deps` can be used to install the necessary packages.
 
-See [Inputs](../usage.md#inputs) for information about the available parameters. All variables should be specified in CAPITALIZED form.
+See [Inputs](usage#inputs) for information about the available parameters. All variables should be specified in CAPITALIZED form.
