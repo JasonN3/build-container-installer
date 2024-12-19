@@ -52,7 +52,7 @@ jobs:
         id: jobs
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
+          job_name: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }}, ${{ matrix.image_repo }}, ${{ image_name }})"
           per_page: 100
 
       - name: Set status
@@ -61,7 +61,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: pending
-          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
+          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }}, ${{ matrix.image_repo }}, ${{ image_name }})"
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
 
@@ -107,6 +107,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
-          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }})"
+          context: "${{ inputs.parent_job_name }} / ${{ env.JOB_NAME }} (${{ matrix.version }}, ${{ matrix.flatpaks }}, ${{ matrix.image_repo }}, ${{ image_name }})"
           sha: ${{ env.sha }}
           targetUrl: ${{ steps.jobs.outputs.html_url }}
