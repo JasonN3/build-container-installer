@@ -1,6 +1,6 @@
 lorax/branch-$(VERSION):
 	git config advice.detachedHead false
-	cd lorax && git reset --hard HEAD && git checkout $(if $(_RHEL),rhel$(word 1,$(subst ., ,$(VERSION)))-branch,tags/$(shell cd lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | grep -v 'lorax-40.5.10-1' | tail -n 1))
+	cd lorax && git reset --hard HEAD && git checkout $(if $(_RHEL),rhel$(word 1,$(subst ., ,$(VERSION)))-branch,tags/$(shell cd lorax && git tag -l lorax-$(VERSION).* --sort=creatordate | grep -v 'lorax-40.5' | tail -n 1))
 	touch lorax/branch-$(VERSION)
 
 install-deps:
