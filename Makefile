@@ -112,7 +112,6 @@ results/images/boot.iso: external/lorax/branch-$(VERSION) $(filter lorax_templat
 
 	lorax -p $(IMAGE_NAME) -v $(VERSION) -r $(VERSION) -t $(VARIANT) \
 		--isfinal --buildarch=$(ARCH) --volid=$(_VOLID) --sharedir $(PWD)/external/lorax/share/templates.d/99-generic \
-		--installpkgs glibc \
 		$(_LORAX_ARGS) \
 		$(foreach file,$(_REPO_FILES),--repo $(patsubst repos/%,$(PWD)/repos/%,$(file))) \
 		$(foreach file,$(_LORAX_TEMPLATES),--add-template $(PWD)/$(file)) \
