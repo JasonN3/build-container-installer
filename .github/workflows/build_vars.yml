@@ -19,10 +19,36 @@ on:
               "flatpak_refs"
             ],
             "image_repo": [
-              "ghcr.io/ublue-os"
+              "ghcr.io/ublue-os",
+              "quay.io/fedora-ostree-desktops"
             ],
-            "image_name": [
-              "base-main"
+            "include": [
+              {
+                "image_repo": "ghcr.io/ublue-os",
+                "image_name": "base-main"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_name": "base"
+              }
+            ],
+            "exclude": [
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "version": "39"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "version": "41"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "flatpaks": "flatpak_refs_dir"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "flatpaks": "flatpak_refs"
+              }
             ]
           }'
       VARIANT:
