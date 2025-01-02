@@ -8,6 +8,11 @@ on:
       BUILD_MATRIX:
         value: '
           {
+            "version": [
+              "39",
+              "40",
+              "41"
+            ],
             "flatpaks": [
               "false",
               "flatpak_refs_dir",
@@ -21,30 +26,23 @@ on:
               {
                 "image_repo": "ghcr.io/ublue-os",
                 "image_name": "base-main",
-                "version": "39"
-              },
-              {
-                "image_repo": "ghcr.io/ublue-os",
-                "image_name": "base-main",
-                "version": "40"
-              },
-              {
-                "image_repo": "ghcr.io/ublue-os",
-                "image_name": "base-main",
-                "version": "41"
               },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base",
-                "version": "40"
+                "version": "40",
+                "image_name": "base"
               },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base-atomic",
-                "version": "41"
+                "version": "41",
+                "image_name": "base-atomic"
               }
             ],
             "exclude": [
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "version": "39"
+              },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
                 "flatpaks": "flatpak_refs_dir"
