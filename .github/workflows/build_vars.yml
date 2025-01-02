@@ -35,7 +35,7 @@ on:
               },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base"
+                "image_name": "base",
                 "version": "40"
               },
               {
