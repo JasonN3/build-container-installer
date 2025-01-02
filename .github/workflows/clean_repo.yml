@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete Untagged Packages
-        uses: Chizkiyahu/delete-untagged-ghcr-action@v5
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v6
         with:
           token: ${{ secrets.PACKAGE_DELETER }}
           repository_owner: ${{ github.repository_owner }}
