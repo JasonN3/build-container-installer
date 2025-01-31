@@ -89,7 +89,7 @@ inputs:
     description: Overrides the skopeo cache key
     required: false
   variant:
-    description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinonite"
+    description: "Source container variant. Available options can be found by running `dnf provides system-release`. Variant will be the third item in the package name. Example: `fedora-release-kinoite-39-34.noarch` will be kinoite"
     required: true
     default: Server
   version:
