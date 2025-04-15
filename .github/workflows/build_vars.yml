@@ -9,6 +9,7 @@ on:
         value: '
           {
             "version": [
+              "40",
               "41",
               "42"
             ],
@@ -27,9 +28,9 @@ on:
                 "image_name": "base-main",
               },
               {
-                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_repo": "quay.io/fedora",
                 "version": "40",
-                "image_name": "base"
+                "image_name": "fedora-bootc"
               },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
@@ -46,6 +47,11 @@ on:
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
                 "version": "39"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "version": "40",
+                "image_name": "base"
               },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
