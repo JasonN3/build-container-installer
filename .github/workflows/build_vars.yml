@@ -11,7 +11,8 @@ on:
             "version": [
               "39",
               "40",
-              "41"
+              "41",
+              "42"
             ],
             "flatpaks": [
               "false",
@@ -35,6 +36,11 @@ on:
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
                 "version": "41",
+                "image_name": "base-atomic"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "version": "42",
                 "image_name": "base-atomic"
               }
             ],
