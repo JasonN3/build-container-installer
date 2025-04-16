@@ -20,7 +20,8 @@ on:
             ],
             "image_repo": [
               "ghcr.io/ublue-os",
-              "quay.io/fedora"
+              "quay.io/fedora",
+              "quay.io/fedora-ostree-desktops"
             ],
             "include": [
               {
@@ -30,6 +31,10 @@ on:
               {
                 "image_repo": "quay.io/fedora",
                 "image_name": "fedora-bootc"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "image_name": "base-atomic"
               }
             ],
             "exclude": [
@@ -40,6 +45,18 @@ on:
               {
                 "image_repo": "quay.io/fedora",
                 "flatpaks": "flatpak_refs"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "flatpaks": "flatpak_refs_dir"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "flatpaks": "flatpak_refs"
+              },
+              {
+                "image_repo": "quay.io/fedora-ostree-desktops",
+                "version": "40"
               }
             ]
           }'
