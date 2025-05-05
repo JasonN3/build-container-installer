@@ -27,7 +27,7 @@ export install_pkg
 _IMAGE_REPO_ESCAPED        := $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED := $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _LORAX_ARGS                := 
-export _LORAX_TEMPLATES    := $(call get_templates,install) install_include_post.tmpl
+export _LORAX_TEMPLATES    := $(call get_templates,install) lorax_templates/install_include_post.tmpl
 _REPO_FILES                := $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR                  := $(shell mktemp -d)
 _TEMPLATE_VARS             := ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_SIGNED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
