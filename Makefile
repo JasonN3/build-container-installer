@@ -27,7 +27,7 @@ export install_pkg
 _IMAGE_REPO_ESCAPED        := $(subst /,\/,$(IMAGE_REPO))
 _IMAGE_REPO_DOUBLE_ESCAPED := $(subst \,\\\,$(_IMAGE_REPO_ESCAPED))
 _LORAX_ARGS                := 
-_LORAX_TEMPLATES           := $(call get_templates,install)
+export _LORAX_TEMPLATES    := $(call get_templates,install) install_include_post.tmpl
 _REPO_FILES                := $(subst /etc/yum.repos.d,repos,$(REPOS))
 _TEMP_DIR                  := $(shell mktemp -d)
 _TEMPLATE_VARS             := ARCH IMAGE_NAME IMAGE_REPO _IMAGE_REPO_DOUBLE_ESCAPED _IMAGE_REPO_ESCAPED IMAGE_SIGNED IMAGE_TAG REPOS _RHEL VARIANT VERSION WEB_UI
@@ -35,7 +35,7 @@ _VOLID                     := $(firstword $(subst -, ,$(IMAGE_NAME)))-$(ARCH)-$(
 
 ifeq ($(findstring redhat.repo,$(REPOS)),redhat.repo)
 export _RHEL := true
-_LORAX_TEMPLATES += $(call get_templates,rhel)
+export _LORAX_TEMPLATES += $(call get_templates,rhel)
 else
 undefine _RHEL
 endif
@@ -53,17 +53,17 @@ _LORAX_ARGS += -i anaconda-webui
 endif
 
 ifneq ($(DNF_CACHE),)
-_LORAX_ARGS      += --cachedir $(DNF_CACHE)
-_LORAX_TEMPLATES += $(call get_templates,cache)
-_TEMPLATE_VARS   += DNF_CACHE
+       _LORAX_ARGS      += --cachedir $(DNF_CACHE)
+export _LORAX_TEMPLATES += $(call get_templates,cache)
+       _TEMPLATE_VARS   += DNF_CACHE
 endif
 
 ifneq ($(FLATPAK_DIR),)
-_FLATPAK_REPO_GPG := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
+       _FLATPAK_REPO_GPG := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
 export _FLATPAK_REPO_URL := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
-_LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(call get_templates,flatpak)
-_TEMPLATE_VARS   += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
+       _LORAX_ARGS       += -i flatpak-libs
+export _LORAX_TEMPLATES  += $(call get_templates,flatpak)
+       _TEMPLATE_VARS    += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
 else
 ifneq ($(FLATPAK_REMOTE_REFS_DIR),)
        COLLECTED_REFS      := $(foreach file,$(filter-out README.md Makefile,$(wildcard $(FLATPAK_REMOTE_REFS_DIR)/*)),$(shell cat $(file)))
@@ -71,19 +71,19 @@ export FLATPAK_REMOTE_REFS += $(sort $(COLLECTED_REFS))
 endif
 
 ifneq ($(FLATPAK_REMOTE_REFS),)
-_FLATPAK_REPO_GPG := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
+       _FLATPAK_REPO_GPG := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^GPGKey=' | cut -d= -f2)
 export _FLATPAK_REPO_URL := $(shell curl -L $(FLATPAK_REMOTE_URL) | grep -i '^URL=' | cut -d= -f2)
-_LORAX_ARGS      += -i flatpak-libs
-_LORAX_TEMPLATES += $(call get_templates,flatpak) \
-					external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
-_TEMPLATE_VARS   += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
+       _LORAX_ARGS       += -i flatpak-libs
+export _LORAX_TEMPLATES  += $(call get_templates,flatpak) \
+							external/fedora-lorax-templates/ostree-based-installer/lorax-embed-flatpaks.tmpl
+       _TEMPLATE_VARS    += FLATPAK_DIR FLATPAK_REMOTE_NAME FLATPAK_REMOTE_REFS FLATPAK_REMOTE_URL _FLATPAK_REPO_GPG _FLATPAK_REPO_URL
 endif
 endif
 
 
 ifneq ($(SECURE_BOOT_KEY_URL),)
-_LORAX_TEMPLATES += $(call get_templates,secureboot)
-_TEMPLATE_VARS   += ENROLLMENT_PASSWORD
+export _LORAX_TEMPLATES += $(call get_templates,secureboot)
+       _TEMPLATE_VARS   += ENROLLMENT_PASSWORD
 endif
 
 _SUBDIRS := container external flatpak_refs lorax_templates repos xorriso test
