@@ -45,7 +45,7 @@ install_include_post.tmpl:
 
 install-deps:
 
-FILES=$(wildcard post_*)
+FILES=$(wildcard post_*) install_include_post.tmpl
 clean:
 ifneq ($(FILES),)
 	rm -Rf $(FILES)
