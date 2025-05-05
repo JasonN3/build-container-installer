@@ -39,9 +39,13 @@ endef
 post_%.tmpl: scripts/post/%
 	$(call convert_post_to_tmpl,$*,usr/share/anaconda/post-scripts/$*.ks,true)
 
+install_include_post.tmpl:
+	echo '<%page />' > install_include_post.tmpl
+	for file in $(patsubst post_%.tmpl, %, $(filter post_%, $(notdir $(_LORAX_TEMPLATES)))); do echo "append usr/share/anaconda/interactive-defaults.ks \"%include /usr/share/anaconda/post-scripts/$${file}.ks\"" >> install_include_post.tmpl; done
+
 install-deps:
 
-FILES=$(wildcard post_*)
+FILES=$(wildcard post_*) install_include_post.tmpl
 clean:
 ifneq ($(FILES),)
 	rm -Rf $(FILES)
