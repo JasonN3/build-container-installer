@@ -24,7 +24,7 @@ ansible_inventory:
 .PHONY: $(VM_TESTS) install-deps
 
 install-deps:
-	$(install_pkg) qemu qemu-utils xorriso qemu-system-x86 netcat socat jq ansible curl
+	$(install_pkg) qemu-system qemu-utils xorriso qemu-system-x86 ncat socat jq ansible curl
 
 files/mnt/iso:
 	$(if $(wildcard files/mnt),,mkdir files/mnt)
