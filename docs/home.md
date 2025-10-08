@@ -1,7 +1,7 @@
 Welcome to the build-container-installer wiki!
 
 ## Index
-
+- [Usage](usage.md)
 - Development
   - [Using the Makefile](development/makefile.md)
   - [Using the Container](development/container.md)
