@@ -65,4 +65,4 @@ Variant will be the third item in the package name. Example: `fedora-release-kin
 | Variable | Description                             | Usage                                            |
 | -------- | ----------------------------------------| ------------------------------------------------ |
 | iso_name | The name of the resulting .iso          | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
-| iso_path | The path to the resulting .iso          | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_name }} |
+| iso_path | The path to the resulting .iso          | ${{ steps.YOUR_ID_FOR_ACTION.outputs.iso_path }} |
