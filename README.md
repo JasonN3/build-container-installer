@@ -29,8 +29,8 @@ This action is designed to be called from a GitHub workflow using the following 
   with:
     name: ${{ steps.build.outputs.iso_name }}
     path: |
-      ${{ steps.build.outputs.iso_path }}
-      ${{ steps.build.outputs.iso_path }}-CHECKSUM
+      ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}
+      ${{ steps.build.outputs.iso_path }}/${{ steps.build.outputs.iso_name }}-CHECKSUM
     if-no-files-found: error
     retention-days: 0
     compression-level: 0

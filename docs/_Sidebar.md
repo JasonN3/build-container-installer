@@ -1,4 +1,5 @@
 - [Home](home.md)
+- [Usage](usage.md)
 - Development
   - [Using the Makefile](development/makefile.md)
   - [Using the Container](development/container.md)
