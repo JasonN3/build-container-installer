@@ -123,7 +123,7 @@ jobs:
       
       - name: Install Cosign
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: sigstore/cosign-installer@v3.10.0
+        uses: sigstore/cosign-installer@v4.0.0
 
       - name: Sign the images
         if: startsWith(github.ref, 'refs/tags/v')
