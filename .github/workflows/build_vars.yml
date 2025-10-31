@@ -9,9 +9,9 @@ on:
         value: '
           {
             "version": [
-              "40",
               "41",
-              "42"
+              "42",
+              "43"
             ],
             "flatpaks": [
               "false",
@@ -55,8 +55,8 @@ on:
                 "flatpaks": "flatpak_refs"
               },
               {
-                "image_repo": "quay.io/fedora-ostree-desktops",
-                "version": "40"
+                "image_repo": "ghcr.io/ublue-os",
+                "version": "43"
               }
             ]
           }'
