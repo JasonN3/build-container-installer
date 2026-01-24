@@ -126,7 +126,7 @@ runs:
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
       if: inputs.enable_cache_dnf == 'true'
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: /cache/dnf
         key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
@@ -136,7 +136,7 @@ runs:
       env:
         skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.version || inputs.image_tag }}
       if: inputs.enable_cache_skopeo == 'true'
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: /cache/skopeo
         key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
@@ -244,7 +244,7 @@ runs:
       env:
         dnf_cache_key: dnf-${{ inputs.version }}
       if: inputs.enable_cache_dnf == 'true' && steps.load_dnf_cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: /cache/dnf_new
         key: ${{ inputs.dnf_cache_key || env.dnf_cache_key }}
@@ -253,7 +253,7 @@ runs:
       env:
         skopeo_cache_key: skopeo-${{ inputs.image_name }}-${{ inputs.version || inputs.image_tag }}
       if: inputs.enable_cache_skopeo == 'true' && steps.load_dnf_cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: /cache/skopeo
         key: ${{ inputs.skopeo_cache_key || env.skopeo_cache_key }}
