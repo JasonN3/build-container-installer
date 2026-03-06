@@ -65,7 +65,7 @@ jobs:
       - name: Docker meta
         if: inputs.pr == ''
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ghcr.io/${{ github.repository }}
@@ -80,7 +80,7 @@ jobs:
       - name: Docker meta for PR
         if: inputs.pr
         id: meta_pr
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ghcr.io/${{ github.repository }}
