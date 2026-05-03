@@ -1,6 +1,6 @@
-FROM fedora:42
+FROM fedora:44
 
-ARG VERSION=42
+ARG VERSION=44
 
 ENV ARCH="x86_64"
 ENV IMAGE_NAME="base"

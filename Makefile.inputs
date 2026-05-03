@@ -12,7 +12,7 @@ export IMAGE_SIGNED            := true
        REPOS                   := $(subst :,\:,$(wildcard /etc/yum.repos.d/*.repo))
 export ROOTFS_SIZE             := 4
 export VARIANT                 := Server
-export VERSION                 := 39
+export VERSION                 := 44
 export WEB_UI                  := true
 # Flatpak
 export FLATPAK_REMOTE_NAME     := flathub
