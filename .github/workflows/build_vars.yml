@@ -9,9 +9,8 @@ on:
         value: '
           {
             "version": [
-              "41",
-              "42",
-              "43"
+              "43",
+              "44"
             ],
             "flatpaks": [
               "false",
