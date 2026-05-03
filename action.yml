@@ -99,7 +99,7 @@ inputs:
   web_ui:
     description: Enable Anaconda WebUI
     required: false
-    default: "false"
+    default: "true"
 
 outputs:
   iso_name:
