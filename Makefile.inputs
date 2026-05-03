@@ -13,7 +13,7 @@ export IMAGE_SIGNED            := true
 export ROOTFS_SIZE             := 4
 export VARIANT                 := Server
 export VERSION                 := 39
-export WEB_UI                  := false
+export WEB_UI                  := true
 # Flatpak
 export FLATPAK_REMOTE_NAME     := flathub
 export FLATPAK_REMOTE_URL      := https://flathub.org/repo/flathub.flatpakrepo
