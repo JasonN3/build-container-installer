@@ -84,7 +84,7 @@ jobs:
 
       - name: Lowercase Registry
         id: registry_case
-        uses: ASzc/change-string-case-action@v6
+        uses: ASzc/change-string-case-action@v8
         with:
           string: ${{ needs.load_vars.outputs.IMAGE_REPO }}
 
