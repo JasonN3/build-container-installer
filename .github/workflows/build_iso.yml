@@ -108,7 +108,7 @@ jobs:
           image_name: ${{ matrix.image_name }}
           image_repo: ${{ matrix.image_repo}}
           image_src: ${{ matrix.image_src }}
-          image_tag: ${{ matrix.version }}
+          image_tag: ${{ matrix.prefix }}${{ matrix.version }}
           version: ${{ matrix.version }}
           repos: ${{ matrix.repos }}
           variant: ${{ needs.load_vars.outputs.VARIANT }}
