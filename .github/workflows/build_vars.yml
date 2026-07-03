@@ -25,15 +25,18 @@ on:
             "include": [
               {
                 "image_repo": "ghcr.io/ublue-os",
-                "image_name": "base-main",
+                "image_name": "bazzite",
+                "prefix": "stable-"
               },
               {
                 "image_repo": "quay.io/fedora",
-                "image_name": "fedora-bootc"
+                "image_name": "fedora-bootc",
+                "prefix": ""
               },
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
-                "image_name": "base-atomic"
+                "image_name": "base-atomic",
+                "prefix": ""
               }
             ],
             "exclude": [
@@ -52,10 +55,6 @@ on:
               {
                 "image_repo": "quay.io/fedora-ostree-desktops",
                 "flatpaks": "flatpak_refs"
-              },
-              {
-                "image_repo": "ghcr.io/ublue-os",
-                "version": "43"
               }
             ]
           }'
