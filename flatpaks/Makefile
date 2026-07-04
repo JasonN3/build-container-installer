@@ -42,7 +42,7 @@ clean:
 	$(if $(wildcard list.txt),rm list.txt)
 
 container-%:
-    $(MAKE) -C ../container $*
+	$(MAKE) -C ../container $*
 
 .ONESHELL:
 .SHELLFLAGS := -ec
