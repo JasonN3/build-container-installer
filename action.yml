@@ -154,6 +154,7 @@ runs:
       shell: bash
       run: |
         cd ${{ github.action_path }}
+        make install-deps
         make flatpaks/repo \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
