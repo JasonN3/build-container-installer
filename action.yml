@@ -157,6 +157,11 @@ runs:
         sudo apt update
         sudo make container/install-deps install_pkg="apt install -y"
         sudo make flatpaks/install-deps install_pkg="apt install -y"
+        sudo make container/${{ inputs.image_name }}-${{ inputs.image_tag || inputs.version }}.tar \
+          IMAGE_NAME="${{ inputs.image_name }}" \
+          IMAGE_REPO="${{ inputs.image_repo }}" \
+          IMAGE_SRC="${{ inputs.image_src }}" \
+          IMAGE_TAG="${{ inputs.image_tag || inputs.version }}"
         make flatpaks/repo \
           FLATPAK_REMOTE_NAME="${{ inputs.flatpak_remote_name }}" \
           ${{ inputs.flatpak_remote_refs && format('FLATPAK_REMOTE_REFS="{0}"', inputs.flatpak_remote_refs) || ''}} \
