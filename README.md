@@ -41,10 +41,10 @@ This action is designed to be called from a GitHub workflow using the following 
 
 ## Star History
 
-<a href="https://star-history.com/#jasonn3/build-container-installer&Date">
+<a href="https://www.star-history.com/?repos=JasonN3%2Fbuild-container-installer&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=jasonn3/build-container-installer&type=Date" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=JasonN3/build-container-installer&type=date&theme=dark&legend=top-left&sealed_token=tK3N-_FuPsfuEQJd0kZ3EVUAQ4xPcPitRx06pyx25Ha5plbG9G5bw3CLzWpyOzFyDjQy97ChOXGTD7OAyIrfD-UXCdOx8BLYi2QEUFyahDLoM2vS82jAhtOA08bfOHc4k9x37836Du3p4RIFgEQ8pAeHwLvnV0HCwCW3ZyKjlYml8ky9-ZFMdXywKb2s" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=JasonN3/build-container-installer&type=date&legend=top-left&sealed_token=tK3N-_FuPsfuEQJd0kZ3EVUAQ4xPcPitRx06pyx25Ha5plbG9G5bw3CLzWpyOzFyDjQy97ChOXGTD7OAyIrfD-UXCdOx8BLYi2QEUFyahDLoM2vS82jAhtOA08bfOHc4k9x37836Du3p4RIFgEQ8pAeHwLvnV0HCwCW3ZyKjlYml8ky9-ZFMdXywKb2s" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=JasonN3/build-container-installer&type=date&legend=top-left&sealed_token=tK3N-_FuPsfuEQJd0kZ3EVUAQ4xPcPitRx06pyx25Ha5plbG9G5bw3CLzWpyOzFyDjQy97ChOXGTD7OAyIrfD-UXCdOx8BLYi2QEUFyahDLoM2vS82jAhtOA08bfOHc4k9x37836Du3p4RIFgEQ8pAeHwLvnV0HCwCW3ZyKjlYml8ky9-ZFMdXywKb2s" />
  </picture>
 </a>
