@@ -25,7 +25,7 @@ popd > /dev/null
 if [[ -n "${FLATPAK_DIR}" ]]
 then
     pushd "${FLATPAK_DIR}" > /dev/null
-    for file in $(find repo)
+	while IFS= read -r -d '' file
     do
         if [[ "${file}" == "repo/.lock" ]]
         then
@@ -33,7 +33,7 @@ then
         fi
         echo "-map ${PWD}/${file} flatpak/${file}"
         echo "-chmod 0444 flatpak/${file}"
-    done
+    done < <(find repo -print0)
     popd > /dev/null
 fi
 
@@ -44,10 +44,10 @@ then
 fi
 
 pushd "${PWD}/../container" > /dev/null
-for file in $(find "${IMAGE_NAME}-${IMAGE_TAG}" -type f)
+while IFS= read -r -d '' file
 do
     echo "-map ${PWD}/${file} ${file}"
     echo "-chmod 0444 ${file}"
-done
+done < <(find "${IMAGE_NAME}" -type f -print0)
 popd > /dev/null
 echo "-end"

@@ -6,8 +6,9 @@ full_list: repo
 	cat $(FLATPAK_DIR)/list.txt >&2
 	
 
-repo: script.sh
+repo: script.sh container-$(IMAGE_NAME)-$(IMAGE_TAG).tar
 	$(if $(GITHUB_WORKSPACE),cp script.sh $(FLATPAK_DIR)/)
+	docker import ../container/$(IMAGE_NAME)-$(IMAGE_TAG).tar $(IMAGE)
 	docker run --rm --privileged --entrypoint bash -e FLATPAK_SYSTEM_DIR=/flatpak/flatpak -e FLATPAK_TRIGGERSDIR=/flatpak/triggers --volume $(FLATPAK_DIR):/flatpak_dir $(IMAGE) /flatpak_dir/script.sh
 	$(if $(GITHUB_OUTPUT),echo "flatpak_dir=$(subst $(GITHUB_WORKSPACE)/,,$(FLATPAK_DIR))" >> $(GITHUB_OUTPUT))
 	docker rmi $(IMAGE)
@@ -40,4 +41,8 @@ clean:
 	$(if $(wildcard repo),rm -Rf repo)
 	$(if $(wildcard list.txt),rm list.txt)
 
+container-%:
+	$(MAKE) -C ../container $*
+
 .ONESHELL:
+.SHELLFLAGS := -ec
